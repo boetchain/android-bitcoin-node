@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="dns_seed_nodes">
+        <item>seed.bitcoin.sipa.be</item>
+        <item>dnsseed.bluematt.me</item>
+        <item>dnsseed.bitcoin.dashjr.org</item>
+        <item>seed.bitcoinstats.com</item>
+        <item>seed.bitcoin.jonasschnelli.ch</item>
+        <item>seed.btc.petertodd.org</item>
+    </string-array>
+
+</resources>

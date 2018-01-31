@@ -11,7 +11,7 @@ import android.util.Base64;
  */
 
 public class Prefs {
-    
+
     /**
      * Saves a byte array in the Shared Preferences.
      *
