@@ -11,7 +11,7 @@ import java.util.List;
 
 public abstract class BaseMessage {
 
-    public long PACKET_MAGIC_MAINNET = 0xf9beb4d9L;
+    public static long PACKET_MAGIC_MAINNET = 0xf9beb4d9L;
 
     /**
      * The length of the magic bytes in the header.
@@ -22,7 +22,7 @@ public abstract class BaseMessage {
      * The length or size of the command in the header.
      * In bytes.
      */
-    private static final int HEADER_COMMAND_LENGTH = 12;
+    public static final int HEADER_COMMAND_LENGTH = 12;
     /**
      * The length or size of the payload in the header.
      * In bytes.
@@ -42,6 +42,38 @@ public abstract class BaseMessage {
      * The payload of the message that has been sent or received.
      */
     protected List<MessageItem> payload;
+
+    public byte[] getHeader() {
+        byte[] bytes = new byte[getHeaderSize()];
+
+        int cursor = 0;
+        for (MessageItem item : header) {
+            byte[] itemArray = item.value;
+
+            for (int i = 0; i < itemArray.length; i ++) {
+                bytes[cursor]= itemArray[i];
+                cursor++;
+            }
+        }
+
+        return bytes;
+    }
+
+    public byte[] getPayload() {
+        byte[] bytes = new byte[getPayloadSize()];
+
+        int cursor = 0;
+        for (MessageItem item : payload) {
+            byte[] itemArray = item.value;
+
+            for (int i = 0; i < itemArray.length; i ++) {
+                bytes[cursor]= itemArray[i];
+                cursor++;
+            }
+        }
+
+        return bytes;
+    }
 
     public BaseMessage() {
         initPayload();
@@ -70,12 +102,22 @@ public abstract class BaseMessage {
      * Gets the name of the message (called the command name)
      * @return - type or name of the message
      */
-    abstract String getCommandName();
+    public abstract String getCommandName();
+
+    public int getHeaderSize() {
+        int headerSizeInBytes = 0;
+
+        for (MessageItem messageItem : header) {
+            headerSizeInBytes += messageItem.value.length;
+        }
+
+        return headerSizeInBytes;
+    }
 
     /**
      * @return size of the payload in bytes.
      */
-    abstract long getPayloadSize();
+    abstract int getPayloadSize();
 
     /**
      * @return - the check sum of the payload.

@@ -79,13 +79,13 @@ public class VersionMessage extends BaseMessage {
     public static final boolean relay = false;
 
     @Override
-    String getCommandName() {
+    public String getCommandName() {
         return COMMAND_NAME;
     }
 
     @Override
-    long getPayloadSize() {
-        long payloadSizeInBytes = 0;
+    int getPayloadSize() {
+        int payloadSizeInBytes = 0;
 
         for (MessageItem messageItem : payload) {
             payloadSizeInBytes += messageItem.value.length;
