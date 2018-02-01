@@ -28,6 +28,11 @@ public class Peer extends SugarRecord {
         this.ip = ip;
     }
 
+    /**
+     * Gets peers from the dnsSeeds.
+     * Used to boot up the node, if it doesn't know any one - Used for first run.
+     * @param dnsSeeds - dnsSeeds hardcoded into the application - See @values/arrays.xml
+     */
     public static void findByDnsSeeds(final String[] dnsSeeds) {
         Log.i(App.TAG, "findByDnsSeeds: " + dnsSeeds.length);
 
