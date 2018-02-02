@@ -109,11 +109,12 @@ public class MainActivity extends AppCompatActivity {
 
         int readCursor = getStartOfMagicBytes(incomingMessage);
         if (readCursor != -1) {
-            Log.i(App.TAG, "We found the start of the magic bytes at: " + readCursor);
 
-            byte[] header = readHeader(incomingMessage, readCursor);
-
-            //Log.i(App.TAG, "The header is : " + header.length + " bytes long");
+            byte[] header       = readHeader(incomingMessage, readCursor);
+            String commandName  = getCommandNameFromHeader(header);
+            int payloadSize     = getPayloadSizeFromHeader(header);
+            Log.i(App.TAG, "commandName " + commandName);
+            Log.i(App.TAG, "payloadSize " + payloadSize);
         } else {
             Log.i(App.TAG, "No magic bytes found");
         }
@@ -151,10 +152,8 @@ public class MainActivity extends AppCompatActivity {
         byte[] magicPackets = new byte[BaseMessage.HEADER_MAGIC_STRING_LENGTH];
         Util.addToByteArray(BaseMessage.PACKET_MAGIC_MAINNET, 0, BaseMessage.HEADER_MAGIC_STRING_LENGTH, magicPackets);
 
-        Log.i(App.TAG, "number of magic bytes: " + magicPackets.length);
-
-        int magicBytesStart = -1;
-        int numMagicBytesFound = 0;
+        int magicBytesStart     = -1;
+        int numMagicBytesFound  = 0;
         for (int i = 0; i < incomingMessage.size(); i++) {
 
             if (incomingMessage.get(i) == magicPackets[numMagicBytesFound]) {
@@ -165,7 +164,6 @@ public class MainActivity extends AppCompatActivity {
                     return magicBytesStart;
                 }
             } else {
-                Log.i(App.TAG, " - break in sequence... reset ");
                 numMagicBytesFound = 0;
                 magicBytesStart = -1;
             }
@@ -179,16 +177,50 @@ public class MainActivity extends AppCompatActivity {
      * At this point we know where the magic bytes, we can create the header and from the bytes after its postion.
      *
      * @param incomingMessage - the entire incoming message from the peer.
-     * @param readCursor - the postion AFTER the last magic byte.
+     * @param readCursor - the position at the last magic byte.
      * @return a nice neat header to figure out, what the crap is going on.
      */
     private byte[] readHeader(ArrayList<Byte> incomingMessage, int readCursor) {
         byte[] header = new byte[BaseMessage.HEADER_MAGIC_STRING_LENGTH + BaseMessage.HEADER_COMMAND_LENGTH + BaseMessage.HEADER_PAYLOAD_SIZE_LENGTH + BaseMessage.HEADER_CHECKSUM_LENGTH];
 
-        for (int i = 0; i < header.length; i++) {
+        for (int i = 0; i < header.length && readCursor < incomingMessage.size(); i++) {
             header[i] = incomingMessage.get(readCursor);
+            readCursor++;
         }
 
         return header;
+    }
+
+    /**
+     * Gets the command name from the header.
+     *
+     * @param header - of the message
+     * @return the command in string format.
+     */
+    private String getCommandNameFromHeader(byte[] header) {
+
+        byte[] commandNameByteArray = new byte[BaseMessage.HEADER_COMMAND_LENGTH];
+        for (int i = 0; i < header.length && i < BaseMessage.HEADER_COMMAND_LENGTH; i++) {
+                commandNameByteArray[i] = header[i + BaseMessage.HEADER_MAGIC_STRING_LENGTH]; // The command is after the packet magic
+        }
+
+        return new String(commandNameByteArray);
+    }
+
+    /**
+     * Gets the payload size from the header.
+     * @param header - of the message
+     * @return the payload size in bytes
+     */
+    private int getPayloadSizeFromHeader(byte[] header) {
+
+        byte[] payloadSizeByteArray = new byte[BaseMessage.HEADER_PAYLOAD_SIZE_LENGTH];
+        for (int i = 0; i < header.length && i < BaseMessage.HEADER_PAYLOAD_SIZE_LENGTH; i++) {
+            payloadSizeByteArray[i] = header[i + BaseMessage.HEADER_MAGIC_STRING_LENGTH + BaseMessage.HEADER_COMMAND_LENGTH]; // The payload size is after the packet magic & command
+        }
+
+        Log.i(App.TAG, Util.bytesToHexString(payloadSizeByteArray));
+        ByteBuffer wrapped = ByteBuffer.wrap(payloadSizeByteArray); // big-endian by default
+        return  wrapped.getShort();
     }
 }

@@ -5,6 +5,7 @@ import com.google.common.primitives.Longs;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 /**
  * Created by rossbadenhorst on 2018/02/01.
@@ -93,6 +94,15 @@ public class Util {
                 numberOfBytesAdded++;
             }
         }
+    }
+
+    public static byte[] toByteArray(List<Byte> in) {
+        final int n = in.size();
+        byte ret[] = new byte[n];
+        for (int i = 0; i < n; i++) {
+            ret[i] = in.get(i);
+        }
+        return ret;
     }
 
 }
