@@ -218,8 +218,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < header.length && i < BaseMessage.HEADER_PAYLOAD_SIZE_LENGTH; i++) {
             payloadSizeByteArray[i] = header[i + BaseMessage.HEADER_MAGIC_STRING_LENGTH + BaseMessage.HEADER_COMMAND_LENGTH]; // The payload size is after the packet magic & command
         }
-
-        Log.i(App.TAG, Util.bytesToHexString(payloadSizeByteArray));
+        
         ByteBuffer wrapped = ByteBuffer.wrap(payloadSizeByteArray); // big-endian by default
         return  wrapped.getShort();
     }
