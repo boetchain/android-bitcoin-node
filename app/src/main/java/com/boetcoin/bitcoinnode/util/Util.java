@@ -3,6 +3,8 @@ package com.boetcoin.bitcoinnode.util;
 import com.google.common.primitives.Longs;
 
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by rossbadenhorst on 2018/02/01.
@@ -26,6 +28,28 @@ public class Util {
             buf.append(s);
         }
         return buf.toString();
+    }
+
+    /**
+     * See {@link Utils#doubleDigest(byte[],int,int)}.
+     */
+    public static byte[] doubleDigest(byte[] input) {
+        return doubleDigest(input, 0, input.length);
+    }
+
+    /**
+     * Calculates the SHA-256 hash of the given byte range, and then hashes the resulting hash again. This is
+     * standard procedure in BitCoin. The resulting hash is in big endian form.
+     */
+    public static byte[] doubleDigest(byte[] input, int offset, int length) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            digest.update(input, offset, length);
+            byte[] first = digest.digest();
+            return digest.digest(first);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);  // Cannot happen.
+        }
     }
 
     public static String formatHexString(String hexString) {

@@ -40,7 +40,9 @@ public class MainActivity extends AppCompatActivity {
 
             new AsyncTask<Void, Void, Void>() {
                 protected Void doInBackground(Void... unused) {
-                    connect(locallySavedPeers.get(0));
+                    //VersionMessage versionMessage = new VersionMessage();
+                    //Log.i(App.TAG, versionMessage.toString());
+                    connect(locallySavedPeers.get(1));
                     return null;
                 }
             }.execute();
@@ -65,15 +67,6 @@ public class MainActivity extends AppCompatActivity {
 
             readMessage(in);
 
-            /*
-            String output = "";
-            for (Integer i : response) {
-                output += i;
-            }
-
-            Log.i(App.TAG, output);
-            */
-
             Log.i(App.TAG, "Shutting down....");
             out.close();
             in.close();
@@ -91,8 +84,8 @@ public class MainActivity extends AppCompatActivity {
         byte[] payload  = message.getPayload();
 
         try {
-            Log.i(App.TAG,  Util.bytesToHexString(header));
-            //Log.i(App.TAG,  Util.bytesToHexString(payload));
+            Log.i(App.TAG,  "header: " + Util.bytesToHexString(header));
+            Log.i(App.TAG,  "payload: " + Util.bytesToHexString(payload));
 
             out.write(header);
             out.write(payload);
@@ -109,12 +102,11 @@ public class MainActivity extends AppCompatActivity {
             int b = in.read();
             Log.i(App.TAG, "read: " + b);
 
-
             if (b == -1) {
-                Log.i(App.TAG, "END OF CONNECTION?");
+                Log.i(App.TAG, "END OF CONNECTION!");
                 break;
             }
-            
+
             response.add(b);
 
         }

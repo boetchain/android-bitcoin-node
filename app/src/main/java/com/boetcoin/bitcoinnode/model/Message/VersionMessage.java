@@ -95,11 +95,6 @@ public class VersionMessage extends BaseMessage {
     }
 
     @Override
-    long getCheckSum() {
-        return 0;
-    }
-
-    @Override
     protected void initPayload() {
         super.initPayload();
 

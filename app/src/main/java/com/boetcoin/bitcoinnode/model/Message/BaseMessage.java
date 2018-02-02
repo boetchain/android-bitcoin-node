@@ -43,6 +43,40 @@ public abstract class BaseMessage {
      */
     protected List<MessageItem> payload;
 
+    public BaseMessage() {
+        initPayload();
+        initHeader();
+    }
+
+    /**
+     * Creates the header according to the bitcoin protocol.
+     */
+    protected void initHeader() {
+        header = new ArrayList<>();
+        header.add(new MessageItem(PACKET_MAGIC_MAINNET,    HEADER_MAGIC_STRING_LENGTH));
+        header.add(new MessageItem(getCommandName(),        HEADER_COMMAND_LENGTH));
+        header.add(new MessageItem(getPayloadSize(),        HEADER_PAYLOAD_SIZE_LENGTH));
+        header.add(new MessageItem(getCheckSum(),           HEADER_CHECKSUM_LENGTH));
+    }
+
+    /**
+     * Creates the payload according to the bitcoin protocol.
+     */
+    protected void initPayload() {
+        payload = new ArrayList<>();
+    }
+
+    /**
+     * Gets the name of the message (called the command name)
+     * @return - type or name of the message
+     */
+    public abstract String getCommandName();
+
+    /**
+     * Gets the header in byte array format.
+     * Used when we actually want to transmit the message
+     * @return - byte array of the header.
+     */
     public byte[] getHeader() {
         byte[] bytes = new byte[getHeaderSize()];
 
@@ -59,6 +93,11 @@ public abstract class BaseMessage {
         return bytes;
     }
 
+    /**
+     * Gets the payload in byte array format.
+     * Used when we actually wan to transmit the message.
+     * @return - byte array of the payload.
+     */
     public byte[] getPayload() {
         byte[] bytes = new byte[getPayloadSize()];
 
@@ -75,35 +114,10 @@ public abstract class BaseMessage {
         return bytes;
     }
 
-    public BaseMessage() {
-        initPayload();
-        initHeader();
-    }
-
     /**
-     * Creates the header according to the bitcoin protocol.
+     * Gets the length of the header in bytes.
+     * @return - how many bytes does the header contain
      */
-    protected void initHeader() {
-        header = new ArrayList<>();
-        header.add(new MessageItem(PACKET_MAGIC_MAINNET,    HEADER_MAGIC_STRING_LENGTH));
-        header.add(new MessageItem(getCommandName(),        HEADER_COMMAND_LENGTH));
-        header.add(new MessageItem(getPayloadSize(),        HEADER_PAYLOAD_SIZE_LENGTH));
-        header.add(new MessageItem(getPayloadSize(),        HEADER_CHECKSUM_LENGTH));
-    }
-
-    /**
-     * Creates the payload according to the bitcoin protocol.
-     */
-    protected void initPayload() {
-        payload = new ArrayList<>();
-    }
-
-    /**
-     * Gets the name of the message (called the command name)
-     * @return - type or name of the message
-     */
-    public abstract String getCommandName();
-
     public int getHeaderSize() {
         int headerSizeInBytes = 0;
 
@@ -115,14 +129,17 @@ public abstract class BaseMessage {
     }
 
     /**
-     * @return size of the payload in bytes.
+     * Gets the length of the payload in bytes.
+     * @return - how many bytes does the payload contain
      */
     abstract int getPayloadSize();
 
     /**
      * @return - the check sum of the payload.
      */
-    abstract long getCheckSum();
+    public byte[] getCheckSum() {
+        return Util.doubleDigest(getPayload());
+    }
 
     @Override
     public String toString() {
@@ -144,6 +161,13 @@ public abstract class BaseMessage {
     protected class MessageItem {
         public byte[] value;
         public int maxlength;
+
+        public MessageItem(byte[] value, int maxlength) {
+            this.value = new byte[maxlength];
+            for (int i = 0; i < maxlength && i < value.length && i < this.value.length; i++) {
+                this.value[i] = value[i];
+            }
+        }
 
         public MessageItem(long value, int maxlength) {
             this.value = new byte[maxlength];
