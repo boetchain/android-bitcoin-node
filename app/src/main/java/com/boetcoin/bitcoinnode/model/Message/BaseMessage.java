@@ -17,7 +17,7 @@ public abstract class BaseMessage {
      * The length of the magic bytes in the header.
      * In bytes.
      */
-    private static final int HEADER_MAGIC_STRING_LENGTH = 4;
+    public static final int HEADER_MAGIC_STRING_LENGTH = 4;
     /**
      * The length or size of the command in the header.
      * In bytes.
@@ -27,12 +27,12 @@ public abstract class BaseMessage {
      * The length or size of the payload in the header.
      * In bytes.
      */
-    private static final int HEADER_PAYLOAD_SIZE_LENGTH = 4;
+    public static final int HEADER_PAYLOAD_SIZE_LENGTH = 4;
     /**
      * The length or size of the checksum in the header
      * In bytes.
      */
-    private static final int HEADER_CHECKSUM_LENGTH = 4;
+    public static final int HEADER_CHECKSUM_LENGTH = 4;
 
     /**
      * The header of the message that has been sent or received.

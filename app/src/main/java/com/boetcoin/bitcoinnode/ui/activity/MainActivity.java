@@ -24,8 +24,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    ArrayList<Integer> response = new ArrayList<>();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
                 protected Void doInBackground(Void... unused) {
                     //VersionMessage versionMessage = new VersionMessage();
                     //Log.i(App.TAG, versionMessage.toString());
-                    connect(locallySavedPeers.get(1));
+                    connect(locallySavedPeers.get(2));
                     return null;
                 }
             }.execute();
@@ -84,8 +82,8 @@ public class MainActivity extends AppCompatActivity {
         byte[] payload  = message.getPayload();
 
         try {
-            Log.i(App.TAG,  "header: " + Util.bytesToHexString(header));
-            Log.i(App.TAG,  "payload: " + Util.bytesToHexString(payload));
+            //Log.i(App.TAG,  "header: " + Util.bytesToHexString(header));
+            //Log.i(App.TAG,  "payload: " + Util.bytesToHexString(payload));
 
             out.write(header);
             out.write(payload);
@@ -95,20 +93,102 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Constructs the incomming mesage into a byte array list.
+     * We then can interrogate this arraylist to the and figure out
+     * what our peer is saying to us.
+     *
+     * @param in - incoming input stream from out peer
+     * @throws IOException
+     */
     private void readMessage(InputStream in) throws IOException {
-        Log.i(App.TAG, "readMessage");
+        Log.i(App.TAG, "readingMessage...");
 
+        ArrayList<Byte> incomingMessage = new ArrayList<>();
+        constructIncomingMessage(in, incomingMessage);
+
+        int readCursor = getStartOfMagicBytes(incomingMessage);
+        if (readCursor != -1) {
+            Log.i(App.TAG, "We found the start of the magic bytes at: " + readCursor);
+
+            byte[] header = readHeader(incomingMessage, readCursor);
+
+            //Log.i(App.TAG, "The header is : " + header.length + " bytes long");
+        } else {
+            Log.i(App.TAG, "No magic bytes found");
+        }
+    }
+
+    /**
+     * Reads the input stream and saves the results to a byte arraylist.
+     * @param in - in coming input stream.
+     * @param incomingMessage - byte araylist to save the input stream results tp
+     * @throws IOException
+     */
+    private void constructIncomingMessage(InputStream in, ArrayList<Byte> incomingMessage) throws IOException {
         while (true) {
             int b = in.read();
-            Log.i(App.TAG, "read: " + b);
-
             if (b == -1) {
-                Log.i(App.TAG, "END OF CONNECTION!");
+                Log.i(App.TAG, " - End of message....");
                 break;
             }
 
-            response.add(b);
-
+            incomingMessage.add((byte) b);
         }
+    }
+
+    /**
+     * Looks complicated but it is quite simple, it looks for a sequence of bytes (the magic bytes) in
+     * the incoming message.
+     *
+     * If we find all the bytes in the correct sequence we return this position, so we can read the rest of the message.
+     * If we cant find the bytes in the correct sequence we return -1.
+     *
+     * @param incomingMessage - the message from our peer
+     * @return the position at which the magic bytes start.
+     */
+    private int getStartOfMagicBytes(ArrayList<Byte> incomingMessage) {
+        byte[] magicPackets = new byte[BaseMessage.HEADER_MAGIC_STRING_LENGTH];
+        Util.addToByteArray(BaseMessage.PACKET_MAGIC_MAINNET, 0, BaseMessage.HEADER_MAGIC_STRING_LENGTH, magicPackets);
+
+        Log.i(App.TAG, "number of magic bytes: " + magicPackets.length);
+
+        int magicBytesStart = -1;
+        int numMagicBytesFound = 0;
+        for (int i = 0; i < incomingMessage.size(); i++) {
+
+            if (incomingMessage.get(i) == magicPackets[numMagicBytesFound]) {
+                numMagicBytesFound++;
+
+                if (numMagicBytesFound == magicPackets.length) {
+                    magicBytesStart = ((magicPackets.length - 1) - i);
+                    return magicBytesStart;
+                }
+            } else {
+                Log.i(App.TAG, " - break in sequence... reset ");
+                numMagicBytesFound = 0;
+                magicBytesStart = -1;
+            }
+        }
+
+        return magicBytesStart;
+    }
+
+    /**
+     * Creates the header from the incomming message.
+     * At this point we know where the magic bytes, we can create the header and from the bytes after its postion.
+     *
+     * @param incomingMessage - the entire incoming message from the peer.
+     * @param readCursor - the postion AFTER the last magic byte.
+     * @return a nice neat header to figure out, what the crap is going on.
+     */
+    private byte[] readHeader(ArrayList<Byte> incomingMessage, int readCursor) {
+        byte[] header = new byte[BaseMessage.HEADER_MAGIC_STRING_LENGTH + BaseMessage.HEADER_COMMAND_LENGTH + BaseMessage.HEADER_PAYLOAD_SIZE_LENGTH + BaseMessage.HEADER_CHECKSUM_LENGTH];
+
+        for (int i = 0; i < header.length; i++) {
+            header[i] = incomingMessage.get(readCursor);
+        }
+
+        return header;
     }
 }
