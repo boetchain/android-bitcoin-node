@@ -8,6 +8,7 @@ import android.util.Log;
 import com.boetcoin.bitcoinnode.App;
 import com.boetcoin.bitcoinnode.R;
 import com.boetcoin.bitcoinnode.model.Message.BaseMessage;
+import com.boetcoin.bitcoinnode.model.Message.RejectMessage;
 import com.boetcoin.bitcoinnode.model.Message.VersionMessage;
 import com.boetcoin.bitcoinnode.model.Peer;
 import com.boetcoin.bitcoinnode.util.Prefs;
@@ -133,16 +134,13 @@ public class MainActivity extends AppCompatActivity {
         if (hasMagicBytes(in)) {
 
             byte[] header = readHeader(in);
-            String commandName = getCommandNameFromHeader(header);
             int payloadSize = getPayloadSizeFromHeader(header);
-            Log.i(App.TAG, "commandName: " + commandName);
-            Log.i(App.TAG, "payloadSize: " + payloadSize);
             byte[] checkSum = getCheckSumFromHeader(header);
 
             byte[] payload = readPayload(in, payloadSize);
 
             if (checkCheckSum(payload, checkSum)) {
-                Log.i(App.TAG, "CheckSum checks out!");
+                constructMessage(header, payload);
             } else {
                 Log.i(App.TAG, "CheckSum failed....");
             }
@@ -236,6 +234,12 @@ public class MainActivity extends AppCompatActivity {
         return (int) Util.readUint32(header, BaseMessage.HEADER_COMMAND_LENGTH);
     }
 
+    /**
+     * Gets the check sum from the header.
+     *
+     * @param header - of the message
+     * @return the check sum
+     */
     private byte[] getCheckSumFromHeader(byte[] header) {
         byte[] checksum = new byte[BaseMessage.HEADER_CHECKSUM_LENGTH];
         int checkSumOffsetInHeader = BaseMessage.HEADER_COMMAND_LENGTH + BaseMessage.HEADER_PAYLOAD_SIZE_LENGTH;
@@ -269,6 +273,13 @@ public class MainActivity extends AppCompatActivity {
         return payload;
     }
 
+    /**
+     * Verifies the checksum against the payload hasg.
+     *
+     * @param payload - of the incoming message
+     * @param checksum - hash in the header
+     * @return true, if yes, false if not.
+     */
     private boolean checkCheckSum(byte[] payload, byte[] checksum) {
         byte[] hash = Util.doubleDigest(payload);
         if (checksum[0] != hash[0] || checksum[1] != hash[1] ||
@@ -277,5 +288,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    private void constructMessage(byte[] header, byte[] payload) {
+        String commandName = getCommandNameFromHeader(header);
+        Log.i(App.TAG, "Constructing: " + commandName);
+
+        BaseMessage message;
+        if (commandName.toLowerCase().contains(RejectMessage.COMMAND_NAME)) {
+            Log.i(App.TAG, "Creating a reject message: " + payload.length);
+            message = new RejectMessage(header, payload);
+        }
+
     }
 }

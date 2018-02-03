@@ -1,5 +1,8 @@
 package com.boetcoin.bitcoinnode.model.Message;
 
+import android.util.Log;
+
+import com.boetcoin.bitcoinnode.App;
 import com.boetcoin.bitcoinnode.util.Util;
 
 import java.util.ArrayList;
@@ -47,6 +50,9 @@ public abstract class BaseMessage {
      * The payload of the message that has been sent or received.
      */
     protected List<MessageItem> payload;
+
+    protected byte[] byteHeader;
+    protected byte[] bytePayload;
 
     public BaseMessage() {
         initPayload();
