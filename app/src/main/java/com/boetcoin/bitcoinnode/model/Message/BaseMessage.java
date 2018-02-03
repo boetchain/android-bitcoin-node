@@ -14,6 +14,11 @@ public abstract class BaseMessage {
     public static long PACKET_MAGIC_MAINNET = 0xf9beb4d9L;
 
     /**
+     * The max size of a message according to the BTC protocol.
+     */
+    public static int MAX_SIZE = 33554432;
+
+    /**
      * The length of the magic bytes in the header.
      * In bytes.
      */

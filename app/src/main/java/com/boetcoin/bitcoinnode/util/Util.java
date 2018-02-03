@@ -105,4 +105,11 @@ public class Util {
         return ret;
     }
 
+    public static long readUint32(byte[] bytes, int offset) {
+        return ((bytes[offset++] & 0xFFL) <<  0) |
+                ((bytes[offset++] & 0xFFL) <<  8) |
+                ((bytes[offset++] & 0xFFL) << 16) |
+                ((bytes[offset] & 0xFFL) << 24);
+    }
+
 }
