@@ -78,6 +78,19 @@ public class VersionMessage extends BaseMessage {
      */
     public static final boolean relay = false;
 
+    public VersionMessage() {
+        super();
+    }
+
+    public VersionMessage(byte[] byteHeader, byte[] bytePayload) {
+        this.byteHeader     = byteHeader;
+        this.bytePayload    = bytePayload;
+    }
+
+    private void getVersion() {
+
+    }
+
     @Override
     public String getCommandName() {
         return COMMAND_NAME;

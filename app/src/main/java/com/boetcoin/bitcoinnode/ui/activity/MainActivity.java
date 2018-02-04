@@ -13,17 +13,21 @@ import com.boetcoin.bitcoinnode.model.Message.VersionMessage;
 import com.boetcoin.bitcoinnode.model.Peer;
 import com.boetcoin.bitcoinnode.util.Prefs;
 import com.boetcoin.bitcoinnode.util.Util;
+import com.google.common.collect.ObjectArrays;
+import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Longs;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,9 +36,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /*
         final byte[] savedResponse = Prefs.getByte(this, "res", new byte[0]);
+        //VersionMessage versionMessage = new VersionMessage();
 
+        //final byte[] savedResponse = Bytes.concat(versionMessage.getHeader(),versionMessage.getPayload());
         InputStream in = new InputStream() {
             int pos = 0;
             @Override
@@ -55,8 +60,9 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.i(App.TAG, "Read message failed: " + e.getMessage());
         }
-        */
 
+
+        /*
         //Peer.deleteAll(Peer.class);
         final List<Peer> locallySavedPeers = Peer.listAll(Peer.class);
         Log.i(App.TAG, "locallySavedPeers: " + locallySavedPeers.size());
@@ -69,13 +75,12 @@ public class MainActivity extends AppCompatActivity {
                 protected Void doInBackground(Void... unused) {
                     //VersionMessage versionMessage = new VersionMessage();
                     //Log.i(App.TAG, versionMessage.toString());
-                    connect(locallySavedPeers.get(0));
+                    connect(locallySavedPeers.get(1));
                     return null;
                 }
             }.execute();
-
-
         }
+        */
     }
 
     private void connect(Peer peer) {
@@ -296,8 +301,12 @@ public class MainActivity extends AppCompatActivity {
 
         BaseMessage message;
         if (commandName.toLowerCase().contains(RejectMessage.COMMAND_NAME)) {
-
             message = new RejectMessage(header, payload);
+            Log.i(App.TAG, message.toString());
+        }
+
+        if (commandName.toLowerCase().contains(VersionMessage.COMMAND_NAME)) {
+            message = new VersionMessage(header, payload);
             Log.i(App.TAG, message.toString());
         }
     }

@@ -3,6 +3,7 @@ package com.boetcoin.bitcoinnode.model.Message;
 import android.util.Log;
 
 import com.boetcoin.bitcoinnode.App;
+import com.boetcoin.bitcoinnode.util.Util;
 
 import java.io.UnsupportedEncodingException;
 
@@ -29,6 +30,10 @@ public class RejectMessage extends BaseMessage {
      */
     char data;
 
+
+    protected int offset;
+    protected int cursor;
+
     /**
      * The command name of the reject message as defined in the protocol.
      */
@@ -37,23 +42,11 @@ public class RejectMessage extends BaseMessage {
     public RejectMessage(byte[] byteHeader, byte[] bytePayload) {
         this.byteHeader     = byteHeader;
         this.bytePayload    = bytePayload;
-        this.message = getMessage(bytePayload);
-    }
 
-    /**
-     * Takes the whole payload and makes it into a String
-     * @param payload
-     * @return
-     */
-    private String getMessage(byte[] payload) {
+        this.message = readStr();
 
-        try {
-            message = new String(payload, "US-ASCII");
-        } catch (UnsupportedEncodingException e) {
-            return "nothing found?";
-        }
 
-        return message;
+        Log.i(App.TAG, "MSG: " + this.message);
     }
 
     @Override
@@ -64,5 +57,138 @@ public class RejectMessage extends BaseMessage {
     @Override
     int getPayloadSize() {
         return 0;
+    }
+
+
+
+
+
+
+
+
+    protected String readStr() {
+        Log.i(App.TAG, "readStr");
+        long length = readVarInt();
+        Log.i(App.TAG, "length: " + length);
+        return length == 0 ? "" : Util.toString(readBytes((int) length), "UTF-8"); // optimization for empty strings
+    }
+
+    protected long readVarInt() {
+        return readVarInt(0);
+    }
+
+    protected long readVarInt(int offset) {
+        try {
+            VarInt varint = new VarInt(bytePayload, cursor + offset);
+            cursor += offset + varint.getOriginalSizeInBytes();
+            return varint.value;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return 0;
+        }
+    }
+
+    protected byte[] readBytes(int length) {
+        Log.i(App.TAG, "readBytes: " + length);
+        try {
+            byte[] b = new byte[length];
+            System.arraycopy(bytePayload, cursor, b, 0, length);
+            cursor += length;
+            return b;
+        } catch (IndexOutOfBoundsException e) {
+            return new byte[0];
+        }
+    }
+
+
+    class VarInt {
+        public final long value;
+        private final int originallyEncodedSize;
+
+        /**
+         * Constructs a new VarInt with the given unsigned long value.
+         *
+         * @param value the unsigned long value (beware widening conversion of negatives!)
+         */
+        public VarInt(long value) {
+            this.value = value;
+            originallyEncodedSize = getSizeInBytes();
+        }
+
+        /**
+         * Constructs a new VarInt with the value parsed from the specified offset of the given buffer.
+         *
+         * @param buf    the buffer containing the value
+         * @param offset the offset of the value
+         */
+        public VarInt(byte[] buf, int offset) {
+            int first = 0xFF & buf[offset];
+            if (first < 253) {
+                value = first;
+                originallyEncodedSize = 1; // 1 data byte (8 bits)
+            } else if (first == 253) {
+                value = (0xFF & buf[offset + 1]) | ((0xFF & buf[offset + 2]) << 8);
+                originallyEncodedSize = 3; // 1 marker + 2 data bytes (16 bits)
+            } else if (first == 254) {
+                value = Util.readUint32(buf, offset + 1);
+                originallyEncodedSize = 5; // 1 marker + 4 data bytes (32 bits)
+            } else {
+                value = Util.readInt64(buf, offset + 1);
+                originallyEncodedSize = 9; // 1 marker + 8 data bytes (64 bits)
+            }
+        }
+
+        /**
+         * Returns the original number of bytes used to encode the value if it was
+         * deserialized from a byte array, or the minimum encoded size if it was not.
+         */
+        public int getOriginalSizeInBytes() {
+            return originallyEncodedSize;
+        }
+
+        /**
+         * Returns the minimum encoded size of the value.
+         */
+        public final int getSizeInBytes() {
+            return sizeOf(value);
+        }
+
+        /**
+         * Returns the minimum encoded size of the given unsigned long value.
+         *
+         * @param value the unsigned long value (beware widening conversion of negatives!)
+         */
+        public int sizeOf(long value) {
+            // if negative, it's actually a very large unsigned long value
+            if (value < 0) return 9; // 1 marker + 8 data bytes
+            if (value < 253) return 1; // 1 data byte
+            if (value <= 0xFFFFL) return 3; // 1 marker + 2 data bytes
+            if (value <= 0xFFFFFFFFL) return 5; // 1 marker + 4 data bytes
+            return 9; // 1 marker + 8 data bytes
+        }
+
+        /**
+         * Encodes the value into its minimal representation.
+         *
+         * @return the minimal encoded bytes of the value
+         */
+        public byte[] encode() {
+            byte[] bytes;
+            switch (sizeOf(value)) {
+                case 1:
+                    return new byte[]{(byte) value};
+                case 3:
+                    return new byte[]{(byte) 253, (byte) (value), (byte) (value >> 8)};
+                case 5:
+                    bytes = new byte[5];
+                    bytes[0] = (byte) 254;
+                    Util.uint32ToByteArrayLE(value, bytes, 1);
+                    return bytes;
+                default:
+                    bytes = new byte[9];
+                    bytes[0] = (byte) 255;
+                    Util.uint64ToByteArrayLE(value, bytes, 1);
+                    return bytes;
+            }
+        }
     }
 }
