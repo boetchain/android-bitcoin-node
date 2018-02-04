@@ -37,29 +37,21 @@ public class RejectMessage extends BaseMessage {
     public RejectMessage(byte[] byteHeader, byte[] bytePayload) {
         this.byteHeader     = byteHeader;
         this.bytePayload    = bytePayload;
-
-        Log.i(App.TAG, "payload: " + bytePayload.length);
         this.message = getMessage(bytePayload);
     }
 
+    /**
+     * Takes the whole payload and makes it into a String
+     * @param payload
+     * @return
+     */
     private String getMessage(byte[] payload) {
-        Log.i(App.TAG, "getMessage...");
-        String message = "";
-
-        int len = 9999999;
-
-        byte[] commandNameByteArray = new byte[len];
-        for (int i = 0; i < len && i < payload.length; i++) {
-            commandNameByteArray[i] = payload[i];
-        }
 
         try {
-            message = new String(commandNameByteArray, "US-ASCII");
+            message = new String(payload, "US-ASCII");
         } catch (UnsupportedEncodingException e) {
             return "nothing found?";
         }
-
-        Log.i(App.TAG, "message: " + message);
 
         return message;
     }

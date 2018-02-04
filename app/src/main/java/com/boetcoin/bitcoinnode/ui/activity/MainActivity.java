@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /*
         final byte[] savedResponse = Prefs.getByte(this, "res", new byte[0]);
 
         InputStream in = new InputStream() {
@@ -54,8 +55,8 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.i(App.TAG, "Read message failed: " + e.getMessage());
         }
+        */
 
-        /*
         //Peer.deleteAll(Peer.class);
         final List<Peer> locallySavedPeers = Peer.listAll(Peer.class);
         Log.i(App.TAG, "locallySavedPeers: " + locallySavedPeers.size());
@@ -75,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
-        */
     }
 
     private void connect(Peer peer) {
@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
      * @throws IOException - when shit happens.
      */
     private boolean hasMagicBytes(InputStream in) throws IOException {
-        //Log.i(App.TAG, "searchForMagicBytes");
+        Log.i(App.TAG, "searchForMagicBytes");
         byte[] superSpecialMagicBytes = new byte[BaseMessage.HEADER_MAGIC_STRING_LENGTH];
         Util.addToByteArray(BaseMessage.PACKET_MAGIC_MAINNET, 0, BaseMessage.HEADER_MAGIC_STRING_LENGTH, superSpecialMagicBytes);
 
@@ -173,11 +173,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (incomingByte  == superSpecialMagicBytes[numMagicBytesFound]) {
-                //Log.i(App.TAG, "numMagicBytesFound: " + numMagicBytesFound);
+                Log.i(App.TAG, "numMagicBytesFound: " + numMagicBytesFound);
                 numMagicBytesFound++;
 
                 if (numMagicBytesFound == superSpecialMagicBytes.length) {
-                    //Log.i(App.TAG, "We found all the magic bytes...");
+                    Log.i(App.TAG, "We found all the magic bytes...");
                     return true;
                 }
             }
@@ -296,9 +296,9 @@ public class MainActivity extends AppCompatActivity {
 
         BaseMessage message;
         if (commandName.toLowerCase().contains(RejectMessage.COMMAND_NAME)) {
-            Log.i(App.TAG, "Creating a reject message: " + payload.length);
-            message = new RejectMessage(header, payload);
-        }
 
+            message = new RejectMessage(header, payload);
+            Log.i(App.TAG, message.toString());
+        }
     }
 }
