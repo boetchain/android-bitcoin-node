@@ -20,7 +20,7 @@ public class RejectMessage extends BaseMessage {
     /**
      * The code relating to the rejected message
      */
-    char ccode;
+    byte ccode;
     /**
      * Text version of the reason for rejection
      */
@@ -30,6 +30,15 @@ public class RejectMessage extends BaseMessage {
      */
     char data;
 
+    public static byte MALFORMED        = 0x01;
+    public static byte INVALID          = 0x10;
+    public static byte OBSOLETE         = 0x11;
+    public static byte DUPLICATE        = 0x12;
+    public static byte NONSTANDARD      = 0x40;
+    public static byte DUST             = 0x41;
+    public static byte INSUFFICIENTFEE  = 0x42;
+    public static byte CHECKPOINT       = 0x43;
+    public static int OTHER             = 0xff;
 
     protected int offset;
     protected int cursor;
@@ -44,9 +53,12 @@ public class RejectMessage extends BaseMessage {
         this.bytePayload    = bytePayload;
 
         this.message = readStr();
+        this.ccode = getCode(readBytes(1)[0]);
+        this.reason = readStr();
 
 
         Log.i(App.TAG, "MSG: " + this.message);
+        Log.i(App.TAG, "reason: " + this.reason);
     }
 
     @Override
@@ -57,14 +69,55 @@ public class RejectMessage extends BaseMessage {
     @Override
     int getPayloadSize() {
         return 0;
+    } 
+
+    private byte getCode(byte code) {
+        if (code == MALFORMED) {
+            Log.i(App.TAG, "code == MALFORMED");
+            return  MALFORMED;
+        }
+
+        if (code == INVALID) {
+            Log.i(App.TAG, "code == INVALID");
+            return  INVALID;
+        }
+
+        if (code == MALFORMED) {
+            Log.i(App.TAG, "code == MALFORMED");
+            return  MALFORMED;
+        }
+
+        if (code == OBSOLETE) {
+            Log.i(App.TAG, "code == OBSOLETE");
+            return  OBSOLETE;
+        }
+
+        if (code == DUPLICATE) {
+            Log.i(App.TAG, "code == DUPLICATE");
+            return  DUPLICATE;
+        }
+
+        if (code == NONSTANDARD) {
+            Log.i(App.TAG, "code == NONSTANDARD");
+            return  NONSTANDARD;
+        }
+
+        if (code == DUST) {
+            Log.i(App.TAG, "code == DUST");
+            return  DUST;
+        }
+        if (code == INSUFFICIENTFEE) {
+            Log.i(App.TAG, "code == INSUFFICIENTFEE");
+            return  INSUFFICIENTFEE;
+        }
+        if (code == CHECKPOINT) {
+            Log.i(App.TAG, "code == CHECKPOINT");
+            return  CHECKPOINT;
+        }
+
+        Log.i(App.TAG, "code == OTHER");
+        return (byte) OTHER;
     }
-
-
-
-
-
-
-
 
     protected String readStr() {
         Log.i(App.TAG, "readStr");
