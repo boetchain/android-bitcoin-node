@@ -158,7 +158,6 @@ public class Util {
      * @return the decoded String
      */
     public static String toString(byte[] bytes, String charsetName) {
-        Log.i(App.TAG, "toString");
         try {
             return new String(bytes, charsetName);
         } catch (UnsupportedEncodingException e) {

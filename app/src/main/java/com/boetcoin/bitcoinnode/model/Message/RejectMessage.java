@@ -52,9 +52,9 @@ public class RejectMessage extends BaseMessage {
         this.byteHeader     = byteHeader;
         this.bytePayload    = bytePayload;
 
-        this.message = readStr();
-        this.ccode = getCode(readBytes(1)[0]);
-        this.reason = readStr();
+        //this.message = readStr();
+        //this.ccode = getCode(readBytes(1)[0]);
+        //this.reason = readStr();
 
 
         Log.i(App.TAG, "MSG: " + this.message);
@@ -69,7 +69,7 @@ public class RejectMessage extends BaseMessage {
     @Override
     int getPayloadSize() {
         return 0;
-    } 
+    }
 
     private byte getCode(byte code) {
         if (code == MALFORMED) {
@@ -119,12 +119,7 @@ public class RejectMessage extends BaseMessage {
         return (byte) OTHER;
     }
 
-    protected String readStr() {
-        Log.i(App.TAG, "readStr");
-        long length = readVarInt();
-        Log.i(App.TAG, "length: " + length);
-        return length == 0 ? "" : Util.toString(readBytes((int) length), "UTF-8"); // optimization for empty strings
-    }
+
 
     protected long readVarInt() {
         return readVarInt(0);

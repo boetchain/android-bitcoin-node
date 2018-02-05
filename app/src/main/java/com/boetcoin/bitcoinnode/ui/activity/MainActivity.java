@@ -10,6 +10,8 @@ import com.boetcoin.bitcoinnode.R;
 import com.boetcoin.bitcoinnode.model.Message.BaseMessage;
 import com.boetcoin.bitcoinnode.model.Message.RejectMessage;
 import com.boetcoin.bitcoinnode.model.Message.VersionMessage;
+import com.boetcoin.bitcoinnode.model.Msg.BaseMsg;
+import com.boetcoin.bitcoinnode.model.Msg.RejectMsg;
 import com.boetcoin.bitcoinnode.model.Peer;
 import com.boetcoin.bitcoinnode.util.Prefs;
 import com.boetcoin.bitcoinnode.util.Util;
@@ -299,14 +301,9 @@ public class MainActivity extends AppCompatActivity {
         String commandName = getCommandNameFromHeader(header);
         Log.i(App.TAG, "Constructing: " + commandName);
 
-        BaseMessage message;
+        BaseMsg message;
         if (commandName.toLowerCase().contains(RejectMessage.COMMAND_NAME)) {
-            message = new RejectMessage(header, payload);
-            Log.i(App.TAG, message.toString());
-        }
-
-        if (commandName.toLowerCase().contains(VersionMessage.COMMAND_NAME)) {
-            message = new VersionMessage(header, payload);
+            message = new RejectMsg(header, payload);
             Log.i(App.TAG, message.toString());
         }
     }
