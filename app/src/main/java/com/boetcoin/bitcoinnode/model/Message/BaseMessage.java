@@ -306,4 +306,9 @@ public abstract class BaseMessage {
     protected void writeInt(int value) {
         outputPayload.add(value);
     }
+
+    protected byte[] readByteArray() {
+        long len = readVarInt();
+        return readBytes((int)len);
+    }
 }

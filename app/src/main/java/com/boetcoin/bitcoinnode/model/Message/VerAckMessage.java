@@ -1,14 +1,9 @@
 package com.boetcoin.bitcoinnode.model.Message;
 
-import android.util.Log;
-
-import com.boetcoin.bitcoinnode.App;
 import com.boetcoin.bitcoinnode.model.Peer;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.util.Log.i;
 
 /**
  * Created by rossbadenhorst on 2018/02/06.

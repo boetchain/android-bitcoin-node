@@ -8,7 +8,9 @@ import android.util.Log;
 
 import com.boetcoin.bitcoinnode.App;
 import com.boetcoin.bitcoinnode.R;
+import com.boetcoin.bitcoinnode.model.Message.AlertMessage;
 import com.boetcoin.bitcoinnode.model.Message.BaseMessage;
+import com.boetcoin.bitcoinnode.model.Message.GetAddrMessage;
 import com.boetcoin.bitcoinnode.model.Message.RejectMessage;
 import com.boetcoin.bitcoinnode.model.Message.VerAckMessage;
 import com.boetcoin.bitcoinnode.model.Message.VersionMessage;
@@ -92,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 protected Void doInBackground(Void... unused) {
                     //VersionMessage versionMessage = new VersionMessage();
                     //Log.i(App.TAG, versionMessage.toString());
-                    connect(locallySavedPeers.get(7));
+                    connect(locallySavedPeers.get(0));
                     return null;
                 }
             }.execute();
@@ -123,6 +125,18 @@ public class MainActivity extends AppCompatActivity {
 
             // Step 4 - read verAk
             VerAckMessage peerVerAckMessage = (VerAckMessage) readMessage(in);
+
+            // Step 5 - send getaddr
+            GetAddrMessage getAddrMessage = new GetAddrMessage();
+            writeMessage(getAddrMessage, out);
+
+            //Step 6 - read addr
+            readMessage(in);
+
+            writeMessage(getAddrMessage, out);
+
+            readMessage(in);
+
 
             Log.i(App.TAG, "Shutting down....");
             out.close();
@@ -340,6 +354,12 @@ public class MainActivity extends AppCompatActivity {
         if (commandName.toLowerCase().contains(VerAckMessage.COMMAND_NAME)) {
             VerAckMessage verAckMessage = new VerAckMessage(header, payload);
             Log.i(App.TAG, verAckMessage.toString());
+            return new VerAckMessage(header, payload);
+        }
+
+        if (commandName.toLowerCase().contains(AlertMessage.COMMAND_NAME)) {
+            AlertMessage alertMessage = new AlertMessage(header, payload);
+            Log.i(App.TAG, alertMessage.toString());
             return new VerAckMessage(header, payload);
         }
 
