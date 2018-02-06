@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Log.i(App.TAG, Util.bytesToHexString(Bytes.concat(versionMessage.getHeader(), versionMessage.getPayload())));
         //Log.i(App.TAG, "LEN ALL : " +  savedResponse.length);
-
+        /*
         InputStream in = new InputStream() {
             int pos = 0;
             @Override
@@ -85,12 +85,12 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.i(App.TAG, "Read message failed: " + e.getMessage());
         }
+        */
 
 
-
-        /*
         //Peer.deleteAll(Peer.class);
         final List<Peer> locallySavedPeers = Peer.listAll(Peer.class);
+        //Peer.deleteAll(Peer.class);
         Log.i(App.TAG, "locallySavedPeers: " + locallySavedPeers.size());
 
         if (locallySavedPeers.size() == 0) {
@@ -101,10 +101,19 @@ public class MainActivity extends AppCompatActivity {
                 protected Void doInBackground(Void... unused) {
                     //VersionMessage versionMessage = new VersionMessage();
                     //Log.i(App.TAG, versionMessage.toString());
-                    connect(locallySavedPeers.get(0));
+                    connect(locallySavedPeers.get(1));
                     return null;
                 }
             }.execute();
+        }
+
+
+        /*
+        byte[] superSpecialMagicBytes = new byte[BaseMessage.HEADER_MAGIC_STRING_LENGTH];
+        Util.addToByteArray(BaseMessage.PACKET_MAGIC_MAINNET, 0, BaseMessage.HEADER_MAGIC_STRING_LENGTH, superSpecialMagicBytes);
+
+        for (int i = 0; i < superSpecialMagicBytes.length; i++) {
+            Log.i(App.TAG, "" + superSpecialMagicBytes[i]);
         }
         */
     }
@@ -142,8 +151,8 @@ public class MainActivity extends AppCompatActivity {
         byte[] payload  = message.getPayload();
 
         try {
-            //Log.i(App.TAG,  "header: " + Util.bytesToHexString(header));
-            //Log.i(App.TAG,  "payload: " + Util.bytesToHexString(payload));
+            Log.i(App.TAG,  "header: " + Util.bytesToHexString(header));
+            Log.i(App.TAG,  "payload: " + Util.bytesToHexString(payload));
 
             out.write(header);
             out.write(payload);
@@ -199,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
      * @throws IOException - when shit happens.
      */
     private boolean hasMagicBytes(InputStream in) throws IOException {
-        //Log.i(App.TAG, "searchForMagicBytes");
+        Log.i(App.TAG, "hasMagicBytes");
         byte[] superSpecialMagicBytes = new byte[BaseMessage.HEADER_MAGIC_STRING_LENGTH];
         Util.addToByteArray(BaseMessage.PACKET_MAGIC_MAINNET, 0, BaseMessage.HEADER_MAGIC_STRING_LENGTH, superSpecialMagicBytes);
 
@@ -210,12 +219,12 @@ public class MainActivity extends AppCompatActivity {
                 return false; // End of message
             }
 
-            if (incomingByte  == superSpecialMagicBytes[numMagicBytesFound]) {
-                //Log.i(App.TAG, "numMagicBytesFound: " + numMagicBytesFound);
+            if (Util.byteToHexString((byte)incomingByte).contains(Util.byteToHexString(superSpecialMagicBytes[numMagicBytesFound]))) {
+                Log.i(App.TAG, "numMagicBytesFound: " + numMagicBytesFound);
                 numMagicBytesFound++;
 
                 if (numMagicBytesFound == superSpecialMagicBytes.length) {
-                    //Log.i(App.TAG, "We found all the magic bytes...");
+                    Log.i(App.TAG, "We found all the magic bytes...");
                     return true;
                 }
             }

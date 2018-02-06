@@ -113,7 +113,6 @@ public abstract class BaseMsg {
      */
     protected String readStr() {
         long length = readVarInt();
-        Log.i(App.TAG, "readStr: " + length);
         return length == 0 ? "" : Util.toString(readBytes((int) length), "UTF-8"); // optimization for empty strings
     }
 

@@ -35,6 +35,15 @@ public class Util {
         return buf.toString();
     }
 
+    public static String byteToHexString(byte value) {
+        StringBuffer buf = new StringBuffer(2);
+        String s = Integer.toString(0xFF & value, 16);
+        if (s.length() < 2)
+            buf.append('0');
+        buf.append(s);
+        return buf.toString();
+    }
+
     /**
      * See {@link Utils#doubleDigest(byte[],int,int)}.
      */
