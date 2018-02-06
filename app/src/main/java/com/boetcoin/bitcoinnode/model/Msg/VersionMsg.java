@@ -3,6 +3,7 @@ package com.boetcoin.bitcoinnode.model.Msg;
 import android.util.Log;
 
 import com.boetcoin.bitcoinnode.App;
+import com.boetcoin.bitcoinnode.util.Util;
 
 import java.math.BigInteger;
 
@@ -55,13 +56,14 @@ public class VersionMsg extends BaseMsg {
     public VersionMsg() {
         super();
         this.version = 70012;
-        this.services = 0;
+        this.services = 505;
         this.timestamp = System.currentTimeMillis() / 1000;
         this.addrRecv = "";
         this.addrFrom = "";
-        this.nonce = 1;
+        this.nonce = 0;
         this.userAgent = "BoetChain";
-        this.startHeight = 0;
+        this.startHeight = 200;
+        this.relay = true;
 
         writePayload();
         writeHeader();
@@ -82,13 +84,11 @@ public class VersionMsg extends BaseMsg {
         writeAddress();// addr receive - not used :?
         writeAddress();// addr from - not used :?
         writeUint32(nonce);
+        writeUint32(this.nonce >> 32);
         writeVarInt(userAgent.getBytes().length);
         writeBytes(userAgent.getBytes());
         writeUint32(startHeight);
         writeInt(relay ? 1 : 0);
-
-
-
 
         payload = new byte[outputPayload.size()];
         for (int i = 0; i < payload.length && i < outputPayload.size(); i++) {
@@ -97,8 +97,10 @@ public class VersionMsg extends BaseMsg {
     }
 
     private void writeAddress() {
-        BigInteger services = BigInteger.ZERO;
+        /*
+        int lenBefore = outputPayload.size();
 
+        BigInteger services = BigInteger.ZERO;
         writeUint64(services);
 
         try {
@@ -112,15 +114,48 @@ public class VersionMsg extends BaseMsg {
             Log.i(App.TAG, "" + e.getMessage(), e);
         }
 
+        Log.i(App.TAG, "ADDRSIZE:" + (outputPayload.size() - lenBefore));
+        */
+        byte[] dummyAddr = new byte[26];
+
+        Util.addToByteArray("$234567890123456789055555*", 0, 26, dummyAddr);
+        writeBytes(dummyAddr);
+    }
+
+    protected String readAddress() {
+        return Util.toString(readBytes((int) 26), "UTF-8");
     }
 
     @Override
     protected void readPayload() {
-
+        this.version = (int) readUint32();
+        this.services = readUint64().longValue();
+        this.timestamp = readUint64().longValue();
+        this.addrRecv = readAddress();
+        this.addrFrom = readAddress();
+        this.nonce = readUint64().longValue();
+        this.userAgent = readStr();
+        this.startHeight = (int) readUint32();
+        this.relay = readBytes(1)[0] != 0;
     }
 
     @Override
     public String getCommandName() {
         return COMMAND_NAME;
+    }
+
+    @Override
+    public String toString() {
+        return "VersionMsg{" +
+                "version=" + version +
+                ", services=" + services +
+                ", timestamp=" + timestamp +
+                ", addrRecv='" + addrRecv + '\'' +
+                ", addrFrom='" + addrFrom + '\'' +
+                ", nonce=" + nonce +
+                ", userAgent='" + userAgent + '\'' +
+                ", startHeight=" + startHeight +
+                ", relay=" + relay +
+                '}';
     }
 }

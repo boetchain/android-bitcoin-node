@@ -82,7 +82,6 @@ public abstract class BaseMsg {
     }
 
     protected void writeHeader() {
-        Log.i(App.TAG, "writeHeader");
         header = new byte[HEADER_LENGTH_MAGIC_BYTES + HEADER_LENGTH_COMMAND + HEADER_LENGTH_PAYLOAD_SIZE + HEADER_LENGTH_CHECKSUM];
 
         Util.addToByteArray(BaseMessage.PACKET_MAGIC_MAINNET, 0, BaseMessage.HEADER_MAGIC_STRING_LENGTH, header);
@@ -103,7 +102,6 @@ public abstract class BaseMsg {
 
     public abstract String getCommandName();
 
-
     protected abstract void writePayload();
 
     /**
@@ -115,6 +113,7 @@ public abstract class BaseMsg {
      */
     protected String readStr() {
         long length = readVarInt();
+        Log.i(App.TAG, "readStr: " + length);
         return length == 0 ? "" : Util.toString(readBytes((int) length), "UTF-8"); // optimization for empty strings
     }
 
@@ -169,6 +168,17 @@ public abstract class BaseMsg {
             cursor += length;
             return new byte[length];
         }
+    }
+
+    protected long readUint32() {
+        long u = Util.readUint32(payload, cursor);
+        cursor += 4;
+        return u;
+    }
+
+    protected BigInteger readUint64() {
+        // Java does not have an unsigned 64 bit type. So scrape it off the wire then flip.
+        return new BigInteger(Util.reverseBytes(readBytes(8)));
     }
 
     protected void writeVarInt(long value) {

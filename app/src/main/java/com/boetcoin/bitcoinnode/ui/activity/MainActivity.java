@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         //Log.i(App.TAG, Util.bytesToHexString(savedResponse));
 
         //Log.i(App.TAG, Util.bytesToHexString(Bytes.concat(versionMessage.getHeader(), versionMessage.getPayload())));
-        Log.i(App.TAG, "LEN ALL : " +  savedResponse.length);
+        //Log.i(App.TAG, "LEN ALL : " +  savedResponse.length);
 
         InputStream in = new InputStream() {
             int pos = 0;
@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
      * @throws IOException - when shit happens.
      */
     private boolean hasMagicBytes(InputStream in) throws IOException {
-        Log.i(App.TAG, "searchForMagicBytes");
+        //Log.i(App.TAG, "searchForMagicBytes");
         byte[] superSpecialMagicBytes = new byte[BaseMessage.HEADER_MAGIC_STRING_LENGTH];
         Util.addToByteArray(BaseMessage.PACKET_MAGIC_MAINNET, 0, BaseMessage.HEADER_MAGIC_STRING_LENGTH, superSpecialMagicBytes);
 
@@ -211,11 +211,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (incomingByte  == superSpecialMagicBytes[numMagicBytesFound]) {
-                Log.i(App.TAG, "numMagicBytesFound: " + numMagicBytesFound);
+                //Log.i(App.TAG, "numMagicBytesFound: " + numMagicBytesFound);
                 numMagicBytesFound++;
 
                 if (numMagicBytesFound == superSpecialMagicBytes.length) {
-                    Log.i(App.TAG, "We found all the magic bytes...");
+                    //Log.i(App.TAG, "We found all the magic bytes...");
                     return true;
                 }
             }
@@ -341,6 +341,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (commandName.toLowerCase().contains(VersionMsg.COMMAND_NAME)) {
             message = new VersionMsg(header, payload);
+            Log.i(App.TAG, message.toString());
         }
     }
 }
