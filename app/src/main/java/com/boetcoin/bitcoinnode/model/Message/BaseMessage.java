@@ -103,6 +103,14 @@ public abstract class BaseMessage {
     }
 
     /**
+     * Gets the command name for the message.
+     * Defined in the bitcoin protoco.
+     *
+     * @return - command name of message
+     */
+    public abstract String getCommandName();
+
+    /**
      * Takes the payload and tries to make sense of it!
      *
      * We will use methods like readStr() or readInt()
@@ -111,14 +119,6 @@ public abstract class BaseMessage {
      * This is where we adjust the cursor and "read" the payload array sequentially.
      */
     protected abstract void readPayload();
-
-    /**
-     * Gets the command name for the message.
-     * Defined in the bitcoin protoco.
-     *
-     * @return - command name of message
-     */
-    public abstract String getCommandName();
 
     /**
      * Writes or constructs the payload to send to our peers.

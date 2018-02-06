@@ -2,6 +2,7 @@ package com.boetcoin.bitcoinnode.ui.activity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -9,8 +10,10 @@ import com.boetcoin.bitcoinnode.App;
 import com.boetcoin.bitcoinnode.R;
 import com.boetcoin.bitcoinnode.model.Message.BaseMessage;
 import com.boetcoin.bitcoinnode.model.Message.RejectMessage;
+import com.boetcoin.bitcoinnode.model.Message.VerAckMessage;
 import com.boetcoin.bitcoinnode.model.Message.VersionMessage;
 import com.boetcoin.bitcoinnode.model.Peer;
+import com.boetcoin.bitcoinnode.util.Prefs;
 import com.boetcoin.bitcoinnode.util.Util;
 import com.google.common.primitives.Bytes;
 
@@ -20,20 +23,24 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    static int count = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //final byte[] savedResponse = Prefs.getByte(this, "res", new byte[0]);
+        final byte[] savedResponse = Prefs.getByte(this, "res", new byte[0]);
         //VersionMessage versionMessage = new VersionMessage();
 
-        VersionMessage versionMessage = new VersionMessage();
-        final byte[] savedResponse = Bytes.concat(versionMessage.getHeader(), versionMessage.getPayload());
+        //VersionMessage versionMessage = new VersionMessage();
+        //VerAckMessage verAckMessage = new VerAckMessage();
+        //final byte[] savedResponse = Bytes.concat(verAckMessage.getHeader(), verAckMessage.getPayload());
 
         /*
         final byte[] savedResponse = new byte[1000];
@@ -43,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         */
 
 
-        //Log.i(App.TAG, "UI: " + Util.bytesToHexString(Util.doubleDigest(versionMessage.getPayload())));
+        //Log.i(App.TAG, "savedResponse.length: " + savedResponse.length);
 
 
         //Log.i(App.TAG, "LEN P : " +  versionMessage.getPayload().length);
@@ -52,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Log.i(App.TAG, Util.bytesToHexString(Bytes.concat(versionMessage.getHeader(), versionMessage.getPayload())));
         //Log.i(App.TAG, "LEN ALL : " +  savedResponse.length);
-
         /*
         InputStream in = new InputStream() {
             int pos = 0;
@@ -70,14 +76,7 @@ public class MainActivity extends AppCompatActivity {
                 return -1;
             }
         };
-
-        try {
-            readMessage(in);
-        } catch (Exception e) {
-            Log.i(App.TAG, "Read message failed: " + e.getMessage());
-        }
         */
-
 
 
         //Peer.deleteAll(Peer.class);
@@ -93,12 +92,11 @@ public class MainActivity extends AppCompatActivity {
                 protected Void doInBackground(Void... unused) {
                     //VersionMessage versionMessage = new VersionMessage();
                     //Log.i(App.TAG, versionMessage.toString());
-                    connect(locallySavedPeers.get(1));
+                    connect(locallySavedPeers.get(4));
                     return null;
                 }
             }.execute();
         }
-
     }
 
     private void connect(Peer peer) {
@@ -112,10 +110,19 @@ public class MainActivity extends AppCompatActivity {
             OutputStream out = socket.getOutputStream();
             InputStream in = socket.getInputStream();
 
+            // Step 1 - send version
             VersionMessage versionMessage = new VersionMessage();
             writeMessage(versionMessage, out);
 
-            readMessage(in);
+            // Step 2 - read peer version
+            VersionMessage peerVersionMessage = (VersionMessage) readMessage(in);
+
+            // Step 3 - write verAck
+            VerAckMessage verAckMessage = new VerAckMessage();
+            writeMessage(verAckMessage, out);
+
+            // Step 4 - read verAk
+            VerAckMessage peerVerAckMessage = (VerAckMessage) readMessage(in);
 
             Log.i(App.TAG, "Shutting down....");
             out.close();
@@ -134,8 +141,8 @@ public class MainActivity extends AppCompatActivity {
         byte[] payload  = message.getPayload();
 
         try {
-            Log.i(App.TAG,  "header: " + Util.bytesToHexString(header));
-            Log.i(App.TAG,  "payload: " + Util.bytesToHexString(payload));
+            //Log.i(App.TAG,  "header: " + Util.bytesToHexString(header));
+            //Log.i(App.TAG,  "payload: " + Util.bytesToHexString(payload));
 
             out.write(header);
             out.write(payload);
@@ -151,7 +158,8 @@ public class MainActivity extends AppCompatActivity {
      * @param in - in coming message stream
      * @throws IOException - when shit happens.
      */
-    private void readMessage(InputStream in) throws IOException {
+    private BaseMessage readMessage(InputStream in) throws IOException {
+
         if (hasMagicBytes(in)) {
 
             byte[] header = readHeader(in);
@@ -161,13 +169,14 @@ public class MainActivity extends AppCompatActivity {
             byte[] payload = readPayload(in, payloadSize);
 
             if (checkCheckSum(payload, checkSum)) {
-                constructMessage(header, payload);
+                return constructMessage(header, payload);
             } else {
                 Log.i(App.TAG, "CheckSum failed....");
+                return null;
             }
-
         } else {
             Log.i(App.TAG, "no magic bytes found....");
+            return null;
         }
     }
 
@@ -312,19 +321,52 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void constructMessage(byte[] header, byte[] payload) {
+    private BaseMessage constructMessage(byte[] header, byte[] payload) {
         String commandName = getCommandNameFromHeader(header);
         Log.i(App.TAG, "Constructing: " + commandName);
 
-        BaseMessage message;
         if (commandName.toLowerCase().contains(RejectMessage.COMMAND_NAME)) {
-            message = new RejectMessage(header, payload);
-            Log.i(App.TAG, message.toString());
+            RejectMessage rejectMessage = new RejectMessage(header, payload);
+            Log.i(App.TAG, rejectMessage.toString());
+            return  rejectMessage;
         }
 
         if (commandName.toLowerCase().contains(VersionMessage.COMMAND_NAME)) {
-            message = new VersionMessage(header, payload);
-            Log.i(App.TAG, message.toString());
+            VersionMessage versionMessage = new VersionMessage(header, payload);
+            Log.i(App.TAG, versionMessage.toString());
+            return versionMessage;
+        }
+
+        if (commandName.toLowerCase().contains(VerAckMessage.COMMAND_NAME)) {
+            VerAckMessage verAckMessage = new VerAckMessage(header, payload);
+            Log.i(App.TAG, verAckMessage.toString());
+            return new VerAckMessage(header, payload);
+        }
+
+        return null;
+    }
+
+    private void saveResponseLocally(InputStream in) throws IOException {
+        Log.i(App.TAG, "saveResponseLocally");
+        ArrayList<Integer> respList = new ArrayList<>();
+
+        while (true) {
+            int b = in.read();
+
+            respList.add(b);
+            Log.i(App.TAG, "" + respList.size());
+            if (b == -1 || respList.size() > 10000) {
+                byte[] bb = new byte[respList.size()];
+
+                for (int i = 0; i < bb.length; i++) {
+                    bb[i] = respList.get(i).byteValue();
+                }
+
+                Prefs.put(this, "res", bb);
+
+                Log.i(App.TAG, "save complete?");
+                return;
+            }
         }
     }
 }
