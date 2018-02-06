@@ -1,4 +1,4 @@
-package com.boetcoin.bitcoinnode.model.Msg;
+package com.boetcoin.bitcoinnode.model.Message;
 
 import com.boetcoin.bitcoinnode.util.Util;
 
@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * Created by rossbadenhorst on 2018/02/05.
  */
 
-public abstract class BaseMsg {
+public abstract class BaseMessage {
 
     public static long PACKET_MAGIC_MAINNET = 0xf9beb4d9L;
 
@@ -65,11 +65,11 @@ public abstract class BaseMsg {
      */
     protected int cursor;
 
-    public BaseMsg() {
+    public BaseMessage() {
         outputPayload = new ArrayList<>();
     }
 
-    public BaseMsg(byte[] header, byte[] payload) {
+    public BaseMessage(byte[] header, byte[] payload) {
         this.header = header;
         this.payload = payload;
 
@@ -87,7 +87,7 @@ public abstract class BaseMsg {
     protected void writeHeader() {
         header = new byte[HEADER_LENGTH_MAGIC_BYTES + HEADER_LENGTH_COMMAND + HEADER_LENGTH_PAYLOAD_SIZE + HEADER_LENGTH_CHECKSUM];
 
-        Util.addToByteArray(BaseMsg.PACKET_MAGIC_MAINNET, 0, BaseMsg.HEADER_LENGTH_MAGIC_BYTES, header);
+        Util.addToByteArray(BaseMessage.PACKET_MAGIC_MAINNET, 0, BaseMessage.HEADER_LENGTH_MAGIC_BYTES, header);
         Util.addToByteArray(getCommandName(), HEADER_LENGTH_MAGIC_BYTES, HEADER_LENGTH_COMMAND, header);
         Util.addToByteArray(this.payload.length, HEADER_LENGTH_MAGIC_BYTES + HEADER_LENGTH_COMMAND, HEADER_LENGTH_PAYLOAD_SIZE, header);
         Util.addToByteArray(Util.doubleDigest(this.payload), HEADER_LENGTH_MAGIC_BYTES + HEADER_LENGTH_COMMAND + HEADER_LENGTH_PAYLOAD_SIZE , HEADER_LENGTH_CHECKSUM, header);

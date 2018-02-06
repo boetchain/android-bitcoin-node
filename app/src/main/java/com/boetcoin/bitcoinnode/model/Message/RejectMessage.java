@@ -1,10 +1,10 @@
-package com.boetcoin.bitcoinnode.model.Msg;
+package com.boetcoin.bitcoinnode.model.Message;
 
 /**
  * Created by rossbadenhorst on 2018/02/05.
  */
 
-public class RejectMsg extends BaseMsg {
+public class RejectMessage extends BaseMessage {
 
     public static final String COMMAND_NAME = "reject";
 
@@ -35,7 +35,7 @@ public class RejectMsg extends BaseMsg {
     protected void writePayload() {
     }
 
-    public RejectMsg(byte[] header, byte[] payload) {
+    public RejectMessage(byte[] header, byte[] payload) {
         super(header, payload);
     }
 

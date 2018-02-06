@@ -1,17 +1,12 @@
-package com.boetcoin.bitcoinnode.model.Msg;
+package com.boetcoin.bitcoinnode.model.Message;
 
-import android.util.Log;
-
-import com.boetcoin.bitcoinnode.App;
 import com.boetcoin.bitcoinnode.util.Util;
-
-import java.math.BigInteger;
 
 /**
  * Created by rossbadenhorst on 2018/02/05.
  */
 
-public class VersionMsg extends BaseMsg {
+public class VersionMessage extends BaseMessage {
 
     public static final String COMMAND_NAME = "version";
 
@@ -53,7 +48,7 @@ public class VersionMsg extends BaseMsg {
      */
     private boolean relay;
 
-    public VersionMsg() {
+    public VersionMessage() {
         super();
         this.version = 70012;
         this.services = 505;
@@ -69,7 +64,7 @@ public class VersionMsg extends BaseMsg {
         writeHeader();
     }
 
-    public VersionMsg(byte[] header, byte[] payload) {
+    public VersionMessage(byte[] header, byte[] payload) {
         super(header, payload);
     }
 
@@ -146,7 +141,7 @@ public class VersionMsg extends BaseMsg {
 
     @Override
     public String toString() {
-        return "VersionMsg{" +
+        return "VersionMessage{" +
                 "version=" + version +
                 ", services=" + services +
                 ", timestamp=" + timestamp +
