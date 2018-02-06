@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean hasMagicBytes(InputStream in) throws IOException {
         Log.i(App.TAG, "hasMagicBytes");
         byte[] superSpecialMagicBytes = new byte[BaseMessage.HEADER_LENGTH_MAGIC_BYTES];
-        Util.addToByteArray(BaseMessage.PACKET_MAGIC_MAINNET, 0, BaseMessage.HEADER_LENGTH_MAGIC_BYTES, superSpecialMagicBytes);
+        Util.addToByteArray(BaseMessage.MAGIC_PACKETS_MAINNET, 0, BaseMessage.HEADER_LENGTH_MAGIC_BYTES, superSpecialMagicBytes);
 
         int numMagicBytesFound  = 0;
         while (true) {

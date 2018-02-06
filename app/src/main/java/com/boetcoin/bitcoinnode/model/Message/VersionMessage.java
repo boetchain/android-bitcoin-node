@@ -51,13 +51,13 @@ public class VersionMessage extends BaseMessage {
     public VersionMessage() {
         super();
         this.version = 70012;
-        this.services = 505;
+        this.services = 0;
         this.timestamp = System.currentTimeMillis() / 1000;
         this.addrRecv = "";
         this.addrFrom = "";
         this.nonce = 22;
         this.userAgent = "BoetChain";
-        this.startHeight = 200;
+        this.startHeight = 0;
         this.relay = true;
 
         writePayload();
@@ -70,7 +70,6 @@ public class VersionMessage extends BaseMessage {
 
     @Override
     protected void writePayload() {
-
         writeUint32(this.version);
         writeUint64(this.services);
         writeUint64(this.timestamp);
@@ -87,14 +86,25 @@ public class VersionMessage extends BaseMessage {
         }
     }
 
+    /**
+     * Reads an address of a peer. (not used)
+     *
+     * This will adjust the cursor once we have read it,
+     * so we know where the next element to read starts.
+     *
+     * @return the address in string format
+     */
+    protected String readAddress() {
+        return Util.toString(readBytes((int) 26), "UTF-8");
+    }
+
+    /**
+     * Writes an address of a peer or ours. (not used)
+     */
     private void writeAddress() {
         byte[] dummyAddr = new byte[26];
         Util.addToByteArray("$234567890123456789055555*", 0, 26, dummyAddr);
         writeBytes(dummyAddr);
-    }
-
-    protected String readAddress() {
-        return Util.toString(readBytes((int) 26), "UTF-8");
     }
 
     @Override
