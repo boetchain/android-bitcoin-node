@@ -7,9 +7,6 @@ import android.util.Log;
 
 import com.boetcoin.bitcoinnode.App;
 import com.boetcoin.bitcoinnode.R;
-import com.boetcoin.bitcoinnode.model.Message.BaseMessage;
-import com.boetcoin.bitcoinnode.model.Message.RejectMessage;
-import com.boetcoin.bitcoinnode.model.Message.VersionMessage;
 import com.boetcoin.bitcoinnode.model.Msg.BaseMsg;
 import com.boetcoin.bitcoinnode.model.Msg.RejectMsg;
 import com.boetcoin.bitcoinnode.model.Msg.VersionMsg;
@@ -209,8 +206,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private boolean hasMagicBytes(InputStream in) throws IOException {
         Log.i(App.TAG, "hasMagicBytes");
-        byte[] superSpecialMagicBytes = new byte[BaseMessage.HEADER_MAGIC_STRING_LENGTH];
-        Util.addToByteArray(BaseMessage.PACKET_MAGIC_MAINNET, 0, BaseMessage.HEADER_MAGIC_STRING_LENGTH, superSpecialMagicBytes);
+        byte[] superSpecialMagicBytes = new byte[BaseMsg.HEADER_LENGTH_MAGIC_BYTES];
+        Util.addToByteArray(BaseMsg.PACKET_MAGIC_MAINNET, 0, BaseMsg.HEADER_LENGTH_MAGIC_BYTES, superSpecialMagicBytes);
 
         int numMagicBytesFound  = 0;
         while (true) {
@@ -238,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
      * @throws IOException - when shit happens.
      */
     private byte[] readHeader(InputStream in) throws IOException {
-        byte[] header = new byte[BaseMessage.HEADER_COMMAND_LENGTH + BaseMessage.HEADER_PAYLOAD_SIZE_LENGTH + BaseMessage.HEADER_CHECKSUM_LENGTH];
+        byte[] header = new byte[BaseMsg.HEADER_LENGTH_COMMAND + BaseMsg.HEADER_LENGTH_PAYLOAD_SIZE + BaseMsg.HEADER_LENGTH_CHECKSUM];
 
         int cursor = 0;
         while (cursor < header.length) {
@@ -259,8 +256,8 @@ public class MainActivity extends AppCompatActivity {
      * @return the command in string format.
      */
     private String getCommandNameFromHeader(byte[] header) {
-        byte[] commandNameByteArray = new byte[BaseMessage.HEADER_COMMAND_LENGTH];
-        for (int i = 0; i < header.length && i < BaseMessage.HEADER_COMMAND_LENGTH; i++) {
+        byte[] commandNameByteArray = new byte[BaseMsg.HEADER_LENGTH_COMMAND];
+        for (int i = 0; i < header.length && i < BaseMsg.HEADER_LENGTH_COMMAND; i++) {
             commandNameByteArray[i] = header[i];
         }
 
@@ -278,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
      * @return the payload size in bytes
      */
     private int getPayloadSizeFromHeader(byte[] header) {
-        return (int) Util.readUint32(header, BaseMessage.HEADER_COMMAND_LENGTH);
+        return (int) Util.readUint32(header, BaseMsg.HEADER_LENGTH_COMMAND);
     }
 
     /**
@@ -288,9 +285,9 @@ public class MainActivity extends AppCompatActivity {
      * @return the check sum
      */
     private byte[] getCheckSumFromHeader(byte[] header) {
-        byte[] checksum = new byte[BaseMessage.HEADER_CHECKSUM_LENGTH];
-        int checkSumOffsetInHeader = BaseMessage.HEADER_COMMAND_LENGTH + BaseMessage.HEADER_PAYLOAD_SIZE_LENGTH;
-        System.arraycopy(header, checkSumOffsetInHeader, checksum, 0, BaseMessage.HEADER_CHECKSUM_LENGTH);
+        byte[] checksum = new byte[BaseMsg.HEADER_LENGTH_CHECKSUM];
+        int checkSumOffsetInHeader = BaseMsg.HEADER_LENGTH_COMMAND + BaseMsg.HEADER_LENGTH_PAYLOAD_SIZE;
+        System.arraycopy(header, checkSumOffsetInHeader, checksum, 0, BaseMsg.HEADER_LENGTH_CHECKSUM);
 
         return checksum;
     }
@@ -343,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(App.TAG, "Constructing: " + commandName);
 
         BaseMsg message;
-        if (commandName.toLowerCase().contains(RejectMessage.COMMAND_NAME)) {
+        if (commandName.toLowerCase().contains(RejectMsg.COMMAND_NAME)) {
             message = new RejectMsg(header, payload);
             Log.i(App.TAG, message.toString());
         }

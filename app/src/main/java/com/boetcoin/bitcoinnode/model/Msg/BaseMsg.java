@@ -1,9 +1,5 @@
 package com.boetcoin.bitcoinnode.model.Msg;
 
-import android.util.Log;
-
-import com.boetcoin.bitcoinnode.App;
-import com.boetcoin.bitcoinnode.model.Message.BaseMessage;
 import com.boetcoin.bitcoinnode.util.Util;
 
 import java.math.BigInteger;
@@ -14,6 +10,13 @@ import java.util.ArrayList;
  */
 
 public abstract class BaseMsg {
+
+    public static long PACKET_MAGIC_MAINNET = 0xf9beb4d9L;
+
+    /**
+     * The max size of a message according to the BTC protocol.
+     */
+    public static int MAX_SIZE = 33554432;
 
     /**
      * Length of the magic bytes in header.
@@ -84,7 +87,7 @@ public abstract class BaseMsg {
     protected void writeHeader() {
         header = new byte[HEADER_LENGTH_MAGIC_BYTES + HEADER_LENGTH_COMMAND + HEADER_LENGTH_PAYLOAD_SIZE + HEADER_LENGTH_CHECKSUM];
 
-        Util.addToByteArray(BaseMessage.PACKET_MAGIC_MAINNET, 0, BaseMessage.HEADER_MAGIC_STRING_LENGTH, header);
+        Util.addToByteArray(BaseMsg.PACKET_MAGIC_MAINNET, 0, BaseMsg.HEADER_LENGTH_MAGIC_BYTES, header);
         Util.addToByteArray(getCommandName(), HEADER_LENGTH_MAGIC_BYTES, HEADER_LENGTH_COMMAND, header);
         Util.addToByteArray(this.payload.length, HEADER_LENGTH_MAGIC_BYTES + HEADER_LENGTH_COMMAND, HEADER_LENGTH_PAYLOAD_SIZE, header);
         Util.addToByteArray(Util.doubleDigest(this.payload), HEADER_LENGTH_MAGIC_BYTES + HEADER_LENGTH_COMMAND + HEADER_LENGTH_PAYLOAD_SIZE , HEADER_LENGTH_CHECKSUM, header);
