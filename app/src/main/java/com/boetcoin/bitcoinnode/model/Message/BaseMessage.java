@@ -119,6 +119,11 @@ public abstract class BaseMessage {
         return length == 0 ? "" : Util.toString(readBytes((int) length), "UTF-8"); // optimization for empty strings
     }
 
+    protected void writeStr(String value) {
+        writeVarInt(value.getBytes().length);
+        writeBytes(value.getBytes());
+    }
+
     /**
      * Reads a variable-length unsigned integer from the payload.
      * I believe this is used Satoshi's unique encoding style.

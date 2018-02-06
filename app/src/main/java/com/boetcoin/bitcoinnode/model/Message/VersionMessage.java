@@ -80,8 +80,7 @@ public class VersionMessage extends BaseMessage {
         writeAddress();// addr from - not used :?
         writeUint32(nonce);
         writeUint32(this.nonce >> 32);
-        writeVarInt(userAgent.getBytes().length);
-        writeBytes(userAgent.getBytes());
+        writeStr(userAgent);
         writeUint32(startHeight);
         writeInt(relay ? 1 : 0);
 
