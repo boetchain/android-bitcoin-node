@@ -12,6 +12,7 @@ import com.boetcoin.bitcoinnode.model.Message.RejectMessage;
 import com.boetcoin.bitcoinnode.model.Message.VersionMessage;
 import com.boetcoin.bitcoinnode.model.Msg.BaseMsg;
 import com.boetcoin.bitcoinnode.model.Msg.RejectMsg;
+import com.boetcoin.bitcoinnode.model.Msg.VersionMsg;
 import com.boetcoin.bitcoinnode.model.Peer;
 import com.boetcoin.bitcoinnode.util.Prefs;
 import com.boetcoin.bitcoinnode.util.Util;
@@ -38,21 +39,43 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final byte[] savedResponse = Prefs.getByte(this, "res", new byte[0]);
+        //final byte[] savedResponse = Prefs.getByte(this, "res", new byte[0]);
         //VersionMessage versionMessage = new VersionMessage();
 
-        //final byte[] savedResponse = Bytes.concat(versionMessage.getHeader(),versionMessage.getPayload());
+        VersionMsg versionMessage = new VersionMsg();
+        final byte[] savedResponse = Bytes.concat(versionMessage.getHeader(), versionMessage.getPayload());
+
+        /*
+        final byte[] savedResponse = new byte[1000];
+        for (int i = 0; i < savedResponse.length ; i++) {
+            savedResponse[i] = 1;
+        }
+        */
+
+
+        //Log.i(App.TAG, "UI: " + Util.bytesToHexString(Util.doubleDigest(versionMessage.getPayload())));
+
+
+        //Log.i(App.TAG, "LEN P : " +  versionMessage.getPayload().length);
+        //Log.i(App.TAG, "LEN S : " +  savedResponse.length);
+        //Log.i(App.TAG, Util.bytesToHexString(savedResponse));
+
+        //Log.i(App.TAG, Util.bytesToHexString(Bytes.concat(versionMessage.getHeader(), versionMessage.getPayload())));
+        Log.i(App.TAG, "LEN ALL : " +  savedResponse.length);
+
         InputStream in = new InputStream() {
             int pos = 0;
             @Override
             public int read() throws IOException {
 
                 if (pos < savedResponse.length) {
+                    //Log.i(App.TAG, "read : " +  pos + " | " + savedResponse.length ) ;
                     int b = savedResponse[pos];
                     pos++;
                     return b;
                 }
 
+                //Log.i(App.TAG, "pos : " +  pos);
                 return -1;
             }
         };
@@ -62,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.i(App.TAG, "Read message failed: " + e.getMessage());
         }
+
 
 
         /*
@@ -77,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                 protected Void doInBackground(Void... unused) {
                     //VersionMessage versionMessage = new VersionMessage();
                     //Log.i(App.TAG, versionMessage.toString());
-                    connect(locallySavedPeers.get(1));
+                    connect(locallySavedPeers.get(0));
                     return null;
                 }
             }.execute();
@@ -96,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             OutputStream out = socket.getOutputStream();
             InputStream in = socket.getInputStream();
 
-            VersionMessage versionMessage = new VersionMessage();
+            VersionMsg versionMessage = new VersionMsg();
             writeMessage(versionMessage, out);
 
             readMessage(in);
@@ -111,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void writeMessage(BaseMessage message, OutputStream out) {
+    private void writeMessage(BaseMsg message, OutputStream out) {
         Log.i(App.TAG, "writeMessage: " + message.getCommandName());
 
         byte[] header   = message.getHeader();
@@ -136,8 +160,6 @@ public class MainActivity extends AppCompatActivity {
      * @throws IOException - when shit happens.
      */
     private void readMessage(InputStream in) throws IOException {
-        Log.i(App.TAG, "readingMessage...");
-
         if (hasMagicBytes(in)) {
 
             byte[] header = readHeader(in);
@@ -145,6 +167,15 @@ public class MainActivity extends AppCompatActivity {
             byte[] checkSum = getCheckSumFromHeader(header);
 
             byte[] payload = readPayload(in, payloadSize);
+
+            //Log.i(App.TAG, "ps: " + payloadSize);
+            //Log.i(App.TAG, "fs: " + payload.length);
+            //Log.i(App.TAG, "rm: " + Util.bytesToHexString(Util.doubleDigest(payload)));
+            //Log.i(App.TAG, Util.bytesToHexString(payload));
+
+            //byte[] x = Bytes.concat(header, payload);
+            //Log.i(App.TAG, Util.bytesToHexString(x));
+
 
             if (checkCheckSum(payload, checkSum)) {
                 constructMessage(header, payload);
@@ -271,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
         int cursor = 0;
         while (cursor < payload.length) {
             int bytesRead = in.read(payload, cursor, payload.length - cursor);
+            //Log.i(App.TAG, "br: "+ bytesRead);
             if (bytesRead == -1) {
                 break; // End of message
             }
@@ -305,6 +337,10 @@ public class MainActivity extends AppCompatActivity {
         if (commandName.toLowerCase().contains(RejectMessage.COMMAND_NAME)) {
             message = new RejectMsg(header, payload);
             Log.i(App.TAG, message.toString());
+        }
+
+        if (commandName.toLowerCase().contains(VersionMsg.COMMAND_NAME)) {
+            message = new VersionMsg(header, payload);
         }
     }
 }

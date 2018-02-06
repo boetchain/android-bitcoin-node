@@ -1,14 +1,12 @@
 package com.boetcoin.bitcoinnode.model.Msg;
 
-import android.util.Log;
-
-import com.boetcoin.bitcoinnode.App;
-
 /**
  * Created by rossbadenhorst on 2018/02/05.
  */
 
 public class RejectMsg extends BaseMsg {
+
+    public static final String COMMAND_NAME = "reject";
 
     /**
      * The type of message that is rejected.
@@ -33,12 +31,16 @@ public class RejectMsg extends BaseMsg {
     public static byte REJECT_CHECKPOINT       = 0x43;
     public static int REJECT_OTHER             = 0xff;
 
+    @Override
+    protected void writePayload() {
+    }
+
     public RejectMsg(byte[] header, byte[] payload) {
         super(header, payload);
     }
 
     @Override
-    protected void parse() {
+    protected void readPayload() {
         this.message = readStr();
         this.code = getCode(readBytes(1)[0]);
         this.reason = readStr();
@@ -82,6 +84,10 @@ public class RejectMsg extends BaseMsg {
         return (byte) REJECT_OTHER;
     }
 
+    @Override
+    public String getCommandName() {
+        return COMMAND_NAME;
+    }
     @Override
     public String toString() {
         return "Reject: " + message + ", " + reason;

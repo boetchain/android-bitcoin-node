@@ -147,6 +147,30 @@ public class Util {
     }
 
     /**
+     * Returns a copy of the given byte array in reverse order.
+     */
+    public static byte[] reverseBytes(byte[] bytes) {
+        byte[] buf = new byte[bytes.length];
+        for (int i = 0; i < bytes.length; i++)
+            buf[i] = bytes[bytes.length - 1 - i];
+        return buf;
+    }
+
+    /**
+     * Returns the minimum encoded size of the given unsigned long value.
+     *
+     * @param value the unsigned long value (beware widening conversion of negatives!)
+     */
+    public static int sizeOf(long value) {
+        // if negative, it's actually a very large unsigned long value
+        if (value < 0) return 9; // 1 marker + 8 data bytes
+        if (value < 253) return 1; // 1 data byte
+        if (value <= 0xFFFFL) return 3; // 1 marker + 2 data bytes
+        if (value <= 0xFFFFFFFFL) return 5; // 1 marker + 4 data bytes
+        return 9; // 1 marker + 8 data bytes
+    }
+
+    /**
      * Constructs a new String by decoding the given bytes using the specified charset.
      * <p>
      * This is a convenience method which wraps the checked exception with a RuntimeException.

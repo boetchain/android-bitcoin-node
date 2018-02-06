@@ -3,13 +3,38 @@ package com.boetcoin.bitcoinnode.model.Msg;
 import android.util.Log;
 
 import com.boetcoin.bitcoinnode.App;
+import com.boetcoin.bitcoinnode.model.Message.BaseMessage;
 import com.boetcoin.bitcoinnode.util.Util;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
 
 /**
  * Created by rossbadenhorst on 2018/02/05.
  */
 
 public abstract class BaseMsg {
+
+    /**
+     * Length of the magic bytes in header.
+     * In bytes.
+     */
+    public static final int HEADER_LENGTH_MAGIC_BYTES = 4;
+    /**
+     * Length of the command in header.
+     * In bytes.
+     */
+    public static final int HEADER_LENGTH_COMMAND = 12;
+    /**
+     * Length of the payload size in header.
+     * In bytes.
+     */
+    public static final int HEADER_LENGTH_PAYLOAD_SIZE = 4;
+    /**
+     * Length of the checksum in header.
+     * In bytes.
+     */
+    public static final int HEADER_LENGTH_CHECKSUM = 4;
 
     /**
      * The header of the message that has been sent or received.
@@ -19,6 +44,10 @@ public abstract class BaseMsg {
      * The payload of the message that has been sent or received.
      */
     protected byte[] payload;
+    /**
+     * Used for when we build up a payload to send out to a peer
+     */
+    protected ArrayList<Integer> outputPayload;
     /**
      * How many bytes into the payload does the good stuff start at.
      * Not to sure about this, but bitcoinj had this stuff... and they are clever as fuck!
@@ -33,11 +62,33 @@ public abstract class BaseMsg {
      */
     protected int cursor;
 
+    public BaseMsg() {
+        outputPayload = new ArrayList<>();
+    }
+
     public BaseMsg(byte[] header, byte[] payload) {
         this.header = header;
         this.payload = payload;
 
-        parse();
+        readPayload();
+    }
+
+    public byte[] getHeader() {
+        return this.header;
+    }
+
+    public byte[] getPayload() {
+        return this.payload;
+    }
+
+    protected void writeHeader() {
+        Log.i(App.TAG, "writeHeader");
+        header = new byte[HEADER_LENGTH_MAGIC_BYTES + HEADER_LENGTH_COMMAND + HEADER_LENGTH_PAYLOAD_SIZE + HEADER_LENGTH_CHECKSUM];
+
+        Util.addToByteArray(BaseMessage.PACKET_MAGIC_MAINNET, 0, BaseMessage.HEADER_MAGIC_STRING_LENGTH, header);
+        Util.addToByteArray(getCommandName(), HEADER_LENGTH_MAGIC_BYTES, HEADER_LENGTH_COMMAND, header);
+        Util.addToByteArray(this.payload.length, HEADER_LENGTH_MAGIC_BYTES + HEADER_LENGTH_COMMAND, HEADER_LENGTH_PAYLOAD_SIZE, header);
+        Util.addToByteArray(Util.doubleDigest(this.payload), HEADER_LENGTH_MAGIC_BYTES + HEADER_LENGTH_COMMAND + HEADER_LENGTH_PAYLOAD_SIZE , HEADER_LENGTH_CHECKSUM, header);
     }
 
     /**
@@ -46,9 +97,14 @@ public abstract class BaseMsg {
      * We will use methods like readStr() or readInt()
      * To dissect the payload byte array.
      *
-     * This is where we adjust the cursor and "read" the array sequentially.
+     * This is where we adjust the cursor and "read" the payload array sequentially.
      */
-    protected abstract void parse();
+    protected abstract void readPayload();
+
+    public abstract String getCommandName();
+
+
+    protected abstract void writePayload();
 
     /**
      * Reads a string from the payload byte array.
@@ -112,6 +168,69 @@ public abstract class BaseMsg {
         } catch (IndexOutOfBoundsException e) {
             cursor += length;
             return new byte[length];
+        }
+    }
+
+    protected void writeVarInt(long value) {
+        switch (Util.sizeOf(value)) {
+            case 1:
+                outputPayload.add((int) value);
+                break;
+            case 3:
+                outputPayload.add((253));
+                outputPayload.add((int) value);
+                outputPayload.add((int) value >> 8);
+                break;
+            case 5:
+                writeInt(254);
+                writeUint32(value);
+                break;
+            default:
+                writeInt(255);
+                writeUint64(value);
+        }
+    }
+
+    protected void writeUint32(long value) {
+        outputPayload.add((int) (0xFF & value));
+        outputPayload.add((int) (0xFF & (value >> 8)));
+        outputPayload.add((int) (0xFF & (value >> 16)));
+        outputPayload.add((int) (0xFF & (value >> 24)));
+    }
+
+    protected void writeUint64(long value) {
+        outputPayload.add((int) (0xFF & value));
+        outputPayload.add((int) (0xFF & (value >> 8)));
+        outputPayload.add((int) (0xFF & (value >> 16)));
+        outputPayload.add((int) (0xFF & (value >> 24)));
+        outputPayload.add((int) (0xFF & (value >> 32)));
+        outputPayload.add((int) (0xFF & (value >> 40)));
+        outputPayload.add((int) (0xFF & (value >> 48)));
+        outputPayload.add((int) (0xFF & (value >> 56)));
+    }
+
+    protected void writeUint64(BigInteger value) {
+        byte[] bytes = value.toByteArray();
+        if (bytes.length > 8) {
+            throw new RuntimeException("Input too large to encode into a uint64");
+        }
+        bytes = Util.reverseBytes(bytes);
+        for (byte b : bytes) {
+            outputPayload.add((int) b);
+        }
+        if (bytes.length < 8) {
+            for (int i = 0; i < 8 - bytes.length; i++)
+                outputPayload.add(0);
+        }
+    }
+
+    protected void writeInt(int value) {
+        outputPayload.add(value);
+    }
+
+    protected void writeBytes(byte[] values) {
+        for(byte value : values) {
+            outputPayload.add((int) value);
         }
     }
 }
