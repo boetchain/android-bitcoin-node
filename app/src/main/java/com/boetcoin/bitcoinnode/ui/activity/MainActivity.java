@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         //Log.i(App.TAG, Util.bytesToHexString(Bytes.concat(versionMessage.getHeader(), versionMessage.getPayload())));
         //Log.i(App.TAG, "LEN ALL : " +  savedResponse.length);
 
+        /*
         InputStream in = new InputStream() {
             int pos = 0;
             @Override
@@ -75,9 +76,10 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.i(App.TAG, "Read message failed: " + e.getMessage());
         }
+        */
 
 
-        /*
+
         //Peer.deleteAll(Peer.class);
         final List<Peer> locallySavedPeers = Peer.listAll(Peer.class);
         //Peer.deleteAll(Peer.class);
@@ -96,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }.execute();
         }
-        */
+
     }
 
     private void connect(Peer peer) {

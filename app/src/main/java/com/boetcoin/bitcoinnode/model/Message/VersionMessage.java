@@ -55,7 +55,7 @@ public class VersionMessage extends BaseMessage {
         this.timestamp = System.currentTimeMillis() / 1000;
         this.addrRecv = "";
         this.addrFrom = "";
-        this.nonce = 0;
+        this.nonce = 22;
         this.userAgent = "BoetChain";
         this.startHeight = 200;
         this.relay = true;
@@ -72,14 +72,11 @@ public class VersionMessage extends BaseMessage {
     protected void writePayload() {
 
         writeUint32(this.version);
-        writeUint32(this.services);
-        writeUint32(this.services >> 32);
-        writeUint32(this.timestamp);
-        writeUint32(this.timestamp >> 32);
+        writeUint64(this.services);
+        writeUint64(this.timestamp);
         writeAddress();// addr receive - not used :?
         writeAddress();// addr from - not used :?
-        writeUint32(nonce);
-        writeUint32(this.nonce >> 32);
+        writeUint64(this.nonce);
         writeStr(userAgent);
         writeUint32(startHeight);
         writeInt(relay ? 1 : 0);
@@ -91,27 +88,7 @@ public class VersionMessage extends BaseMessage {
     }
 
     private void writeAddress() {
-        /*
-        int lenBefore = outputPayload.size();
-
-        BigInteger services = BigInteger.ZERO;
-        writeUint64(services);
-
-        try {
-            //InetAddress localhost = InetAddress.getByName("127.0.0.1");
-            byte[] ipBytes = new  byte[16];
-            writeBytes(ipBytes);
-
-            writeInt((byte) (0xFF & 8333 >> 8));
-            writeInt((byte) (0xFF & 8333));
-        } catch (Exception e) {
-            Log.i(App.TAG, "" + e.getMessage(), e);
-        }
-
-        Log.i(App.TAG, "ADDRSIZE:" + (outputPayload.size() - lenBefore));
-        */
         byte[] dummyAddr = new byte[26];
-
         Util.addToByteArray("$234567890123456789055555*", 0, 26, dummyAddr);
         writeBytes(dummyAddr);
     }
