@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     //todo on first peer load, connect to first peer on complete
                     //VersionMessage versionMessage = new VersionMessage();
                     //Log.i(App.TAG, versionMessage.toString());
-                    connect(locallySavedPeers.get(8));
+                    connect(locallySavedPeers.get(80));
                     return null;
                 }
 
@@ -164,11 +164,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 incoming = readMessage(in);
 
                 if (incoming instanceof SendCmpctMessage) {
-
+                    writeMessage(getAddrMessage, out);
+                    readMessage(in);
                 } else {
                     writeMessage(getAddrMessage, out);
                     readMessage(in);
                 }
+
+                writeMessage(getAddrMessage, out);
+                readMessage(in);
+
+                writeMessage(getAddrMessage, out);
+                readMessage(in);
             }
 
 
