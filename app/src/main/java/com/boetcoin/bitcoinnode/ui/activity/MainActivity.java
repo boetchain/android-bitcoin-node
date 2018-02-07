@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 protected Void doInBackground(Void... unused) {
                     //VersionMessage versionMessage = new VersionMessage();
                     //Log.i(App.TAG, versionMessage.toString());
-                    connect(locallySavedPeers.get(0));
+                    connect(locallySavedPeers.get(7));
                     return null;
                 }
             }.execute();
@@ -131,6 +131,10 @@ public class MainActivity extends AppCompatActivity {
             writeMessage(getAddrMessage, out);
 
             //Step 6 - read addr
+            readMessage(in);
+
+            writeMessage(getAddrMessage, out);
+
             readMessage(in);
 
             writeMessage(getAddrMessage, out);
