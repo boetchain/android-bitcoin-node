@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.boetcoin.bitcoinnode.App;
 import com.boetcoin.bitcoinnode.R;
+import com.boetcoin.bitcoinnode.model.Message.AddrMessage;
 import com.boetcoin.bitcoinnode.model.Message.AlertMessage;
 import com.boetcoin.bitcoinnode.model.Message.BaseMessage;
 import com.boetcoin.bitcoinnode.model.Message.GetAddrMessage;
@@ -102,11 +103,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (locallySavedPeers.size() == 0) {
             Peer.findByDnsSeeds(getResources().getStringArray(R.array.dns_seed_nodes));
             Notify.toast(this, R.string.error_cant_find_peers, Toast.LENGTH_SHORT);
-            toggleHowzitBtnState(true);
+            toggleHowzitBtnState(false);
         } else {
 
             new AsyncTask<Void, Void, Void>() {
                 protected Void doInBackground(Void... unused) {
+                    //todo on first peer load, connect to first peer on complete
                     //VersionMessage versionMessage = new VersionMessage();
                     //Log.i(App.TAG, versionMessage.toString());
                     connect(locallySavedPeers.get(7));
@@ -152,6 +154,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             writeMessage(getAddrMessage, out);
 
             //Step 6 - read addr
+            readMessage(in);
+
+            writeMessage(getAddrMessage, out);
+
             readMessage(in);
 
             writeMessage(getAddrMessage, out);
@@ -386,6 +392,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             AlertMessage alertMessage = new AlertMessage(header, payload);
             Log.i(App.TAG, alertMessage.toString());
             return new VerAckMessage(header, payload);
+        }
+
+        if (commandName.toLowerCase().contains(AddrMessage.COMMAND_NAME)) {
+            AddrMessage addrMessage = new AddrMessage(header, payload);
+            Log.i(App.TAG, addrMessage.toString());
+            return addrMessage;
         }
 
         return null;
