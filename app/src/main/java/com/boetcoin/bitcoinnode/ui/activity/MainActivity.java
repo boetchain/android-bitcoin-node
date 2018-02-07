@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     //todo on first peer load, connect to first peer on complete
                     //VersionMessage versionMessage = new VersionMessage();
                     //Log.i(App.TAG, versionMessage.toString());
-                    connect(locallySavedPeers.get(7));
+                    connect(locallySavedPeers.get(8));
                     return null;
                 }
 
