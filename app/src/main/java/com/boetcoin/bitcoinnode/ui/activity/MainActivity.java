@@ -16,6 +16,7 @@ import com.boetcoin.bitcoinnode.model.Message.BaseMessage;
 import com.boetcoin.bitcoinnode.model.Message.GetAddrMessage;
 import com.boetcoin.bitcoinnode.model.Message.HeadersMessage;
 import com.boetcoin.bitcoinnode.model.Message.RejectMessage;
+import com.boetcoin.bitcoinnode.model.Message.SendCmpctMessage;
 import com.boetcoin.bitcoinnode.model.Message.SendHeadersMessage;
 import com.boetcoin.bitcoinnode.model.Message.VerAckMessage;
 import com.boetcoin.bitcoinnode.model.Message.VersionMessage;
@@ -160,10 +161,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             if (incoming instanceof SendHeadersMessage) {
                 writeMessage(new HeadersMessage(), out);
-                readMessage(in);
+                incoming = readMessage(in);
 
-                writeMessage(getAddrMessage, out);
-                readMessage(in);
+                if (incoming instanceof SendCmpctMessage) {
+
+                } else {
+                    writeMessage(getAddrMessage, out);
+                    readMessage(in);
+                }
             }
 
 
@@ -402,6 +407,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             SendHeadersMessage sendHeadersMessage = new SendHeadersMessage(header, payload);
             Log.i(App.TAG, sendHeadersMessage.toString());
             return sendHeadersMessage;
+        }
+
+        if (commandName.toLowerCase().contains(SendCmpctMessage.COMMAND_NAME)) {
+            SendCmpctMessage sendCmpctMessage = new SendCmpctMessage(header, payload);
+            Log.i(App.TAG, sendCmpctMessage.toString());
+            return sendCmpctMessage;
         }
 
         return null;

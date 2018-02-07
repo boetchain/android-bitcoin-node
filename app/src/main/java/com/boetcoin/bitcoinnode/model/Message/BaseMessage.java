@@ -311,4 +311,20 @@ public abstract class BaseMessage {
         long len = readVarInt();
         return readBytes((int)len);
     }
+
+    protected boolean readBoolean() {
+        if (readBytes(1)[0] == 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected writeBoolean(boolean value) {
+        if (value) {
+            writeBytes(new byte[]{1});
+        } else {
+            writeBytes(new byte[]{0});
+        }
+    }
 }
