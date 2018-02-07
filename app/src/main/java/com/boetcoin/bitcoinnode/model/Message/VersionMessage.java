@@ -50,7 +50,7 @@ public class VersionMessage extends BaseMessage {
 
     public VersionMessage() {
         super();
-        this.version = 70012;
+        this.version = 70015;
         this.services = 0;
         this.timestamp = System.currentTimeMillis() / 1000;
         this.addrRecv = "";
