@@ -2,9 +2,11 @@ package com.boetcoin.bitcoinnode.ui.activity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.boetcoin.bitcoinnode.App;
 import com.boetcoin.bitcoinnode.R;
@@ -15,9 +17,9 @@ import com.boetcoin.bitcoinnode.model.Message.RejectMessage;
 import com.boetcoin.bitcoinnode.model.Message.VerAckMessage;
 import com.boetcoin.bitcoinnode.model.Message.VersionMessage;
 import com.boetcoin.bitcoinnode.model.Peer;
+import com.boetcoin.bitcoinnode.util.Notify;
 import com.boetcoin.bitcoinnode.util.Prefs;
 import com.boetcoin.bitcoinnode.util.Util;
-import com.google.common.primitives.Bytes;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,14 +30,26 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     static int count = 0;
+
+    private boolean isTuningHowzit = false;
+
+    private Button howzitBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        howzitBtn = (Button) findViewById(R.id.activity_main_howzit_btn);
+        howzitBtn.setOnClickListener(this);
+    }
+
+    private void tuneHowzit() {
+
+        toggleHowzitBtnState(true);
 
         final byte[] savedResponse = Prefs.getByte(this, "res", new byte[0]);
         //VersionMessage versionMessage = new VersionMessage();
@@ -80,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
         };
         */
 
-
         //Peer.deleteAll(Peer.class);
         final List<Peer> locallySavedPeers = Peer.listAll(Peer.class);
         //Peer.deleteAll(Peer.class);
@@ -88,6 +101,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (locallySavedPeers.size() == 0) {
             Peer.findByDnsSeeds(getResources().getStringArray(R.array.dns_seed_nodes));
+            Notify.toast(this, R.string.error_cant_find_peers, Toast.LENGTH_SHORT);
+            toggleHowzitBtnState(true);
         } else {
 
             new AsyncTask<Void, Void, Void>() {
@@ -96,6 +111,12 @@ public class MainActivity extends AppCompatActivity {
                     //Log.i(App.TAG, versionMessage.toString());
                     connect(locallySavedPeers.get(7));
                     return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    super.onPostExecute(aVoid);
+                    toggleHowzitBtnState(false);
                 }
             }.execute();
         }
@@ -391,6 +412,39 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(App.TAG, "save complete?");
                 return;
             }
+        }
+    }
+
+    /**
+     * Sets the howzit button to working/not working
+     *
+     * @param startTuning determines whether to set the state as working or not working
+     */
+    private void toggleHowzitBtnState(boolean startTuning) {
+
+        if (startTuning) {
+
+            howzitBtn.setText(getResources().getString(R.string.activity_main_howzit_btn_start_working));
+        } else {
+
+            howzitBtn.setText(getResources().getString(R.string.activity_main_howzit_btn));
+        }
+        isTuningHowzit = startTuning;
+    }
+
+    @Override
+    public void onClick(View view) {
+
+        switch (view.getId()) {
+
+            case R.id.activity_main_howzit_btn:
+                if (!isTuningHowzit) {
+                    howzitBtn.setText(getString(R.string.activity_main_howzit_btn_start_working));
+                    tuneHowzit();
+                } else {
+                    Notify.toast(this, R.string.activity_main_howzit_btn_toast_busy, Toast.LENGTH_SHORT);
+                }
+            break;
         }
     }
 }
