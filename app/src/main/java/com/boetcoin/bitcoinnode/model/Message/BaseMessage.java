@@ -320,7 +320,7 @@ public abstract class BaseMessage {
         return true;
     }
 
-    protected writeBoolean(boolean value) {
+    protected void writeBoolean(boolean value) {
         if (value) {
             writeBytes(new byte[]{1});
         } else {
