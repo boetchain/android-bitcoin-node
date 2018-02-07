@@ -14,7 +14,9 @@ import com.boetcoin.bitcoinnode.model.Message.AddrMessage;
 import com.boetcoin.bitcoinnode.model.Message.AlertMessage;
 import com.boetcoin.bitcoinnode.model.Message.BaseMessage;
 import com.boetcoin.bitcoinnode.model.Message.GetAddrMessage;
+import com.boetcoin.bitcoinnode.model.Message.HeadersMessage;
 import com.boetcoin.bitcoinnode.model.Message.RejectMessage;
+import com.boetcoin.bitcoinnode.model.Message.SendHeadersMessage;
 import com.boetcoin.bitcoinnode.model.Message.VerAckMessage;
 import com.boetcoin.bitcoinnode.model.Message.VersionMessage;
 import com.boetcoin.bitcoinnode.model.Peer;
@@ -154,19 +156,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             writeMessage(getAddrMessage, out);
 
             //Step 6 - read addr
-            readMessage(in);
+            BaseMessage incoming = readMessage(in);
 
-            writeMessage(getAddrMessage, out);
+            if (incoming instanceof SendHeadersMessage) {
+                writeMessage(new HeadersMessage(), out);
+                readMessage(in);
 
-            readMessage(in);
-
-            writeMessage(getAddrMessage, out);
-
-            readMessage(in);
-
-            writeMessage(getAddrMessage, out);
-
-            readMessage(in);
+                writeMessage(getAddrMessage, out);
+                readMessage(in);
+            }
 
 
             Log.i(App.TAG, "Shutting down....");
@@ -398,6 +396,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             AddrMessage addrMessage = new AddrMessage(header, payload);
             Log.i(App.TAG, addrMessage.toString());
             return addrMessage;
+        }
+
+        if (commandName.toLowerCase().contains(SendHeadersMessage.COMMAND_NAME)) {
+            SendHeadersMessage sendHeadersMessage = new SendHeadersMessage(header, payload);
+            Log.i(App.TAG, sendHeadersMessage.toString());
+            return sendHeadersMessage;
         }
 
         return null;

@@ -1,21 +1,21 @@
 package com.boetcoin.bitcoinnode.model.Message;
 
 /**
- * Created by rossbadenhorst on 2018/02/06.
+ * Created by rossbadenhorst on 2018/02/07.
  */
 
-public class PingMessage extends BaseMessage {
+public class HeadersMessage extends BaseMessage {
 
-    public static final String COMMAND_NAME = "ping";
+    public static final String COMMAND_NAME = "headers";
 
-    public PingMessage() {
+    public HeadersMessage() {
         super();
 
         writePayload();
         writeHeader();
     }
 
-    public PingMessage(byte[] header, byte[] payload) {
+    public HeadersMessage(byte[] header, byte[] payload) {
         super(header, payload);
     }
 
@@ -31,6 +31,9 @@ public class PingMessage extends BaseMessage {
 
     @Override
     protected void writePayload() {
+
+        writeInt(0);
+
         payload = new byte[outputPayload.size()];
         for (int i = 0; i < payload.length && i < outputPayload.size(); i++) {
             payload[i] = outputPayload.get(i).byteValue();
