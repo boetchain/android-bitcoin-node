@@ -28,6 +28,7 @@ import com.boetcoin.bitcoinnode.model.Message.VerAckMessage;
 import com.boetcoin.bitcoinnode.model.Message.VersionMessage;
 import com.boetcoin.bitcoinnode.model.Peer;
 import com.boetcoin.bitcoinnode.ui.adapter.LogAdapter;
+import com.boetcoin.bitcoinnode.util.Lawg;
 import com.boetcoin.bitcoinnode.util.Notify;
 import com.boetcoin.bitcoinnode.util.Prefs;
 import com.boetcoin.bitcoinnode.util.Util;
@@ -47,8 +48,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final String ACTION_LOG_TO_UI = MainActivity.class.getName() + ".ACTION_LOG_TO_UI";
     public static final String EXTRA_MSG = MainActivity.class.getName() + ".EXTRA_MSG";
 
-    static int count = 0;
-
     private boolean isTuningHowzit = false;
 
     private Button howzitBtn;
@@ -60,7 +59,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            MainActivity.this.logToUI("");
+            if (intent.hasExtra(EXTRA_MSG)) {
+                String msg = intent.getStringExtra(EXTRA_MSG);
+                MainActivity.this.logToUI(msg);
+            }
         }
     };
 
@@ -477,6 +479,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.activity_main_howzit_btn:
                 if (!isTuningHowzit) {
+                    Lawg.u(this, "Let's start tuning...");
                     howzitBtn.setText(getString(R.string.activity_main_howzit_btn_start_working));
                     tuneHowzit();
                 } else {
