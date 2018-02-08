@@ -19,6 +19,7 @@
         <meta-data android:name="QUERY_LOG" android:value="false" />
         <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="com.boetcoin.bitcoinnode.model" />
 
+        <!-- ACTIVITIES -->
         <activity android:name=".ui.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,6 +27,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+        <!-- RECEIVER -->
+        <receiver android:name=".worker.receiver.BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.digitata.snaptariff.misc.Actions.LOCATION_CHECK" />
+            </intent-filter>
+        </receiver>
+
+        <!-- SERVICE -->
+        <service android:name=".worker.service.BitcoinService" />
+
+    </application>
 </manifest>
