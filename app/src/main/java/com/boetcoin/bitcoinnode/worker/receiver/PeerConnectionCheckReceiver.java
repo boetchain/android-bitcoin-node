@@ -334,7 +334,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
     }
 
     private void writeMessage(BaseMessage message, OutputStream out) {
-        Lawg.u(context, "--->: " + message.getCommandName(), LogItem.TD);
+        Lawg.u(context, "---> " + message.getCommandName(), LogItem.TD);
 
         byte[] header   = message.getHeader();
         byte[] payload  = message.getPayload();
@@ -522,7 +522,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
 
     private BaseMessage constructMessage(byte[] header, byte[] payload) {
         String commandName = getCommandNameFromHeader(header);
-        Lawg.u(context, "<---: " + commandName, LogItem.TD);
+        Lawg.u(context, "<--- " + commandName, LogItem.TD);
 
         if (commandName.toLowerCase().contains(RejectMessage.COMMAND_NAME)) {
             RejectMessage rejectMessage = new RejectMessage(header, payload);
