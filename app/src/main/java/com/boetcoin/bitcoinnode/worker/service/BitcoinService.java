@@ -7,15 +7,23 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.boetcoin.bitcoinnode.App;
+import com.boetcoin.bitcoinnode.R;
+import com.boetcoin.bitcoinnode.model.Peer;
 import com.boetcoin.bitcoinnode.util.Prefs;
 import com.boetcoin.bitcoinnode.worker.thread.GetExternalIpThread;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.List;
+
 /**
- * Created by rossbadenhorst on 2018/02/08.
+ * Created by Ross Badenhorst.
  */
 
 public class BitcoinService extends Service {
     public static final String TAG = BitcoinService.class.getSimpleName();
+
+    public List<Peer> peerList;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -35,7 +43,10 @@ public class BitcoinService extends Service {
             new Thread(new GetExternalIpThread(this)).start();
         }
 
-
+        peerList = getSavedPeers();
+        if (peerList.size() == 0) {
+            startDnsSeedDiscovery();
+        }
     }
 
     /**
@@ -49,5 +60,47 @@ public class BitcoinService extends Service {
         }
 
         return true;
+    }
+
+    /**
+     * Gets peers we have saved in the past.
+     * @return - list of locally saved peers.
+     */
+    private List<Peer> getSavedPeers() {
+        return Peer.listAll(Peer.class);
+    }
+
+    /**
+     * Starts the DNS Seed peer discovery process.
+     * We get a list of seeds that are hard coded in to the application.
+     * From there we do a lookup to get a list of peers from the seed.
+     */
+    private void startDnsSeedDiscovery() {
+        Log.i(TAG, "startDnsSeedDiscovery");
+        String[] dnsSeeds = getResources().getStringArray(R.array.dns_seed_nodes);
+
+        for (String dnsSeed : dnsSeeds) {
+
+            try {
+                addPeersFromSeed(dnsSeed);
+            } catch (UnknownHostException e) {
+                Log.i(TAG, "Failed to get peers from seed: " + dnsSeed);
+            }
+        }
+
+        Peer.saveInTx(peerList);
+    }
+
+    /**
+     * Looks up peers from a DNS seed.
+     * @param dnsSeed - that we ask for a list of peers.
+     * @throws UnknownHostException - When shit happens.
+     */
+    private void addPeersFromSeed(String dnsSeed) throws UnknownHostException {
+        InetAddress[] peersFromDnsSeed = InetAddress.getAllByName(dnsSeed);
+
+        for (InetAddress peerFromDnsSeed : peersFromDnsSeed) {
+            peerList.add(new Peer(peerFromDnsSeed.getHostAddress()));
+        }
     }
 }
