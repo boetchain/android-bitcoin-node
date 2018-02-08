@@ -24,6 +24,8 @@ public class AddrMessage extends BaseMessage {
     public AddrMessage() {
         super();
 
+        writePayload();
+        writeHeader();
     }
 
     public AddrMessage(byte[] header, byte[] payload) {
