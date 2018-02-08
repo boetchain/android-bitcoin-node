@@ -6,14 +6,15 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.boetcoin.bitcoinnode.App;
 import com.boetcoin.bitcoinnode.R;
 import com.boetcoin.bitcoinnode.model.Peer;
 import com.boetcoin.bitcoinnode.util.Prefs;
+import com.boetcoin.bitcoinnode.worker.receiver.ConnectPeersReceiver;
 import com.boetcoin.bitcoinnode.worker.thread.GetExternalIpThread;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,7 +24,22 @@ import java.util.List;
 public class BitcoinService extends Service {
     public static final String TAG = BitcoinService.class.getSimpleName();
 
-    public List<Peer> peerList;
+    /**
+     * Max number of connections we want to maintain with peers
+     */
+    public static final int MAX_CONNECTIONS = 8;
+    /**
+     * How often we want to ping out peers to see if they are still alive.
+     */
+    public static final int PING_INTERVAL_SECONDS = 60;
+    /**
+     * List of all the peers we know about.
+     */
+    private List<Peer> peerList;
+    /**
+     * Array of connected peers.
+     */
+    private ArrayList<Peer> connectedPeers = new ArrayList<>(MAX_CONNECTIONS);
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -37,8 +53,11 @@ public class BitcoinService extends Service {
         return null;
     }
 
+    /**
+     * Starts the bitcoin service.
+     */
     private void start() {
-        Log.i(App.TAG, "start");
+        Log.i(TAG, "starting bitcoin service");
         if (!externalIpIsKnown()) {
             new Thread(new GetExternalIpThread(this)).start();
         }
@@ -47,6 +66,8 @@ public class BitcoinService extends Service {
         if (peerList.size() == 0) {
             startDnsSeedDiscovery();
         }
+
+        startConnectingToPeers();
     }
 
     /**
@@ -102,5 +123,15 @@ public class BitcoinService extends Service {
         for (InetAddress peerFromDnsSeed : peersFromDnsSeed) {
             peerList.add(new Peer(peerFromDnsSeed.getHostAddress()));
         }
+    }
+
+    /**
+     * Starts up the peer connection process.
+     */
+    private void startConnectingToPeers() {
+        Log.i(TAG, "startConnectingToPeers");
+        Intent connectPeerReceiverIntent = new Intent(this, ConnectPeersReceiver.class);
+        connectPeerReceiverIntent.putParcelableArrayListExtra(ConnectPeersReceiver.KEY_CONNECTED_PEERS, connectedPeers);
+        sendBroadcast(connectPeerReceiverIntent);
     }
 }
