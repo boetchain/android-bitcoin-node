@@ -14,18 +14,57 @@ public class AlertMessage extends BaseMessage {
     private byte[] content;
     private byte[] signature;
 
+    /**
+     * Alert format version
+     */
     private int version;
+    /**
+     * The timestamp beyond which nodes should stop relaying this alert
+     */
     private long relayUntil;
+    /**
+     * 	The timestamp beyond which this alert is no longer in effect and should be ignored
+     */
     private long expiration;
+    /**
+     * 	A unique ID number for this alert
+     */
     private int id;
+    /**
+     * 	All alerts with an ID number less than or equal to this number should be cancelled: deleted and not accepted in the future
+     */
     private int cancel;
+    /**
+     * All alert IDs contained in this set should be cancelled as above
+     */
     private Set<Long> setCancel;
+    /**
+     * This alert only applies to versions greater than or equal to this version. Other versions should still relay it.
+     */
     private long minVer;
+    /**
+     * 	This alert only applies to versions less than or equal to this version. Other versions should still relay it.
+     */
     private long maxVer;
+    /**
+     * If this set contains any elements, then only nodes that have their subVer contained in this set are affected by the alert. Other versions should still relay it.
+     */
     private Set<String> setSubVer;
+    /**
+     * Relative priority compared to other alerts
+     */
     private int priority;
+    /**
+     * A comment on the alert that is not displayed
+     */
     private String comment;
+    /**
+     * 	The alert message that is displayed to the user
+     */
     private String statusBar;
+    /**
+     * 	Reserved
+     */
     private String reserved;
 
     public AlertMessage() {

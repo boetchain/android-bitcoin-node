@@ -14,7 +14,10 @@ import com.boetcoin.bitcoinnode.model.Message.AddrMessage;
 import com.boetcoin.bitcoinnode.model.Message.AlertMessage;
 import com.boetcoin.bitcoinnode.model.Message.BaseMessage;
 import com.boetcoin.bitcoinnode.model.Message.GetAddrMessage;
+import com.boetcoin.bitcoinnode.model.Message.HeadersMessage;
 import com.boetcoin.bitcoinnode.model.Message.RejectMessage;
+import com.boetcoin.bitcoinnode.model.Message.SendCmpctMessage;
+import com.boetcoin.bitcoinnode.model.Message.SendHeadersMessage;
 import com.boetcoin.bitcoinnode.model.Message.VerAckMessage;
 import com.boetcoin.bitcoinnode.model.Message.VersionMessage;
 import com.boetcoin.bitcoinnode.model.Peer;
@@ -111,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     //todo on first peer load, connect to first peer on complete
                     //VersionMessage versionMessage = new VersionMessage();
                     //Log.i(App.TAG, versionMessage.toString());
-                    connect(locallySavedPeers.get(7));
+                    connect(locallySavedPeers.get(80));
                     return null;
                 }
 
@@ -154,19 +157,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             writeMessage(getAddrMessage, out);
 
             //Step 6 - read addr
-            readMessage(in);
+            BaseMessage incoming = readMessage(in);
 
-            writeMessage(getAddrMessage, out);
+            if (incoming instanceof SendHeadersMessage) {
+                writeMessage(new HeadersMessage(), out);
+                incoming = readMessage(in);
 
-            readMessage(in);
+                if (incoming instanceof SendCmpctMessage) {
+                    writeMessage(getAddrMessage, out);
+                    readMessage(in);
+                } else {
+                    writeMessage(getAddrMessage, out);
+                    readMessage(in);
+                }
 
-            writeMessage(getAddrMessage, out);
+                writeMessage(getAddrMessage, out);
+                readMessage(in);
 
-            readMessage(in);
-
-            writeMessage(getAddrMessage, out);
-
-            readMessage(in);
+                writeMessage(getAddrMessage, out);
+                readMessage(in);
+            }
 
 
             Log.i(App.TAG, "Shutting down....");
@@ -398,6 +408,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             AddrMessage addrMessage = new AddrMessage(header, payload);
             Log.i(App.TAG, addrMessage.toString());
             return addrMessage;
+        }
+
+        if (commandName.toLowerCase().contains(SendHeadersMessage.COMMAND_NAME)) {
+            SendHeadersMessage sendHeadersMessage = new SendHeadersMessage(header, payload);
+            Log.i(App.TAG, sendHeadersMessage.toString());
+            return sendHeadersMessage;
+        }
+
+        if (commandName.toLowerCase().contains(SendCmpctMessage.COMMAND_NAME)) {
+            SendCmpctMessage sendCmpctMessage = new SendCmpctMessage(header, payload);
+            Log.i(App.TAG, sendCmpctMessage.toString());
+            return sendCmpctMessage;
         }
 
         return null;

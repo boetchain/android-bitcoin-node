@@ -21,7 +21,7 @@ public class VerAckMessage extends BaseMessage {
 
     /**
      * The number of addresses in the list.
-     * The list should be the next time after the count.
+     * The list should be the next item after the count.
      * Works in a similar way to a String does.
      */
     public int count;
