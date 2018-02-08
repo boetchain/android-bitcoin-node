@@ -20,6 +20,7 @@ import com.boetcoin.bitcoinnode.model.Message.SendHeadersMessage;
 import com.boetcoin.bitcoinnode.model.Message.VerAckMessage;
 import com.boetcoin.bitcoinnode.model.Message.VersionMessage;
 import com.boetcoin.bitcoinnode.model.Peer;
+import com.boetcoin.bitcoinnode.util.Lawg;
 import com.boetcoin.bitcoinnode.util.Util;
 
 import java.io.IOException;
@@ -58,7 +59,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
-        Log.i(TAG, "PeerConnectionCheckReceiver starting...");
+        Lawg.i("PeerConnectionCheckReceiver starting...");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -79,7 +80,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
     }
 
     private void connectToPeers() {
-        Log.i(TAG, "connectToPeers: " + connectedPeers.size());
+        Lawg.i("connectToPeers: " + connectedPeers.size());
         int numberOfConnectedPeers = getNumberOfConnectedPeers();
         int numberOfNewConnectionsNeeded = (MAX_CONNECTIONS - numberOfConnectedPeers);
 
@@ -90,7 +91,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
             }
         }
 
-        Log.i(TAG, "We are now connected to : " + connectedPeers.size() + " peers");
+        Lawg.i("We are now connected to : " + connectedPeers.size() + " peers");
     }
 
     /**
@@ -116,7 +117,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
      * @return - a peer we can connect to.
      */
     private Peer findPeerToConnectTo() {
-        //Log.i(TAG, "findPeerToConnectTo");
+        //Lawg.i("findPeerToConnectTo");
         List<Peer> peerPool = Peer.listAll(Peer.class);
         if (peerPool.size() == 0) {
             peerPool = startDnsSeedDiscovery();
@@ -138,7 +139,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
      * From there we do a lookup to get a list of peers from the seed.
      */
     private List<Peer> startDnsSeedDiscovery() {
-        Log.i(TAG, "startDnsSeedDiscovery");
+        Lawg.i("startDnsSeedDiscovery");
         String[] dnsSeeds = context.getResources().getStringArray(R.array.dns_seed_nodes);
         List<Peer> peerList = new ArrayList<>();
 
@@ -146,7 +147,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
             try {
                 addPeersFromSeed(dnsSeed, peerList);
             } catch (UnknownHostException e) {
-                Log.i(TAG, "Failed to get peers from seed: " + dnsSeed);
+                Lawg.i("Failed to get peers from seed: " + dnsSeed);
             }
         }
 
@@ -168,7 +169,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
     }
 
     private boolean connectToPeer(Peer peer) {
-        Log.i(TAG, "connect to: " + peer.ip + ":8333");
+        Lawg.i("connect to: " + peer.ip + ":8333");
 
         InetSocketAddress address = new InetSocketAddress(peer.ip, 8333);
         Socket socket = new Socket();
@@ -196,7 +197,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
             if (peerVerAckMessage != null) {
                 getAddressesFromPeer(in, out);
 
-                Log.i(TAG, "YAY! Connected to: " + peer.ip + ":8333");
+                Lawg.i("YAY! Connected to: " + peer.ip + ":8333");
                 peer.timestamp = System.currentTimeMillis();
                 peer.connected = true;
                 peer.save();
@@ -249,7 +250,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
                     //We're assuming if the array is greater than 1, he has
                     //not just sent us his own address and we struck gold
                     if (addrMessage.addresses.size() > 1) {
-                        Log.i(TAG, addrMessage.addresses + " returned from peer");
+                        Lawg.i(addrMessage.addresses + " returned from peer");
                         // TODO save these peers to the DB (make sure to check your not saving any duplicates)
                         break;
                     }
@@ -266,7 +267,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
     }
 
     private void pingPeers() {
-        Log.i(TAG, "pingPeers: " + connectedPeers.size());
+        Lawg.i("pingPeers: " + connectedPeers.size());
 
         for (Peer peer: connectedPeers) {
             pingPeer(peer);
@@ -274,7 +275,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
     }
 
     private boolean pingPeer(Peer peer) {
-        Log.i(TAG, "pingPeer: " + peer.ip + ":8333");
+        Lawg.i("pingPeer: " + peer.ip + ":8333");
 
         InetSocketAddress address = new InetSocketAddress(peer.ip, 8333);
         Socket socket = new Socket();
@@ -292,7 +293,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
             PongMessage pongMessage = (PongMessage) readMessage(in);
 
             if (pongMessage != null) {
-                Log.i(TAG, "YAY! Ping succesfull: " + peer.ip + ":8333" + "   | " + pongMessage.nonce);
+                Lawg.i("YAY! Ping succesfull: " + peer.ip + ":8333" + "   | " + pongMessage.nonce);
                 peer.timestamp = System.currentTimeMillis();
                 peer.connected = true;
                 peer.save();
@@ -320,14 +321,14 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
         byte[] payload  = message.getPayload();
 
         try {
-            //Log.i(TAG,  "header: " + Util.bytesToHexString(header));
-            //Log.i(TAG,  "payload: " + Util.bytesToHexString(payload));
+            //Lawg.i( "header: " + Util.bytesToHexString(header));
+            //Lawg.i( "payload: " + Util.bytesToHexString(payload));
 
             out.write(header);
             out.write(payload);
             out.flush();
         } catch (IOException e) {
-            Log.i(TAG, "Failed to write message");
+            Lawg.i("Failed to write message");
         }
     }
 
@@ -338,7 +339,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
      * @throws IOException - when shit happens.
      */
     private BaseMessage readMessage(InputStream in) throws IOException {
-        //Log.i(TAG, "readMessage");
+        //Lawg.i("readMessage");
         if (hasMagicBytes(in)) {
 
             byte[] header = readHeader(in);
@@ -350,11 +351,11 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
             if (checkCheckSum(payload, checkSum)) {
                 return constructMessage(header, payload);
             } else {
-                Log.i(TAG, "CheckSum failed....");
+                Lawg.i("CheckSum failed....");
                 return null;
             }
         } else {
-            Log.i(TAG, "no magic bytes found....");
+            Lawg.i("no magic bytes found....");
             return null;
         }
     }
@@ -370,7 +371,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
      * @throws IOException - when shit happens.
      */
     private boolean hasMagicBytes(InputStream in) throws IOException {
-        //Log.i(TAG, "hasMagicBytes");
+        //Lawg.i("hasMagicBytes");
         byte[] superSpecialMagicBytes = new byte[BaseMessage.HEADER_LENGTH_MAGIC_BYTES];
         Util.addToByteArray(BaseMessage.MAGIC_PACKETS_MAINNET, 0, BaseMessage.HEADER_LENGTH_MAGIC_BYTES, superSpecialMagicBytes);
 
@@ -382,11 +383,11 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
             }
 
             if (Util.byteToHexString((byte)incomingByte).contains(Util.byteToHexString(superSpecialMagicBytes[numMagicBytesFound]))) {
-                //Log.i(TAG, "numMagicBytesFound: " + numMagicBytesFound);
+                //Lawg.i("numMagicBytesFound: " + numMagicBytesFound);
                 numMagicBytesFound++;
 
                 if (numMagicBytesFound == superSpecialMagicBytes.length) {
-                    //Log.i(TAG, "We found all the magic bytes...");
+                    //Lawg.i("We found all the magic bytes...");
                     return true;
                 }
             }
@@ -473,7 +474,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
         int cursor = 0;
         while (cursor < payload.length) {
             int bytesRead = in.read(payload, cursor, payload.length - cursor);
-            //Log.i(TAG, "br: "+ bytesRead);
+            //Lawg.i("br: "+ bytesRead);
             if (bytesRead == -1) {
                 break; // End of message
             }
@@ -502,47 +503,47 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
 
     private BaseMessage constructMessage(byte[] header, byte[] payload) {
         String commandName = getCommandNameFromHeader(header);
-        Log.i(TAG, "<---: " + commandName);
+        Lawg.i("<---: " + commandName);
 
         if (commandName.toLowerCase().contains(RejectMessage.COMMAND_NAME)) {
             RejectMessage rejectMessage = new RejectMessage(header, payload);
-            //Log.i(TAG, rejectMessage.toString());
+            //Lawg.i(rejectMessage.toString());
             return  rejectMessage;
         }
 
         if (commandName.toLowerCase().contains(VersionMessage.COMMAND_NAME)) {
             VersionMessage versionMessage = new VersionMessage(header, payload);
-            //Log.i(TAG, versionMessage.toString());
+            //Lawg.i(versionMessage.toString());
             return versionMessage;
         }
 
         if (commandName.toLowerCase().contains(VerAckMessage.COMMAND_NAME)) {
             VerAckMessage verAckMessage = new VerAckMessage(header, payload);
-            //Log.i(TAG, verAckMessage.toString());
+            //Lawg.i(verAckMessage.toString());
             return new VerAckMessage(header, payload);
         }
 
         if (commandName.toLowerCase().contains(AlertMessage.COMMAND_NAME)) {
             AlertMessage alertMessage = new AlertMessage(header, payload);
-            //Log.i(TAG, alertMessage.toString());
+            //Lawg.i(alertMessage.toString());
             return new VerAckMessage(header, payload);
         }
 
         if (commandName.toLowerCase().contains(AddrMessage.COMMAND_NAME)) {
             AddrMessage addrMessage = new AddrMessage(header, payload);
-            //Log.i(TAG, addrMessage.toString());
+            //Lawg.i(addrMessage.toString());
             return addrMessage;
         }
 
         if (commandName.toLowerCase().contains(SendHeadersMessage.COMMAND_NAME)) {
             SendHeadersMessage sendHeadersMessage = new SendHeadersMessage(header, payload);
-            //Log.i(TAG, sendHeadersMessage.toString());
+            //Lawg.i(sendHeadersMessage.toString());
             return sendHeadersMessage;
         }
 
         if (commandName.toLowerCase().contains(SendCmpctMessage.COMMAND_NAME)) {
             SendCmpctMessage sendCmpctMessage = new SendCmpctMessage(header, payload);
-            //Log.i(TAG, sendCmpctMessage.toString());
+            //Lawg.i(sendCmpctMessage.toString());
             return sendCmpctMessage;
         }
 

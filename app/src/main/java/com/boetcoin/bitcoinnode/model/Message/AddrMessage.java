@@ -1,8 +1,6 @@
 package com.boetcoin.bitcoinnode.model.Message;
 
-import android.util.Log;
-
-import com.boetcoin.bitcoinnode.App;
+import com.boetcoin.bitcoinnode.util.Lawg;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -58,11 +56,11 @@ public class AddrMessage extends BaseMessage {
             }
             port = ((0xFF & payload[cursor++]) << 8) | (0xFF & payload[cursor++]);
 
-            Log.i(App.TAG, "Time: " + time);
-            Log.i(App.TAG, "Address: " + addr.toString());
-            Log.i(App.TAG, "Services: " + services.toString());
-            Log.i(App.TAG, "Port: " + port);
-            Log.i(App.TAG, "--------------------------------");
+            Lawg.i("Time: " + time);
+            Lawg.i("Address: " + addr.toString());
+            Lawg.i("Services: " + services.toString());
+            Lawg.i("Port: " + port);
+            Lawg.i("--------------------------------");
             // The 4 byte difference is the uint32 timestamp that was introduced in version 31402
             //length = protocolVersion > 31402 ? MESSAGE_SIZE : MESSAGE_SIZE - 4;
 
