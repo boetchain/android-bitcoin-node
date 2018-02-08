@@ -12,6 +12,8 @@ import android.util.Base64;
 
 public class Prefs {
 
+    public static final String KEY_EXTERNAL_IP = "KEY_EXTERNAL_IP";
+
     /**
      * Saves a byte array in the Shared Preferences.
      *
