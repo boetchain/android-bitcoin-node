@@ -23,6 +23,6 @@ public class BootReceiver extends BroadcastReceiver {
      */
     private void startBitcoinService(Context context) {
         Intent intent = new Intent(context, BitcoinService.class);
-        context.startService(intent);
+        //context.startService(intent); While we figure this out, dont start the service
     }
 }
