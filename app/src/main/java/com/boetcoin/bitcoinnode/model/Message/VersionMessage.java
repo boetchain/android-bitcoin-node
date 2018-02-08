@@ -57,7 +57,7 @@ public class VersionMessage extends BaseMessage {
         this.addrFrom = "";
         this.nonce = 22;
         this.userAgent = "BoetChain";
-        this.startHeight = 0;
+        this.startHeight = 0;//hardcoded to latest
         this.relay = true;
 
         writePayload();
