@@ -43,7 +43,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
     /**
      * How often we want to ping out peers to see if they are still alive.
      */
-    public static final int CHECK_INTERVAL_SECONDS = 60;
+    public static final int CHECK_INTERVAL_SECONDS = 300;
     /**
      * Array of connected peers.
      */
@@ -84,6 +84,8 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
                 numberOfNewConnectionsNeeded--;
             }
         }
+
+        Log.i(TAG, "We are now connected to : " + connectedPeers.size() + " peers");
     }
 
     /**
@@ -111,12 +113,11 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
     private Peer findPeerToConnectTo() {
         //Log.i(TAG, "findPeerToConnectTo");
         List<Peer> peerPool = Peer.listAll(Peer.class);
-
         if (peerPool.size() == 0) {
-            startDnsSeedDiscovery();
+            peerPool = startDnsSeedDiscovery();
         }
 
-        for (int i = 0; (i) < peerPool.size(); i++) {
+        for (int i = 0; i < peerPool.size(); i++) {
             Peer peer  = peerPool.get(i);
             if (!peer.connected) {
                 return peer;
@@ -131,7 +132,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
      * We get a list of seeds that are hard coded in to the application.
      * From there we do a lookup to get a list of peers from the seed.
      */
-    private void startDnsSeedDiscovery() {
+    private List<Peer> startDnsSeedDiscovery() {
         Log.i(TAG, "startDnsSeedDiscovery");
         String[] dnsSeeds = context.getResources().getStringArray(R.array.dns_seed_nodes);
         List<Peer> peerList = new ArrayList<>();
@@ -145,6 +146,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
         }
 
         Peer.saveInTx(peerList);
+        return peerList;
     }
 
     /**
@@ -185,11 +187,16 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
             // Step 4 - read verAk
             VerAckMessage peerVerAckMessage = (VerAckMessage) readMessage(in);
 
-            Log.i(TAG, "YAY! Connected to: " + peer.ip + ":8333");
-            peer.timestamp = System.currentTimeMillis();
-            peer.connected = true;
-            peer.save();
-            connectedPeers.add(peer);
+            if (peerVerAckMessage != null) {
+                Log.i(TAG, "YAY! Connected to: " + peer.ip + ":8333");
+                peer.timestamp = System.currentTimeMillis();
+                peer.connected = true;
+                peer.save();
+                connectedPeers.add(peer);
+            } else {
+                Log.e(TAG, "verack failed for:  " + peer.ip + ":8333");
+                peer.delete(); // Fuck this peer, lets try not talk to him
+            }
 
             out.close();
             in.close();
@@ -227,12 +234,17 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
             writeMessage(pingMessage, out);
 
             // Step 2 - read peer version
-            PongMessage peerVersionMessage = (PongMessage) readMessage(in);
+            PongMessage pongMessage = (PongMessage) readMessage(in);
 
-            Log.i(TAG, "YAY! Ping succesfull: " + peer.ip + ":8333");
-            peer.timestamp = System.currentTimeMillis();
-            peer.connected = true;
-            peer.save();
+            if (pongMessage != null) {
+                Log.i(TAG, "YAY! Ping succesfull: " + peer.ip + ":8333" + "   | " + pongMessage.nonce);
+                peer.timestamp = System.currentTimeMillis();
+                peer.connected = true;
+                peer.save();
+            } else {
+                Log.e(TAG, "Ping failed...." + peer.ip + ":8333");
+                peer.delete();
+            }
 
             out.close();
             in.close();
@@ -247,7 +259,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
     }
 
     private void writeMessage(BaseMessage message, OutputStream out) {
-        Log.d(TAG, "writeMessage: " + message.getCommandName());
+        Log.d(TAG, "--->: " + message.getCommandName());
 
         byte[] header   = message.getHeader();
         byte[] payload  = message.getPayload();
@@ -435,7 +447,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
 
     private BaseMessage constructMessage(byte[] header, byte[] payload) {
         String commandName = getCommandNameFromHeader(header);
-        Log.i(TAG, "Constructing: " + commandName);
+        Log.i(TAG, "<---: " + commandName);
 
         if (commandName.toLowerCase().contains(RejectMessage.COMMAND_NAME)) {
             RejectMessage rejectMessage = new RejectMessage(header, payload);

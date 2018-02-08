@@ -4,7 +4,6 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -37,7 +36,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -54,11 +52,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         howzitBtn = (Button) findViewById(R.id.activity_main_howzit_btn);
         howzitBtn.setOnClickListener(this);
-
-        Intent pingPeersReceiverIntent = new Intent(this, PeerConnectionCheckReceiver.class);
-        PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 0, pingPeersReceiverIntent, 0);
-        AlarmManager alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 0, PeerConnectionCheckReceiver.CHECK_INTERVAL_SECONDS * 1000, alarmIntent);
     }
 
     private void tuneHowzit() {
@@ -107,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
         */
-
+        /*
         //Peer.deleteAll(Peer.class);
         final List<Peer> locallySavedPeers = Peer.listAll(Peer.class);
         //Peer.deleteAll(Peer.class);
@@ -135,6 +128,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }.execute();
         }
+        */
+
+        Intent pingPeersReceiverIntent = new Intent(this, PeerConnectionCheckReceiver.class);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 0, pingPeersReceiverIntent, 0);
+        AlarmManager alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        alarmMgr.cancel(alarmIntent);
+        alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 0, PeerConnectionCheckReceiver.CHECK_INTERVAL_SECONDS * 1000, alarmIntent);
     }
 
     private void connect(Peer peer) {

@@ -1,5 +1,7 @@
 package com.boetcoin.bitcoinnode.model.Message;
 
+import java.util.Random;
+
 /**
  * Created by rossbadenhorst on 2018/02/06.
  */
@@ -7,9 +9,11 @@ package com.boetcoin.bitcoinnode.model.Message;
 public class PingMessage extends BaseMessage {
 
     public static final String COMMAND_NAME = "ping";
+    public long nonce;
 
     public PingMessage() {
         super();
+        this.nonce = new Random().nextLong();
 
         writePayload();
         writeHeader();
@@ -26,11 +30,13 @@ public class PingMessage extends BaseMessage {
 
     @Override
     protected void readPayload() {
-
+        this.nonce = readUint64().longValue();
     }
 
     @Override
     protected void writePayload() {
+        writeUint64(this.nonce);
+
         payload = new byte[outputPayload.size()];
         for (int i = 0; i < payload.length && i < outputPayload.size(); i++) {
             payload[i] = outputPayload.get(i).byteValue();
