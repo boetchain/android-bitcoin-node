@@ -41,20 +41,36 @@ public class ConnectPeersReceiver extends BroadcastReceiver {
     private ArrayList<Peer> connectedPeers;
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(Context context, final Intent intent) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                start(intent);
+            }
+        }).start();
+    }
+
+    public void start(Intent intent) {
         Log.i(TAG, "ConnectPeersReceiver: onReceive");
         connectedPeers = intent.getParcelableArrayListExtra(KEY_CONNECTED_PEERS);
         Log.i(TAG, "connectedPeers: " + connectedPeers.size());
         int numberOfConnectedPeers = getNumberOfConnectedPeers();
         int numberOfNewConnectionsNeeded = (BitcoinService.MAX_CONNECTIONS - numberOfConnectedPeers);
 
-        for (int i = 0; i < numberOfNewConnectionsNeeded; i++) {
+        while (numberOfNewConnectionsNeeded > 0) {
             Peer peerToConnect = findPeerToConnectTo();
-            connectToPeer(peerToConnect);
+            if (connectToPeer(peerToConnect)) {
+                numberOfNewConnectionsNeeded--;
+            }
+            try {
+                Thread.sleep(10000);// Cool off just to read logs
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         //TODO send peer connection completed broadcast
-        Log.i(TAG, "We are now connected to: " + connectedPeers.size());
+        Log.i(TAG, "We are now connected to: " + connectedPeers.size() + " peer(s)");
     }
 
     /**
@@ -80,9 +96,11 @@ public class ConnectPeersReceiver extends BroadcastReceiver {
      * @return - a peer we can connect to.
      */
     private Peer findPeerToConnectTo() {
-        Log.i(TAG, "findPeerToConnectTo");
+        //Log.i(TAG, "findPeerToConnectTo");
         List<Peer> peerPool = Peer.listAll(Peer.class);
-        for (Peer peer : peerPool) {
+
+        for (int i = 0; (i) < peerPool.size(); i++) {
+            Peer peer  = peerPool.get(i);
             if (!peer.connected) {
                 return peer;
             }
@@ -91,7 +109,7 @@ public class ConnectPeersReceiver extends BroadcastReceiver {
         return null; //TODO no peers in the pool, we need todo a look up
     }
 
-    private void connectToPeer(Peer peer) {
+    private boolean connectToPeer(Peer peer) {
         Log.i(TAG, "connect to: " + peer.ip + ":8333");
 
         InetSocketAddress address = new InetSocketAddress(peer.ip, 8333);
@@ -119,19 +137,23 @@ public class ConnectPeersReceiver extends BroadcastReceiver {
             Log.i(TAG, "YAY! Connected to: " + peer.ip + ":8333");
             peer.timestamp = System.currentTimeMillis();
             peer.connected = true;
+            peer.save();
+            connectedPeers.add(peer);
 
             out.close();
             in.close();
             socket.close();
 
+            return true;
         } catch (IOException e) {
-            Log.i(TAG, "Failed to connect to: " + peer.ip);
-            peer.delete();
+            Log.e(TAG, "Failed to connect to: " + peer.ip);
+            peer.delete(); // Fuck this peer, lets try not talk to him
+            return false;
         }
     }
 
     private void writeMessage(BaseMessage message, OutputStream out) {
-        Log.i(TAG, "writeMessage: " + message.getCommandName());
+        Log.d(TAG, "writeMessage: " + message.getCommandName());
 
         byte[] header   = message.getHeader();
         byte[] payload  = message.getPayload();
@@ -155,7 +177,7 @@ public class ConnectPeersReceiver extends BroadcastReceiver {
      * @throws IOException - when shit happens.
      */
     private BaseMessage readMessage(InputStream in) throws IOException {
-        Log.i(TAG, "readMessage");
+        //Log.i(TAG, "readMessage");
         if (hasMagicBytes(in)) {
 
             byte[] header = readHeader(in);
@@ -319,47 +341,47 @@ public class ConnectPeersReceiver extends BroadcastReceiver {
 
     private BaseMessage constructMessage(byte[] header, byte[] payload) {
         String commandName = getCommandNameFromHeader(header);
-        Log.i(TAG, "Constructing: " + commandName);
+        //Log.i(TAG, "Constructing: " + commandName);
 
         if (commandName.toLowerCase().contains(RejectMessage.COMMAND_NAME)) {
             RejectMessage rejectMessage = new RejectMessage(header, payload);
-            Log.i(TAG, rejectMessage.toString());
+            //Log.i(TAG, rejectMessage.toString());
             return  rejectMessage;
         }
 
         if (commandName.toLowerCase().contains(VersionMessage.COMMAND_NAME)) {
             VersionMessage versionMessage = new VersionMessage(header, payload);
-            Log.i(TAG, versionMessage.toString());
+            //Log.i(TAG, versionMessage.toString());
             return versionMessage;
         }
 
         if (commandName.toLowerCase().contains(VerAckMessage.COMMAND_NAME)) {
             VerAckMessage verAckMessage = new VerAckMessage(header, payload);
-            Log.i(TAG, verAckMessage.toString());
+            //Log.i(TAG, verAckMessage.toString());
             return new VerAckMessage(header, payload);
         }
 
         if (commandName.toLowerCase().contains(AlertMessage.COMMAND_NAME)) {
             AlertMessage alertMessage = new AlertMessage(header, payload);
-            Log.i(TAG, alertMessage.toString());
+            //Log.i(TAG, alertMessage.toString());
             return new VerAckMessage(header, payload);
         }
 
         if (commandName.toLowerCase().contains(AddrMessage.COMMAND_NAME)) {
             AddrMessage addrMessage = new AddrMessage(header, payload);
-            Log.i(TAG, addrMessage.toString());
+            //Log.i(TAG, addrMessage.toString());
             return addrMessage;
         }
 
         if (commandName.toLowerCase().contains(SendHeadersMessage.COMMAND_NAME)) {
             SendHeadersMessage sendHeadersMessage = new SendHeadersMessage(header, payload);
-            Log.i(TAG, sendHeadersMessage.toString());
+            //Log.i(TAG, sendHeadersMessage.toString());
             return sendHeadersMessage;
         }
 
         if (commandName.toLowerCase().contains(SendCmpctMessage.COMMAND_NAME)) {
             SendCmpctMessage sendCmpctMessage = new SendCmpctMessage(header, payload);
-            Log.i(TAG, sendCmpctMessage.toString());
+            //Log.i(TAG, sendCmpctMessage.toString());
             return sendCmpctMessage;
         }
 
