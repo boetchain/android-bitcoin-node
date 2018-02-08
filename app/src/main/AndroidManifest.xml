@@ -15,7 +15,7 @@
 
         <!-- SUGAR ORM CONFIG -->
         <meta-data android:name="DATABASE" android:value="boetchain_bitcoinnode.db" />
-        <meta-data android:name="VERSION" android:value="5" />
+        <meta-data android:name="VERSION" android:value="6" />
         <meta-data android:name="QUERY_LOG" android:value="false" />
         <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="com.boetcoin.bitcoinnode.model" />
 

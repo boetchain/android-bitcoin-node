@@ -1,5 +1,7 @@
 package com.boetcoin.bitcoinnode.worker.receiver;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -36,6 +38,8 @@ import java.util.List;
  */
 public class PeerConnectionCheckReceiver extends BroadcastReceiver {
     public static final String TAG = PeerConnectionCheckReceiver.class.getSimpleName();
+
+    public static final int RECEIVER_ID = 7710;
 
     /**
      * Max number of connections we want to maintain with peers
@@ -543,5 +547,33 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
         }
 
         return null;
+    }
+
+    public static void startServiceNow(Context context) {
+
+        startServiceLater(context, 100);
+    }
+
+    public static void startServiceLater(Context context, long time) {
+
+        Intent intent = new Intent(context, PeerConnectionCheckReceiver.class);
+        PendingIntent pi = PendingIntent.getBroadcast(context,
+                RECEIVER_ID,
+                intent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+
+        long millis = System.currentTimeMillis() + time;
+
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        am.set(AlarmManager.RTC_WAKEUP, millis, pi);
+    }
+
+    public static void cancelAlarm(Context context) {
+
+        Intent intent = new Intent(context, PeerConnectionCheckReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, RECEIVER_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+        alarmManager.cancel(pendingIntent);
     }
 }
