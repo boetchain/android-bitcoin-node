@@ -1,6 +1,9 @@
 package com.boetcoin.bitcoinnode.worker.service;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -10,6 +13,7 @@ import com.boetcoin.bitcoinnode.R;
 import com.boetcoin.bitcoinnode.model.Peer;
 import com.boetcoin.bitcoinnode.util.Prefs;
 import com.boetcoin.bitcoinnode.worker.receiver.ConnectPeersReceiver;
+import com.boetcoin.bitcoinnode.worker.receiver.PingPeersReceiver;
 import com.boetcoin.bitcoinnode.worker.thread.GetExternalIpThread;
 
 import java.net.InetAddress;
@@ -72,11 +76,8 @@ public class BitcoinService extends Service {
             startDnsSeedDiscovery();
         }
 
-        //updateConnectedPeers();
-
-        //if (connectedPeers.size() < MAX_CONNECTIONS) {
-            startConnectingToPeers();
-        //}
+        updateConnectedPeers();
+        startPingingPeers();
     }
 
     /**
@@ -154,5 +155,13 @@ public class BitcoinService extends Service {
         Intent connectPeerReceiverIntent = new Intent(this, ConnectPeersReceiver.class);
         connectPeerReceiverIntent.putParcelableArrayListExtra(ConnectPeersReceiver.KEY_CONNECTED_PEERS, connectedPeers);
         sendBroadcast(connectPeerReceiverIntent);
+    }
+
+    private void startPingingPeers() {
+        Log.i(TAG, "startPingingPeers");
+        Intent pingPeersReceiverIntent = new Intent(this, PingPeersReceiver.class);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 0, pingPeersReceiverIntent, 0);
+        AlarmManager alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 0, PING_INTERVAL_SECONDS, alarmIntent);
     }
 }

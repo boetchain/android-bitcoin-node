@@ -73,6 +73,24 @@ public class Peer extends SugarRecord implements Parcelable, Comparable<Peer> {
         });
     }
 
+    public static List<Peer> getPeerPool() {
+        return Peer.listAll(Peer.class);
+    }
+
+    public static ArrayList<Peer> getConnectedPeers() {
+        List<Peer> peerPool  = Peer.listAll(Peer.class);
+        ArrayList<Peer> connectedPeers = new ArrayList<>();
+
+        for (Peer peer : peerPool) {
+            if (peer.connected) {
+                connectedPeers.add(peer);
+            }
+        }
+
+        return connectedPeers;
+    }
+
+
     protected Peer(Parcel in) {
         ip = in.readString();
         timestamp = in.readLong();
