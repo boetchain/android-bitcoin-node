@@ -43,7 +43,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
     /**
      * How often we want to ping out peers to see if they are still alive.
      */
-    public static final int CHECK_INTERVAL_SECONDS = 300;
+    public static final int CHECK_INTERVAL_SECONDS = 900; // 15 mins
     /**
      * Array of connected peers.
      */
@@ -187,22 +187,26 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
             // Step 4 - read verAk
             VerAckMessage peerVerAckMessage = (VerAckMessage) readMessage(in);
 
+            boolean success;
             if (peerVerAckMessage != null) {
                 Log.i(TAG, "YAY! Connected to: " + peer.ip + ":8333");
                 peer.timestamp = System.currentTimeMillis();
                 peer.connected = true;
                 peer.save();
                 connectedPeers.add(peer);
+                success =  true;
             } else {
                 Log.e(TAG, "verack failed for:  " + peer.ip + ":8333");
                 peer.delete(); // Fuck this peer, lets try not talk to him
+                success = false;
             }
 
             out.close();
             in.close();
             socket.close();
 
-            return true;
+            return success;
+
         } catch (IOException e) {
             Log.e(TAG, "Failed to connect to: " + peer.ip);
             peer.delete(); // Fuck this peer, lets try not talk to him
