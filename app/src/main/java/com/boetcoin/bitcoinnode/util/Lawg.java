@@ -1,8 +1,11 @@
 package com.boetcoin.bitcoinnode.util;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.boetcoin.bitcoinnode.ui.activity.MainActivity;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -45,7 +48,11 @@ public class Lawg {
      * @param msg
      */
     public static void u(Context context, String msg) {
-        //todo post to UI
+
+        Intent intent = new Intent();
+        intent.setAction(MainActivity.ACTION_LOG_TO_UI);
+        intent.putExtra(MainActivity.EXTRA_MSG, msg);
+        context.sendBroadcast(intent);
     }
 
     public static void e(String msg) {
