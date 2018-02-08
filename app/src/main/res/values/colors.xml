@@ -7,4 +7,11 @@
     <color name="black">#000</color>
     <color name="white">#fff</color>
     <color name="transparent">#00ffffff</color>
+
+    <color name="log_background">#FF212121</color>
+    <color name="log_info">#149900</color>
+    <color name="log_warning">#be6f00</color>
+    <color name="log_debug">#006ab1</color>
+    <color name="log_error">#ab0003</color>
+    <color name="log_verbose">#606060</color>
 </resources>

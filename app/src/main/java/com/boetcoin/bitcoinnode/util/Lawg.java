@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.boetcoin.bitcoinnode.model.LogItem;
 import com.boetcoin.bitcoinnode.ui.activity.MainActivity;
 
 import java.io.PrintWriter;
@@ -44,15 +45,53 @@ public class Lawg {
 
     /**
      * Logs to i and to the UI via broadcast
+     * Type determines color
+     * @param context
+     * @param msg
+     */
+    public static void u(Context context, String msg, int type) {
+
+        switch (type) {
+
+            case LogItem.TI:
+                Lawg.i(msg);
+                break;
+
+            case LogItem.TW:
+                Lawg.w(msg);
+                break;
+
+            case LogItem.TD:
+                Lawg.d(msg);
+                break;
+
+            case LogItem.TE:
+                Lawg.e(msg);
+                break;
+
+            case LogItem.TV:
+                Lawg.v(msg);
+                break;
+
+            default:
+                Lawg.i(msg);
+        }
+
+        Intent intent = new Intent();
+        intent.setAction(MainActivity.ACTION_LOG_TO_UI);
+        intent.putExtra(MainActivity.EXTRA_MSG, msg);
+        intent.putExtra(MainActivity.EXTRA_TYPE, type);
+        context.sendBroadcast(intent);
+    }
+
+    /**
+     * Logs to i and to the UI via broadcast
      * @param context
      * @param msg
      */
     public static void u(Context context, String msg) {
 
-        Intent intent = new Intent();
-        intent.setAction(MainActivity.ACTION_LOG_TO_UI);
-        intent.putExtra(MainActivity.EXTRA_MSG, msg);
-        context.sendBroadcast(intent);
+        u(context, msg, LogItem.TI);
     }
 
     public static void e(String msg) {

@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public static final String ACTION_LOG_TO_UI = MainActivity.class.getName() + ".ACTION_LOG_TO_UI";
     public static final String EXTRA_MSG = MainActivity.class.getName() + ".EXTRA_MSG";
+    public static final String EXTRA_TYPE = MainActivity.class.getName() + ".EXTRA_TYPE";
 
     private boolean isTuningHowzit = false;
 
@@ -60,8 +61,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void onReceive(Context context, Intent intent) {
 
             if (intent.hasExtra(EXTRA_MSG)) {
+
+                int type = intent.getIntExtra(EXTRA_TYPE, LogItem.TI);
                 String msg = intent.getStringExtra(EXTRA_MSG);
-                MainActivity.this.logToUI(msg);
+                MainActivity.this.logToUI(new LogItem(type, msg));
             }
         }
     };
@@ -94,8 +97,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         registerReceiver(logReceiver, intent);
     }
 
-    private void logToUI(String msg) {
-        logs.add(new LogItem(msg));
+    private void logToUI(LogItem log) {
+        logs.add(log);
         adapter.notifyDataSetChanged();
         listView.setSelection(adapter.getCount() - 1);
     }
@@ -479,7 +482,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.activity_main_howzit_btn:
                 if (!isTuningHowzit) {
-                    Lawg.u(this, "Let's start tuning...");
+                    Lawg.u(this, "Let's start tuning...", LogItem.TI);
                     howzitBtn.setText(getString(R.string.activity_main_howzit_btn_start_working));
                     tuneHowzit();
                 } else {

@@ -20,9 +20,21 @@ public class LogAdapter extends BaseAdapter {
     private Context context;
     private List<LogItem> logs;
 
+    private int colorInfo;
+    private int colorWarning;
+    private int colorDebug;
+    private int colorError;
+    private int colorVerbose;
+
     public LogAdapter(Context context, List<LogItem> logs) {
         this.context = context;
         this.logs = logs;
+
+        colorInfo = context.getResources().getColor(R.color.log_info);
+        colorWarning = context.getResources().getColor(R.color.log_warning);
+        colorDebug = context.getResources().getColor(R.color.log_debug);
+        colorError = context.getResources().getColor(R.color.log_error);
+        colorVerbose = context.getResources().getColor(R.color.log_verbose);
     }
 
     @Override
@@ -60,6 +72,32 @@ public class LogAdapter extends BaseAdapter {
         }
 
         holder.text.setText(log.text);
+
+        switch (log.type) {
+
+            case LogItem.TI:
+                holder.text.setTextColor(colorInfo);
+                break;
+
+            case LogItem.TW:
+                holder.text.setTextColor(colorWarning);
+                break;
+
+            case LogItem.TD:
+                holder.text.setTextColor(colorDebug);
+                break;
+
+            case LogItem.TE:
+                holder.text.setTextColor(colorError);
+                break;
+
+            case LogItem.TV:
+                holder.text.setTextColor(colorVerbose);
+                break;
+
+            default:
+                holder.text.setTextColor(colorInfo);
+        }
 
         return view;
     }
