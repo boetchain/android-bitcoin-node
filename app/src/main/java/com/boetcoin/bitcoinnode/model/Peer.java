@@ -30,13 +30,14 @@ public class Peer extends SugarRecord implements Parcelable, Comparable<Peer> {
     /**
      * If we believe we have a connection to this peer
      */
-    public boolean isConnected;
+    public boolean connected;
 
     public Peer() {
     }
 
     public Peer(String ip) {
         this.ip = ip;
+        this.connected = false;
     }
 
     /**
@@ -75,7 +76,7 @@ public class Peer extends SugarRecord implements Parcelable, Comparable<Peer> {
     protected Peer(Parcel in) {
         ip = in.readString();
         timestamp = in.readLong();
-        isConnected = in.readByte() != 0x00;
+        connected = in.readByte() != 0x00;
     }
 
     @Override
@@ -87,7 +88,7 @@ public class Peer extends SugarRecord implements Parcelable, Comparable<Peer> {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(ip);
         dest.writeLong(timestamp);
-        dest.writeByte((byte) (isConnected ? 0x01 : 0x00));
+        dest.writeByte((byte) (connected ? 0x01 : 0x00));
     }
 
     @SuppressWarnings("unused")

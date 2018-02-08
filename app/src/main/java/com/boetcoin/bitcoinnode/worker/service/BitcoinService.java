@@ -43,7 +43,12 @@ public class BitcoinService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                start();
+            }
+        }).start();
         return START_NOT_STICKY;
     }
 

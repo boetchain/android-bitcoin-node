@@ -1,5 +1,6 @@
 package com.boetcoin.bitcoinnode.ui.activity;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +25,7 @@ import com.boetcoin.bitcoinnode.model.Peer;
 import com.boetcoin.bitcoinnode.util.Notify;
 import com.boetcoin.bitcoinnode.util.Prefs;
 import com.boetcoin.bitcoinnode.util.Util;
+import com.boetcoin.bitcoinnode.worker.service.BitcoinService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,6 +51,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         howzitBtn = (Button) findViewById(R.id.activity_main_howzit_btn);
         howzitBtn.setOnClickListener(this);
+
+        Intent btcService = new Intent(this, BitcoinService.class);
+        startService(btcService);
     }
 
     private void tuneHowzit() {

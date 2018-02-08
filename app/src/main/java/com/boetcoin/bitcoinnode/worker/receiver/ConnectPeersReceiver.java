@@ -49,7 +49,7 @@ public class ConnectPeersReceiver extends BroadcastReceiver {
         int numberOfNewConnectionsNeeded = (BitcoinService.MAX_CONNECTIONS - numberOfConnectedPeers);
 
         for (int i = 0; i < numberOfNewConnectionsNeeded; i++) {
-            Peer peerToConnect = getPeerToConnect();
+            Peer peerToConnect = findPeerToConnectTo();
             connectToPeer(peerToConnect);
         }
 
@@ -63,7 +63,7 @@ public class ConnectPeersReceiver extends BroadcastReceiver {
     private int getNumberOfConnectedPeers() {
         int numberOfConnectedPeers = 0;
         for (Peer peer : connectedPeers) {
-            if (peer != null && peer.isConnected) {
+            if (peer != null && peer.connected) {
                 numberOfConnectedPeers++;
             }
         }
@@ -79,10 +79,16 @@ public class ConnectPeersReceiver extends BroadcastReceiver {
      *
      * @return - a peer we can connect to.
      */
-    private Peer getPeerToConnect() {
-        List<Peer> unconnectedPeers = Peer.find(Peer.class, "isConnected = ?", "false");
-        Collections.sort(unconnectedPeers);
-        return unconnectedPeers.get(0);
+    private Peer findPeerToConnectTo() {
+        Log.i(TAG, "findPeerToConnectTo");
+        List<Peer> peerPool = Peer.listAll(Peer.class);
+        for (Peer peer : peerPool) {
+            if (!peer.connected) {
+                return peer;
+            }
+        }
+
+        return null; //TODO no peers in the pool, we need todo a look up
     }
 
     private void connectToPeer(Peer peer) {
@@ -111,7 +117,8 @@ public class ConnectPeersReceiver extends BroadcastReceiver {
             VerAckMessage peerVerAckMessage = (VerAckMessage) readMessage(in);
 
             Log.i(TAG, "YAY! Connected to: " + peer.ip + ":8333");
-            peer.isConnected = true;
+            peer.timestamp = System.currentTimeMillis();
+            peer.connected = true;
 
             out.close();
             in.close();
@@ -119,10 +126,8 @@ public class ConnectPeersReceiver extends BroadcastReceiver {
 
         } catch (IOException e) {
             Log.i(TAG, "Failed to connect to: " + peer.ip);
-            peer.isConnected = false;
+            peer.delete();
         }
-
-        peer.save();
     }
 
     private void writeMessage(BaseMessage message, OutputStream out) {
