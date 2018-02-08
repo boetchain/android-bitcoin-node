@@ -139,6 +139,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 0, pingPeersReceiverIntent, 0);
         AlarmManager alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarmMgr.cancel(alarmIntent);
+        alarmMgr.setExact(A);
         alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 0, PeerConnectionCheckReceiver.CHECK_INTERVAL_SECONDS * 1000, alarmIntent);
     }
 

@@ -9,6 +9,7 @@ import com.boetcoin.bitcoinnode.R;
 import com.boetcoin.bitcoinnode.model.Message.AddrMessage;
 import com.boetcoin.bitcoinnode.model.Message.AlertMessage;
 import com.boetcoin.bitcoinnode.model.Message.BaseMessage;
+import com.boetcoin.bitcoinnode.model.Message.GetAddrMessage;
 import com.boetcoin.bitcoinnode.model.Message.PingMessage;
 import com.boetcoin.bitcoinnode.model.Message.PongMessage;
 import com.boetcoin.bitcoinnode.model.Message.RejectMessage;
@@ -217,6 +218,10 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
     }
 
     private void getAddressesFromPeer(InputStream in, OutputStream out) {
+
+        GetAddrMessage getAddrMessage = new GetAddrMessage();
+        writeMessage(getAddrMessage, out);
+
         int count = 0;
         while (count < 20) {
 
@@ -240,6 +245,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
                     //We're assuming if the array is greater than 1, he has
                     //not just sent us his own address and we struck gold
                     if (addrMessage.addresses.size() > 1) {
+                        Log.i(TAG, addrMessage.addresses + " returned from peer");
                         // TODO save these peers to the DB (make sure to check your not saving any duplicates)
                         break;
                     }
