@@ -189,6 +189,8 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
 
             boolean success;
             if (peerVerAckMessage != null) {
+                getAddressesFromPeer(in, out);
+
                 Log.i(TAG, "YAY! Connected to: " + peer.ip + ":8333");
                 peer.timestamp = System.currentTimeMillis();
                 peer.connected = true;
@@ -211,6 +213,45 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
             Log.e(TAG, "Failed to connect to: " + peer.ip);
             peer.delete(); // Fuck this peer, lets try not talk to him
             return false;
+        }
+    }
+
+    private void getAddressesFromPeer(InputStream in, OutputStream out) {
+        int count = 0;
+        while (count < 20) {
+
+            try {
+
+                BaseMessage msg = readMessage(in);
+
+                if (msg instanceof PingMessage) {
+
+                    PingMessage pingMessage = (PingMessage) msg;
+
+                    //It's always nice to be acknowledged
+                    PongMessage pongMessage = new PongMessage();
+                    writeMessage(pongMessage, out);
+                    count++;
+
+                } else if (msg instanceof AddrMessage) {
+
+                    AddrMessage addrMessage = (AddrMessage) msg;
+
+                    //We're assuming if the array is greater than 1, he has
+                    //not just sent us his own address and we struck gold
+                    if (addrMessage.addresses.size() > 1) {
+                        // TODO save these peers to the DB (make sure to check your not saving any duplicates)
+                        break;
+                    }
+
+                } else {
+
+                    //we don't care about these, we want addresses
+                    count++;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
