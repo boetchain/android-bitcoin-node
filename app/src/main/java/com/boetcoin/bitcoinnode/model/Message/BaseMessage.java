@@ -307,11 +307,27 @@ public abstract class BaseMessage {
         outputPayload.add(value);
     }
 
+    /**
+     * Reads a byte array from the payload.
+     *
+     * This will adjust the cursor once we have read it,
+     * so we know where the next element to read starts.
+     *
+     * @return - a byte array
+     */
     protected byte[] readByteArray() {
         long len = readVarInt();
         return readBytes((int)len);
     }
 
+    /**
+     * Reads a boolean, actually a single byte, form the payload.
+     *
+     * This will adjust the cursor once we have read it,
+     * so we know where the next element to read starts.
+     *
+     * @return - a boolean
+     */
     protected boolean readBoolean() {
         if (readBytes(1)[0] == 0) {
             return false;
@@ -320,6 +336,10 @@ public abstract class BaseMessage {
         return true;
     }
 
+    /**
+     * Writes a boolean, actually a single byte, to the payload.
+     * @param value - to write to the payload.
+     */
     protected void writeBoolean(boolean value) {
         if (value) {
             writeBytes(new byte[]{1});
