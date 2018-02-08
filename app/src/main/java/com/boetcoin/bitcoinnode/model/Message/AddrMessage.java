@@ -24,6 +24,8 @@ public class AddrMessage extends BaseMessage {
     public AddrMessage() {
         super();
 
+        writePayload();
+        writeHeader();
     }
 
     public AddrMessage(byte[] header, byte[] payload) {
@@ -63,6 +65,8 @@ public class AddrMessage extends BaseMessage {
             Log.i(App.TAG, "--------------------------------");
             // The 4 byte difference is the uint32 timestamp that was introduced in version 31402
             //length = protocolVersion > 31402 ? MESSAGE_SIZE : MESSAGE_SIZE - 4;
+
+            addresses.add(addr.toString());
         }
 
     }

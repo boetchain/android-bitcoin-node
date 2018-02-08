@@ -1,9 +1,6 @@
 package com.boetcoin.bitcoinnode.ui.activity;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -17,7 +14,8 @@ import com.boetcoin.bitcoinnode.model.Message.AddrMessage;
 import com.boetcoin.bitcoinnode.model.Message.AlertMessage;
 import com.boetcoin.bitcoinnode.model.Message.BaseMessage;
 import com.boetcoin.bitcoinnode.model.Message.GetAddrMessage;
-import com.boetcoin.bitcoinnode.model.Message.HeadersMessage;
+import com.boetcoin.bitcoinnode.model.Message.PingMessage;
+import com.boetcoin.bitcoinnode.model.Message.PongMessage;
 import com.boetcoin.bitcoinnode.model.Message.RejectMessage;
 import com.boetcoin.bitcoinnode.model.Message.SendCmpctMessage;
 import com.boetcoin.bitcoinnode.model.Message.SendHeadersMessage;
@@ -36,6 +34,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -107,26 +106,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.i(App.TAG, "locallySavedPeers: " + locallySavedPeers.size());
 
         if (locallySavedPeers.size() == 0) {
+            //todo on first peer load, connect random peer automatically
             Peer.findByDnsSeeds(getResources().getStringArray(R.array.dns_seed_nodes));
             Notify.toast(this, R.string.error_cant_find_peers, Toast.LENGTH_SHORT);
             toggleHowzitBtnState(false);
         } else {
 
-            new AsyncTask<Void, Void, Void>() {
-                protected Void doInBackground(Void... unused) {
-                    //todo on first peer load, connect to first peer on complete
-                    //VersionMessage versionMessage = new VersionMessage();
-                    //Log.i(App.TAG, versionMessage.toString());
-                    connect(locallySavedPeers.get(80));
-                    return null;
-                }
-
+            new Thread(new Runnable() {
                 @Override
-                protected void onPostExecute(Void aVoid) {
-                    super.onPostExecute(aVoid);
-                    toggleHowzitBtnState(false);
+                public void run() {
+
+                    int peer = new Random().nextInt(locallySavedPeers.size());
+
+                    getAddresses(locallySavedPeers.get(peer));
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            toggleHowzitBtnState(false);
+                        }
+                    });
                 }
-            }.execute();
+            }).start();
         }
         */
 
@@ -137,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 0, PeerConnectionCheckReceiver.CHECK_INTERVAL_SECONDS * 1000, alarmIntent);
     }
 
-    private void connect(Peer peer) {
+    private void getAddresses(Peer peer) {
         Log.i(App.TAG, "connect to: " + peer.ip + ":8333");
 
         InetSocketAddress address = new InetSocketAddress(peer.ip, 8333);
@@ -151,43 +152,58 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // Step 1 - send version
             VersionMessage versionMessage = new VersionMessage();
             writeMessage(versionMessage, out);
+            Log.i(App.TAG, "our version: " + versionMessage.toString());
 
             // Step 2 - read peer version
             VersionMessage peerVersionMessage = (VersionMessage) readMessage(in);
+
+            // Step 4 - read verAk
+            VerAckMessage peerVerAckMessage = (VerAckMessage) readMessage(in);
 
             // Step 3 - write verAck
             VerAckMessage verAckMessage = new VerAckMessage();
             writeMessage(verAckMessage, out);
 
-            // Step 4 - read verAk
-            VerAckMessage peerVerAckMessage = (VerAckMessage) readMessage(in);
-
-            // Step 5 - send getaddr
+            // Step 4 - wite getAddresses
             GetAddrMessage getAddrMessage = new GetAddrMessage();
             writeMessage(getAddrMessage, out);
 
-            //Step 6 - read addr
-            BaseMessage incoming = readMessage(in);
+            // Step 5 - wait for the response we want
+            int count = 0;
+            while (count < 20) {
 
-            if (incoming instanceof SendHeadersMessage) {
-                writeMessage(new HeadersMessage(), out);
-                incoming = readMessage(in);
+                try {
 
-                if (incoming instanceof SendCmpctMessage) {
-                    writeMessage(getAddrMessage, out);
-                    readMessage(in);
-                } else {
-                    writeMessage(getAddrMessage, out);
-                    readMessage(in);
+                    BaseMessage msg = readMessage(in);
+
+                    if (msg instanceof PingMessage) {
+
+                        PingMessage pingMessage = (PingMessage) msg;
+
+                        //It's always nice to be acknowledged
+                        PongMessage pongMessage = new PongMessage();
+                        writeMessage(pongMessage, out);
+                        count++;
+
+                    } else if (msg instanceof AddrMessage) {
+
+                        AddrMessage addrMessage = (AddrMessage) msg;
+
+                        //We're assuming if the array is greater than 1, he has
+                        //not just sent us his own address and we struck gold
+                        if (addrMessage.addresses.size() > 1) {
+                            break;
+                        }
+
+                    } else {
+
+                        //we don't care about these, we want addresses
+                        count++;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-
-                writeMessage(getAddrMessage, out);
-                readMessage(in);
-
-                writeMessage(getAddrMessage, out);
-                readMessage(in);
             }
-
 
             Log.i(App.TAG, "Shutting down....");
             out.close();
@@ -430,6 +446,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             SendCmpctMessage sendCmpctMessage = new SendCmpctMessage(header, payload);
             Log.i(App.TAG, sendCmpctMessage.toString());
             return sendCmpctMessage;
+        }
+
+        if (commandName.toLowerCase().contains(PongMessage.COMMAND_NAME)) {
+            PongMessage pongMessage = new PongMessage(header, payload);
+            Log.i(App.TAG, pongMessage.toString());
+            return pongMessage;
+        }
+
+        if (commandName.toLowerCase().contains(PingMessage.COMMAND_NAME)) {
+            PingMessage pingMessage = new PingMessage(header, payload);
+            Log.i(App.TAG, pingMessage.toString());
+            return pingMessage;
         }
 
         return null;
