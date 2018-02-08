@@ -12,6 +12,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.boetcoin.bitcoinnode.network.response.BaseResponse;
+import com.boetcoin.bitcoinnode.util.Lawg;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
@@ -49,7 +50,7 @@ public abstract class BaseRequest<T extends BaseResponse> extends Request<T> {
         this.clazz      = clazz;
         this.listener   = listener;
 
-        Log.i(TAG, " - URL: " + url);
+        Lawg.i(" - URL: " + url);
 
         setRetryPolicy(new DefaultRetryPolicy(RETRY_TIMEOUT,
                 RETRY_COUNT,
