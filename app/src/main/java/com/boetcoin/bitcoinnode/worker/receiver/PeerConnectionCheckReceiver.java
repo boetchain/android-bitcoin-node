@@ -33,6 +33,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Ross Badenhorst.
@@ -55,32 +56,45 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
      */
     private ArrayList<Peer> connectedPeers = new ArrayList<>();
 
+    public static String KEY_ACTION = "KEY_ACTION";
+
+    public static int ACTION_STREAM_ALL = 100;
+    public static int ACTION_GET_SINGLE_ADDRESS = 200;
+
     private Context context;
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
         Lawg.i("PeerConnectionCheckReceiver starting...");
+
+        final int action = intent.getIntExtra(KEY_ACTION, ACTION_STREAM_ALL);
         new Thread(new Runnable() {
             @Override
             public void run() {
-                start(context, intent);
+                start(context, intent, action);
             }
         }).start();
     }
 
-    private void start(Context context, Intent intent) {
+    private void start(Context context, Intent intent, int action) {
         this.context = context;
         connectedPeers = Peer.getConnectedPeers();
 
         if (connectedPeers.size() < MAX_CONNECTIONS) {
             connectToPeers();
         } else {
-            pingPeers();
+            if (action == ACTION_STREAM_ALL) {
+                pingPeers();
+            } else {
+                connectToPeer(connectedPeers.get(new Random().nextInt(connectedPeers.size())));
+            }
         }
     }
 
     private void connectToPeers() {
         Lawg.i("connectToPeers: " + connectedPeers.size());
+        Lawg.u(context, "Connecting to " + connectedPeers.size() + " peer(s)");
+
         int numberOfConnectedPeers = getNumberOfConnectedPeers();
         int numberOfNewConnectionsNeeded = (MAX_CONNECTIONS - numberOfConnectedPeers);
 
@@ -92,6 +106,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
         }
 
         Lawg.i("We are now connected to : " + connectedPeers.size() + " peers");
+        Lawg.u(context, "We are now connected to : " + connectedPeers.size() + " peer(s)");
     }
 
     /**
@@ -170,6 +185,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
 
     private boolean connectToPeer(Peer peer) {
         Lawg.i("connect to: " + peer.ip + ":8333");
+        Lawg.u(context, "Establishing a connection to: " + peer.ip + ":8333");
 
         InetSocketAddress address = new InetSocketAddress(peer.ip, 8333);
         Socket socket = new Socket();
@@ -198,6 +214,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
                 getAddressesFromPeer(in, out);
 
                 Lawg.i("YAY! Connected to: " + peer.ip + ":8333");
+                Lawg.u(context, " - Connection established");
                 peer.timestamp = System.currentTimeMillis();
                 peer.connected = true;
                 peer.save();
@@ -205,6 +222,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
                 success =  true;
             } else {
                 Log.e(TAG, "verack failed for:  " + peer.ip + ":8333");
+                Lawg.u(context, " - Failed to establish connection");
                 peer.delete(); // Fuck this peer, lets try not talk to him
                 success = false;
             }
@@ -214,7 +232,6 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
             socket.close();
 
             return success;
-
         } catch (IOException e) {
             Log.e(TAG, "Failed to connect to: " + peer.ip);
             peer.delete(); // Fuck this peer, lets try not talk to him
@@ -251,6 +268,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
                     //not just sent us his own address and we struck gold
                     if (addrMessage.addresses.size() > 1) {
                         Lawg.i(addrMessage.addresses + " returned from peer");
+                        Lawg.u(context, " - " + addrMessage.addresses + " returned from peer");
                         // TODO save these peers to the DB (make sure to check your not saving any duplicates)
                         break;
                     }
@@ -268,6 +286,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
 
     private void pingPeers() {
         Lawg.i("pingPeers: " + connectedPeers.size());
+        Lawg.u(context, "Trying to maintain connection with "+ connectedPeers.size() + " peers");
 
         for (Peer peer: connectedPeers) {
             pingPeer(peer);
@@ -276,6 +295,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
 
     private boolean pingPeer(Peer peer) {
         Lawg.i("pingPeer: " + peer.ip + ":8333");
+        Lawg.u(context, "Pinging peer:  " + peer.ip + ":8333");
 
         InetSocketAddress address = new InetSocketAddress(peer.ip, 8333);
         Socket socket = new Socket();
@@ -286,19 +306,28 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
             InputStream in = socket.getInputStream();
 
             // Step 1 - send version
-            PingMessage pingMessage = new PingMessage();
-            writeMessage(pingMessage, out);
+            VersionMessage versionMessage = new VersionMessage();
+            writeMessage(versionMessage, out);
 
             // Step 2 - read peer version
-            PongMessage pongMessage = (PongMessage) readMessage(in);
+            VersionMessage peerVersionMessage = (VersionMessage) readMessage(in);
 
-            if (pongMessage != null) {
-                Lawg.i("YAY! Ping succesfull: " + peer.ip + ":8333" + "   | " + pongMessage.nonce);
+            // Step 3 - write verAck
+            VerAckMessage verAckMessage = new VerAckMessage();
+            writeMessage(verAckMessage, out);
+
+            // Step 4 - read verAk
+            VerAckMessage peerVerAckMessage = (VerAckMessage) readMessage(in);
+
+            if (peerVerAckMessage != null) {
+                Lawg.i("YAY! Ping succesfull: " + peer.ip + ":8333");
+                Lawg.u(context, " - Ping successful");
                 peer.timestamp = System.currentTimeMillis();
                 peer.connected = true;
                 peer.save();
             } else {
                 Log.e(TAG, "Ping failed...." + peer.ip + ":8333");
+                Lawg.u(context, " - Ping failed");
                 peer.delete();
             }
 
