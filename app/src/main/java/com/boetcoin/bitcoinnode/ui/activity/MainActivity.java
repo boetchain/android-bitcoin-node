@@ -29,7 +29,6 @@ import com.boetcoin.bitcoinnode.util.Notify;
 import com.boetcoin.bitcoinnode.util.Prefs;
 import com.boetcoin.bitcoinnode.util.Util;
 import com.boetcoin.bitcoinnode.worker.receiver.PeerConnectionCheckReceiver;
-import com.boetcoin.bitcoinnode.worker.service.BitcoinService;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -18,7 +18,6 @@ import com.boetcoin.bitcoinnode.model.Message.VerAckMessage;
 import com.boetcoin.bitcoinnode.model.Message.VersionMessage;
 import com.boetcoin.bitcoinnode.model.Peer;
 import com.boetcoin.bitcoinnode.util.Util;
-import com.boetcoin.bitcoinnode.worker.service.BitcoinService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,7 +76,7 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
     private void connectToPeers() {
         Log.i(TAG, "connectToPeers: " + connectedPeers.size());
         int numberOfConnectedPeers = getNumberOfConnectedPeers();
-        int numberOfNewConnectionsNeeded = (BitcoinService.MAX_CONNECTIONS - numberOfConnectedPeers);
+        int numberOfNewConnectionsNeeded = (MAX_CONNECTIONS - numberOfConnectedPeers);
 
         while (numberOfNewConnectionsNeeded > 0) {
             Peer peerToConnect = findPeerToConnectTo();
