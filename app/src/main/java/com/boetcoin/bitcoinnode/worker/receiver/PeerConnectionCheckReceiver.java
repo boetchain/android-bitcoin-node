@@ -233,7 +233,8 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
 
             return success;
         } catch (IOException e) {
-            Log.e(TAG, "Failed to connect to: " + peer.ip);
+            Lawg.e("Failed to connect to: " + peer.ip);
+            Lawg.u(context, " - Failed to establish connection");
             peer.delete(); // Fuck this peer, lets try not talk to him
             return false;
         }
@@ -267,8 +268,8 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
                     //We're assuming if the array is greater than 1, he has
                     //not just sent us his own address and we struck gold
                     if (addrMessage.addresses.size() > 1) {
-                        Lawg.i(addrMessage.addresses + " returned from peer");
-                        Lawg.u(context, " - " + addrMessage.addresses + " returned from peer");
+                        Lawg.i(addrMessage.addresses.size() + " addresses returned from peer");
+                        Lawg.u(context, " - " + addrMessage.addresses.size() + " addresses returned from peer");
                         // TODO save these peers to the DB (make sure to check your not saving any duplicates)
                         break;
                     }
@@ -337,20 +338,21 @@ public class PeerConnectionCheckReceiver extends BroadcastReceiver {
 
             return true;
         } catch (IOException e) {
-            Log.e(TAG, "Failed to connect to: " + peer.ip);
+            Lawg.i("Failed to connect to: " + peer.ip);
+            Lawg.u(context, " - Failed to establish connection");
             peer.delete(); // Fuck this peer, lets try not talk to him
             return false;
         }
     }
 
     private void writeMessage(BaseMessage message, OutputStream out) {
-        Log.d(TAG, "--->: " + message.getCommandName());
+        Lawg.i("--->: " + message.getCommandName());
 
         byte[] header   = message.getHeader();
         byte[] payload  = message.getPayload();
 
         try {
-            //Lawg.i( "header: " + Util.bytesToHexString(header));
+            // Lawg.i("header: " + Util.bytesToHexString(header));
             //Lawg.i( "payload: " + Util.bytesToHexString(payload));
 
             out.write(header);
