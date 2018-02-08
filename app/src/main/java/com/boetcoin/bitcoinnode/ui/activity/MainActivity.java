@@ -1,10 +1,5 @@
 package com.boetcoin.bitcoinnode.ui.activity;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -38,7 +33,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -60,87 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void tuneHowzit() {
 
         toggleHowzitBtnState(true);
-
-        final byte[] savedResponse = Prefs.getByte(this, "res", new byte[0]);
-        //VersionMessage versionMessage = new VersionMessage();
-
-        //VersionMessage versionMessage = new VersionMessage();
-        //VerAckMessage verAckMessage = new VerAckMessage();
-        //final byte[] savedResponse = Bytes.concat(verAckMessage.getHeader(), verAckMessage.getPayload());
-
-        /*
-        final byte[] savedResponse = new byte[1000];
-        for (int i = 0; i < savedResponse.length ; i++) {
-            savedResponse[i] = 1;
-        }
-        */
-
-
-        //Log.i(App.TAG, "savedResponse.length: " + savedResponse.length);
-
-
-        //Log.i(App.TAG, "LEN P : " +  versionMessage.getPayload().length);
-        //Log.i(App.TAG, "LEN S : " +  savedResponse.length);
-        //Log.i(App.TAG, Util.bytesToHexString(savedResponse));
-
-        //Log.i(App.TAG, Util.bytesToHexString(Bytes.concat(versionMessage.getHeader(), versionMessage.getPayload())));
-        //Log.i(App.TAG, "LEN ALL : " +  savedResponse.length);
-        /*
-        InputStream in = new InputStream() {
-            int pos = 0;
-            @Override
-            public int read() throws IOException {
-
-                if (pos < savedResponse.length) {
-                    //Log.i(App.TAG, "read : " +  pos + " | " + savedResponse.length ) ;
-                    int b = savedResponse[pos];
-                    pos++;
-                    return b;
-                }
-
-                //Log.i(App.TAG, "pos : " +  pos);
-                return -1;
-            }
-        };
-        */
-        /*
-        //Peer.deleteAll(Peer.class);
-        final List<Peer> locallySavedPeers = Peer.listAll(Peer.class);
-        //Peer.deleteAll(Peer.class);
-        Log.i(App.TAG, "locallySavedPeers: " + locallySavedPeers.size());
-
-        if (locallySavedPeers.size() == 0) {
-            //todo on first peer load, connect random peer automatically
-            Peer.findByDnsSeeds(getResources().getStringArray(R.array.dns_seed_nodes));
-            Notify.toast(this, R.string.error_cant_find_peers, Toast.LENGTH_SHORT);
-            toggleHowzitBtnState(false);
-        } else {
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-
-                    int peer = new Random().nextInt(locallySavedPeers.size());
-
-                    getAddresses(locallySavedPeers.get(peer));
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            toggleHowzitBtnState(false);
-                        }
-                    });
-                }
-            }).start();
-        }
-        */
-
-        Intent pingPeersReceiverIntent = new Intent(this, PeerConnectionCheckReceiver.class);
-        PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 0, pingPeersReceiverIntent, 0);
-        AlarmManager alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarmMgr.cancel(alarmIntent);
-        alarmMgr.setExact(A);
-        alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 0, PeerConnectionCheckReceiver.CHECK_INTERVAL_SECONDS * 1000, alarmIntent);
+        PeerConnectionCheckReceiver.startServiceNow(this);
     }
 
     private void getAddresses(Peer peer) {
