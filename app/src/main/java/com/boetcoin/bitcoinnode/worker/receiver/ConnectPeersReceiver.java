@@ -62,11 +62,6 @@ public class ConnectPeersReceiver extends BroadcastReceiver {
             if (connectToPeer(peerToConnect)) {
                 numberOfNewConnectionsNeeded--;
             }
-            try {
-                Thread.sleep(10000);// Cool off just to read logs
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
 
         //TODO send peer connection completed broadcast

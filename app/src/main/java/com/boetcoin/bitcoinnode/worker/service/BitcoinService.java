@@ -72,7 +72,11 @@ public class BitcoinService extends Service {
             startDnsSeedDiscovery();
         }
 
-        startConnectingToPeers();
+        //updateConnectedPeers();
+
+        //if (connectedPeers.size() < MAX_CONNECTIONS) {
+            startConnectingToPeers();
+        //}
     }
 
     /**
@@ -88,12 +92,24 @@ public class BitcoinService extends Service {
         return true;
     }
 
+
     /**
      * Gets peers we have saved in the past.
      * @return - list of locally saved peers.
      */
     private List<Peer> getSavedPeers() {
         return Peer.listAll(Peer.class);
+    }
+
+    private void updateConnectedPeers() {
+        List<Peer> peerPool  = Peer.listAll(Peer.class);
+        connectedPeers.clear();
+
+        for (Peer peer : peerPool) {
+            if (peer.connected) {
+                connectedPeers.add(peer);
+            }
+        }
     }
 
     /**
