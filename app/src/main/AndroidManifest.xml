@@ -36,7 +36,7 @@
         </receiver>
 
         <!-- SERVICE -->
-        <service android:name=".worker.intentservice.PeerCommunicationIntentService"></service>
+        <service android:name=".worker.service.BitcoinService"></service>
 
     </application>
 </manifest>

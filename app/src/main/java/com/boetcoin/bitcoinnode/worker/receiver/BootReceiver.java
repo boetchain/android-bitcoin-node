@@ -4,8 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.boetcoin.bitcoinnode.worker.intentservice.PeerCommunicationIntentService;
-
 /**
  * Created by rossbadenhorst on 2018/02/08.
  */

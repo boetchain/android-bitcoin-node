@@ -6,40 +6,18 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.boetcoin.bitcoinnode.App;
 import com.boetcoin.bitcoinnode.R;
 import com.boetcoin.bitcoinnode.model.LogItem;
-import com.boetcoin.bitcoinnode.model.Message.AddrMessage;
-import com.boetcoin.bitcoinnode.model.Message.AlertMessage;
-import com.boetcoin.bitcoinnode.model.Message.BaseMessage;
-import com.boetcoin.bitcoinnode.model.Message.GetAddrMessage;
-import com.boetcoin.bitcoinnode.model.Message.PingMessage;
-import com.boetcoin.bitcoinnode.model.Message.PongMessage;
-import com.boetcoin.bitcoinnode.model.Message.RejectMessage;
-import com.boetcoin.bitcoinnode.model.Message.SendCmpctMessage;
-import com.boetcoin.bitcoinnode.model.Message.SendHeadersMessage;
-import com.boetcoin.bitcoinnode.model.Message.VerAckMessage;
-import com.boetcoin.bitcoinnode.model.Message.VersionMessage;
-import com.boetcoin.bitcoinnode.model.Peer;
 import com.boetcoin.bitcoinnode.ui.adapter.LogAdapter;
 import com.boetcoin.bitcoinnode.util.Lawg;
 import com.boetcoin.bitcoinnode.util.Notify;
-import com.boetcoin.bitcoinnode.util.Prefs;
-import com.boetcoin.bitcoinnode.util.Util;
-import com.boetcoin.bitcoinnode.worker.intentservice.PeerCommunicationIntentService;
+import com.boetcoin.bitcoinnode.worker.service.BitcoinService;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,8 +84,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void tuneHowzit() {
 
         toggleHowzitBtnState(true);
-        Intent peerComsIntent = new Intent(this, PeerCommunicationIntentService.class);
-        startService(peerComsIntent);
+        Intent bitcoinService = new Intent(this, BitcoinService.class);
+        startService(bitcoinService);
     }
 
     /**
