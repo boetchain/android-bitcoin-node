@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.boetcoin.bitcoinnode.ui.activity.MainActivity">
+    tools:context="com.boetcoin.bitcoinnode.ui.activity.MainActivity"
+    android:background="@color/log_background"
+    >
 
     <Button
         android:id="@+id/activity_main_howzit_btn"
@@ -19,6 +21,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/activity_main_howzit_btn"
+        android:dividerHeight="0dp"
+        android:divider="@color/transparent"
         />
 
 </RelativeLayout>
