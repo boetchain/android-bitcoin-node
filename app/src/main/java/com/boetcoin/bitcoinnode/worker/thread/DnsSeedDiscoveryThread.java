@@ -7,6 +7,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.boetcoin.bitcoinnode.R;
 import com.boetcoin.bitcoinnode.model.Peer;
 import com.boetcoin.bitcoinnode.util.Lawg;
+import com.boetcoin.bitcoinnode.worker.service.BitcoinService;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -22,14 +23,14 @@ public class DnsSeedDiscoveryThread extends BaseThread {
 
     public DnsSeedDiscoveryThread(Context context) {
         super(context);
+        this.context = context;
     }
 
     @Override
     public void run() {
         startDnsSeedDiscovery();
 
-        Intent dnsDiscoceryCompleteIntent = new Intent();
-        LocalBroadcastManager.getInstance(context).sendBroadcastSync(dnsDiscoceryCompleteIntent);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(BitcoinService.ACTION_DNS_SEED_DISCOVERY_COMPLETE));
     }
 
     /**

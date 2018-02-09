@@ -57,6 +57,7 @@ public class BitcoinService extends Service {
      * Starts the look up process to find initial peers or seeds to connect to.
      */
     private void startDnsSeedDiscovery() {
+        Lawg.i("startDnsSeedDiscovery");
         new Thread(new DnsSeedDiscoveryThread(this)).start();
     }
 
