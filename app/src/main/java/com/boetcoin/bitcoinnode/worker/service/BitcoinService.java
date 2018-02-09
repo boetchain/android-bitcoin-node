@@ -21,9 +21,9 @@ import java.util.List;
  */
 public class BitcoinService extends Service {
 
-    public static final String ACTION_DNS_SEED_DISCOVERY_COMPLETE = "ACTION_DNS_SEED_DISCOVERY_COMPLETE";
-    public static final String ACTION_PEER_CONNECTED = "ACTION_PEER_CONNECTED";
-    public static final String ACTION_PEER_DISCONNECTED = "ACTION_PEER_DISCONNECTED";
+    public static final String ACTION_DNS_SEED_DISCOVERY_COMPLETE   = "ACTION_DNS_SEED_DISCOVERY_COMPLETE";
+    public static final String ACTION_PEER_CONNECTED                = "ACTION_PEER_CONNECTED";
+    public static final String ACTION_PEER_DISCONNECTED             = "ACTION_PEER_DISCONNECTED";
 
     /**
      * Max number of connections we want to maintain with peers
@@ -40,6 +40,8 @@ public class BitcoinService extends Service {
         Lawg.i("Bitcoin Service Starting...");
 
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_DNS_SEED_DISCOVERY_COMPLETE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_PEER_CONNECTED));
+        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_PEER_DISCONNECTED));
 
         peerPool = Peer.getPeerPool();
         if (peerPool.size() == 0) {
@@ -51,10 +53,16 @@ public class BitcoinService extends Service {
         return START_STICKY;
     }
 
+    /**
+     * Starts the look up process to find initial peers or seeds to connect to.
+     */
     private void startDnsSeedDiscovery() {
         new Thread(new DnsSeedDiscoveryThread(this)).start();
     }
 
+    /**
+     * Starts threads to start connecting to peers.
+     */
     private void connectToPeers() {
         int numberOfConnectionsNeeded = MAX_CONNECTIONS - numberOfActiveConnections;
         Lawg.i("Starting " + numberOfConnectionsNeeded + " new connections");
@@ -111,10 +119,13 @@ public class BitcoinService extends Service {
 
             if (intent.getAction().equalsIgnoreCase(ACTION_PEER_CONNECTED)) {
                 numberOfActiveConnections++;
+                Lawg.i("Peer connected: " + numberOfActiveConnections);
             }
 
             if (intent.getAction().equalsIgnoreCase(ACTION_PEER_DISCONNECTED)) {
-                numberOfActiveConnections++;
+                numberOfActiveConnections--;
+                Lawg.i("Peer disconnected: " + numberOfActiveConnections);
+                connectToPeers();
             }
         }
     };

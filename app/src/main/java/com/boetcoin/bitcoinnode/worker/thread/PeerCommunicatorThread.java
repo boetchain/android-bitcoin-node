@@ -1,6 +1,7 @@
 package com.boetcoin.bitcoinnode.worker.thread;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.boetcoin.bitcoinnode.model.Message.AddrMessage;
@@ -16,6 +17,7 @@ import com.boetcoin.bitcoinnode.model.Message.VersionMessage;
 import com.boetcoin.bitcoinnode.model.Peer;
 import com.boetcoin.bitcoinnode.util.Lawg;
 import com.boetcoin.bitcoinnode.util.Util;
+import com.boetcoin.bitcoinnode.worker.service.BitcoinService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,9 +49,13 @@ public class PeerCommunicatorThread extends BaseThread {
                 peer.connected = true;
                 peer.save();
 
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(BitcoinService.ACTION_PEER_CONNECTED));
+
                 handlePeerMessages(socket.getOutputStream(), socket.getInputStream());
             } else {
                 peer.delete(); // Fuck this peer, lets try not talk to him
+
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(BitcoinService.ACTION_PEER_DISCONNECTED));
             }
         } catch (IOException e) {
         }
