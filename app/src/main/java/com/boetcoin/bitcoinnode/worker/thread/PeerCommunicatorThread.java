@@ -31,6 +31,9 @@ import java.net.Socket;
  */
 public class PeerCommunicatorThread extends BaseThread {
 
+    /**
+     * The peer that this thread is making comms with.
+     */
     private Peer peer;
 
     public PeerCommunicatorThread(Context context, Peer peer) {
@@ -54,10 +57,11 @@ public class PeerCommunicatorThread extends BaseThread {
                 handlePeerMessages(socket.getOutputStream(), socket.getInputStream());
             } else {
                 peer.delete(); // Fuck this peer, lets try not talk to him
-
                 LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(BitcoinService.ACTION_PEER_DISCONNECTED));
             }
         } catch (IOException e) {
+            peer.delete(); // Fuck this peer, lets try not talk to him
+            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(BitcoinService.ACTION_PEER_DISCONNECTED));
         }
 
         try {
@@ -69,6 +73,14 @@ public class PeerCommunicatorThread extends BaseThread {
         }
     }
 
+    /**
+     * Connects to a peer.
+     * If the socket times out or the handshake isn't completed.
+     * We consider the connection a failure.
+     * @param socket - to connect to a peer with
+     *
+     * @return true if connection success, false if not.
+     */
     private boolean connect(Socket socket) {
         Lawg.i("connect: " + peer.ip);
 
@@ -105,10 +117,18 @@ public class PeerCommunicatorThread extends BaseThread {
 
             return success;
         } catch (IOException e) {
+            Lawg.i(" - Failed to establish connection");
             return false;
         }
     }
 
+    /**
+     * Listens for peers messages and responds appropriately.
+     *
+     * @param out - channel to send messages on.
+     * @param in - channel to receive messages on.
+     * @throws IOException
+     */
     private void handlePeerMessages(OutputStream out, InputStream in) throws IOException {
         while (true) {
             BaseMessage message = readMessage(in);
@@ -119,7 +139,12 @@ public class PeerCommunicatorThread extends BaseThread {
         }
     }
 
-    // Util Method
+    /**
+     * Writes a message to be sent to a peer.
+     *
+     * @param message - to be sent.
+     * @param out - the stream we want to send the message on.
+     */
     private void writeMessage(BaseMessage message, OutputStream out) {
         Lawg.i("---> " + message.getCommandName());
 
@@ -307,6 +332,12 @@ public class PeerCommunicatorThread extends BaseThread {
         return true;
     }
 
+    /**
+     * Creates a message from the byte array header
+     * @param header
+     * @param payload
+     * @return
+     */
     private BaseMessage constructMessage(byte[] header, byte[] payload) {
         String commandName = getCommandNameFromHeader(header);
         Lawg.i("<--- " + commandName);
