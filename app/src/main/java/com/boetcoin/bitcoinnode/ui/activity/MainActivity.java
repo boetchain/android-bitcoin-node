@@ -32,7 +32,7 @@ import com.boetcoin.bitcoinnode.util.Lawg;
 import com.boetcoin.bitcoinnode.util.Notify;
 import com.boetcoin.bitcoinnode.util.Prefs;
 import com.boetcoin.bitcoinnode.util.Util;
-import com.boetcoin.bitcoinnode.worker.receiver.PeerConnectionCheckReceiver;
+import com.boetcoin.bitcoinnode.worker.intentservice.PeerCommunicationIntentService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -106,7 +106,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void tuneHowzit() {
 
         toggleHowzitBtnState(true);
-        PeerConnectionCheckReceiver.startServiceNow(this);
+        Intent peerComsIntent = new Intent(this, PeerCommunicationIntentService.class);
+        startService(peerComsIntent);
     }
 
     private void getAddresses(Peer peer) {

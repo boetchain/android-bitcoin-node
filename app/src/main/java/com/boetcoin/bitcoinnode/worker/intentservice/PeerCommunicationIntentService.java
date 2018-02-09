@@ -49,7 +49,6 @@ public class PeerCommunicationIntentService extends IntentService {
             new Thread(new PeerCommunicatorThread(context, connectedPeers.get(i))).start();
         }
 
-
         if (connectedPeers.size() < MAX_CONNECTIONS) {
             int numberOfConnectionsNeeded = MAX_CONNECTIONS - connectedPeers.size();
             Lawg.i("Starting " + numberOfConnectionsNeeded + " new connections");

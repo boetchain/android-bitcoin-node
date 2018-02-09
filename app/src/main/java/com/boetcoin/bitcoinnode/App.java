@@ -16,8 +16,5 @@ public class App extends com.orm.SugarApp {
     public void onCreate() {
         super.onCreate();
         Log.e(TAG, "Starting...");
-
-        Intent peerComsIntent = new Intent(this, PeerCommunicationIntentService.class);
-        startService(peerComsIntent);
     }
 }

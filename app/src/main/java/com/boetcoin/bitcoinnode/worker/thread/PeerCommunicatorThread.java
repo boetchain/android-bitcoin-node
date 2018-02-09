@@ -1,6 +1,7 @@
 package com.boetcoin.bitcoinnode.worker.thread;
 
 import android.content.Context;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.boetcoin.bitcoinnode.model.Message.AddrMessage;
 import com.boetcoin.bitcoinnode.model.Message.AlertMessage;
@@ -37,14 +38,7 @@ public class PeerCommunicatorThread extends BaseThread {
 
     @Override
     public void run() {
-        communicateWithPeer();
-    }
-
-    public void communicateWithPeer() {
-        InetSocketAddress address = new InetSocketAddress(peer.ip, 8333);
-
         Socket socket = new Socket();
-
         boolean success = connect(socket);
 
         try {
