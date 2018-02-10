@@ -7,6 +7,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.boetchain.bitcoinnode.model.Message.AddrMessage;
 import com.boetchain.bitcoinnode.model.Message.AlertMessage;
 import com.boetchain.bitcoinnode.model.Message.BaseMessage;
+import com.boetchain.bitcoinnode.model.Message.GetAddrMessage;
 import com.boetchain.bitcoinnode.model.Message.PingMessage;
 import com.boetchain.bitcoinnode.model.Message.PongMessage;
 import com.boetchain.bitcoinnode.model.Message.RejectMessage;
@@ -25,6 +26,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.List;
 
 /**
  * Created by Ross Badenhorst.
@@ -130,11 +132,18 @@ public class PeerCommunicatorThread extends BaseThread {
      * @throws IOException
      */
     private void handlePeerMessages(OutputStream out, InputStream in) throws IOException {
+        writeMessage(new GetAddrMessage(), out); // Send out a sneaky getAddress message.
+
         while (true) {
             BaseMessage message = readMessage(in);
 
             if (message instanceof PingMessage) {
                 writeMessage(new PongMessage(), out);
+            }
+
+            if (message instanceof AddrMessage) {
+                List<Peer> addresses = ((AddrMessage) message).addresses;
+                Peer.addPeersToPool(addresses);
             }
         }
     }
