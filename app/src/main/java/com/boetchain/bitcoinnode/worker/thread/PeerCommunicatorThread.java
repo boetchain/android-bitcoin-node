@@ -82,9 +82,9 @@ public class PeerCommunicatorThread extends BaseThread {
      * @return true if connection success, false if not.
      */
     private boolean connect(Socket socket) {
-        Lawg.i("connect: " + peer.ip);
+        Lawg.i("connect: " + peer.address);
 
-        InetSocketAddress address = new InetSocketAddress(peer.ip, 8333);
+        InetSocketAddress address = new InetSocketAddress(peer.address, peer.port);
 
         try {
             socket.connect(address, 10000);

@@ -69,7 +69,11 @@ public class PeerManagementService extends Service {
         Lawg.i("Starting " + numberOfConnectionsNeeded + " new connections");
         for (int i = 0; i < numberOfConnectionsNeeded; i++) {
             Peer peerToConnectTo = findPeerToConnectTo();
-            new Thread(new PeerCommunicatorThread(this, peerToConnectTo)).start();
+            if (peerToConnectTo != null) {
+                new Thread(new PeerCommunicatorThread(this, peerToConnectTo)).start();
+            } else {
+                Lawg.e("No peers to connect to...");
+            }
         }
     }
 
@@ -82,6 +86,8 @@ public class PeerManagementService extends Service {
      * @return - a peer we can connect to.
      */
     private Peer findPeerToConnectTo() {
+        peerPool = Peer.getPeerPool();
+
         for (int i = 0; i < peerPool.size(); i++) {
             Peer peer  = peerPool.get(i);
             if (!peer.connected) {

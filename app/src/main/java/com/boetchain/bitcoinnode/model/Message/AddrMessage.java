@@ -1,8 +1,7 @@
 package com.boetchain.bitcoinnode.model.Message;
 
-import com.boetchain.bitcoinnode.util.Lawg;
+import com.boetchain.bitcoinnode.model.Peer;
 
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -16,8 +15,15 @@ public class AddrMessage extends BaseMessage {
 
     public static final String COMMAND_NAME = "addr";
 
+    /**
+     * How many peers are in the address list.
+     * Used to tell use how far down the payload we need to read.
+     */
     public int count;
-    public List<String> addresses;
+    /**
+     * List of peers.
+     */
+    public List<Peer> addresses;
 
     public AddrMessage() {
         super();
@@ -37,36 +43,53 @@ public class AddrMessage extends BaseMessage {
 
     @Override
     protected void readPayload() {
+        long numberOfAddresses = readVarInt();
+        addresses = readAddresses(numberOfAddresses);
+    }
 
-        long numAddresses = readVarInt();
-        addresses = new ArrayList<>((int) numAddresses);
-        BigInteger services;
-        InetAddress addr;
-        int port;
+    /**
+     * Reads an address list send to us
+     *
+     * @param numberOfAddresses - how many peers are in the address book :P
+     * @return - nicely read peers for us to use.
+     */
+    private List<Peer> readAddresses(long numberOfAddresses) {
+        addresses = new ArrayList<>();
 
-        long time;
-        for (int i = 0; i < numAddresses; i++) {
-            time = readUint32();
-            services = readUint64();
-            byte[] addrBytes = readBytes(16);
-            try {
-                addr = InetAddress.getByAddress(addrBytes);
-            } catch (UnknownHostException e) {
-                throw new RuntimeException(e);  // Cannot happen.
-            }
-            port = ((0xFF & payload[cursor++]) << 8) | (0xFF & payload[cursor++]);
-
-            Lawg.i("Time: " + time);
-            Lawg.i("Address: " + addr.toString());
-            Lawg.i("Services: " + services.toString());
-            Lawg.i("Port: " + port);
-            Lawg.i("--------------------------------");
-            // The 4 byte difference is the uint32 timestamp that was introduced in version 31402
-            //length = protocolVersion > 31402 ? MESSAGE_SIZE : MESSAGE_SIZE - 4;
-
-            addresses.add(addr.toString());
+        for (int i = 0; i < numberOfAddresses; i++) {
+            addresses.add(readPeer());
         }
 
+        return addresses;
+    }
+
+    /**
+     * Reads a single peer from the payload.
+     *
+     * @return - a peer.
+     */
+    private Peer readPeer() {
+        // The address of the peer
+        InetAddress address;
+        // The port of the peer
+        int port;
+        // The services the peer offers
+        long services;
+        // The last time this peer was contacted
+        long time;
+
+        time = readUint32();
+        services = readUint64().longValue();
+
+        byte[] addrBytes = readBytes(16);
+        try {
+            address = InetAddress.getByAddress(addrBytes);
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);  // Cannot happen.
+        }
+        port = ((0xFF & payload[cursor++]) << 8) | (0xFF & payload[cursor++]);
+
+        return new Peer(address.getHostAddress(), port, services, time);
     }
 
     @Override

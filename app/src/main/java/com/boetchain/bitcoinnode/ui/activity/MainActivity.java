@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.LogItem;
+import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.ui.adapter.LogAdapter;
 import com.boetchain.bitcoinnode.util.Lawg;
 import com.boetchain.bitcoinnode.util.Notify;
@@ -59,7 +60,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         logs = new ArrayList();
         adapter = new LogAdapter(this, logs);
         listView.setAdapter(adapter);
-
     }
 
     @Override

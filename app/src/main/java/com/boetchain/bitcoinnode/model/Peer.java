@@ -10,20 +10,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by rossbadenhorst on 2018/01/31.
+ * Created by Ross Badenhorst.
  */
-
 public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
 
     /**
-     * The IP address of the peer
+     * The default port we use when connecting to a peer.
+     */
+    public static final int DEFAULT_PORT = 8333;
+    /**
+     * The max amount of peers we want to keep in our poot.
+     * We normally connect to 8 peers at a time and each one gives us about 1000 addresses at a time.
+     */
+    public static final int MAX_POOL_SIZE = 8000;
+
+    /**
+     * The address of the peer
      */
     public String address;
     /**
      * The port of the peer.
      * Typically 8333.
      */
-    public int port;
+    public int port = DEFAULT_PORT;
     /**
      * The services the peer is providing.
      */
@@ -40,10 +49,22 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
     public Peer() {
     }
 
+    public Peer(String address) {
+        this.address = address;
+    }
+
     public Peer(String address, int port, long services) {
         this.address = address;
         this.port = port;
         this.services = services;
+        this.connected = false;
+    }
+
+    public Peer(String address, int port, long services, long timestamp) {
+        this.address = address;
+        this.port = port;
+        this.services = services;
+        this.timestamp = timestamp;
         this.connected = false;
     }
 
