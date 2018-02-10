@@ -49,9 +49,25 @@ public class Lawg {
      * @param context
      * @param msg
      */
-    public static void u(Context context, String msg, int type) {
+    public static void u(Context context, String msg, int type, int log) {
 
+        //TODO REMOVE THIS when UI is properly implemented
         switch (type) {
+            case LogItem.TYPE_NEUTRAL:
+                msg = "* " + msg + " *";
+                break;
+            case LogItem.TYPE_IN:
+                msg = "<-- " + msg + " <--";
+                break;
+            case LogItem.TYPE_OUT:
+                msg = "--> " + msg + " -->";
+                break;
+            default:
+                msg = "? " + msg + " ?";
+                break;
+        }
+
+        switch (log) {
 
             case LogItem.TI:
                 Lawg.i(msg);
@@ -80,18 +96,8 @@ public class Lawg {
         Intent intent = new Intent();
         intent.setAction(PeerChatActivity.ACTION_LOG_TO_UI);
         intent.putExtra(PeerChatActivity.EXTRA_MSG, msg);
-        intent.putExtra(PeerChatActivity.EXTRA_TYPE, type);
+        intent.putExtra(PeerChatActivity.EXTRA_TYPE, log);
         context.sendBroadcast(intent);
-    }
-
-    /**
-     * Logs to i and to the UI via broadcast
-     * @param context
-     * @param msg
-     */
-    public static void u(Context context, String msg) {
-
-        u(context, msg, LogItem.TI);
     }
 
     public static void e(String msg) {

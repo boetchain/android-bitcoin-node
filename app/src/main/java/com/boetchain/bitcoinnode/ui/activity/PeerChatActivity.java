@@ -26,10 +26,11 @@ import java.util.List;
 
 public class PeerChatActivity extends BaseActivity {
 
-    public static final String ACTION_LOG_TO_UI = MainActivity.class.getSimpleName() + ".ACTION_LOG_TO_UI";
+    public static final String ACTION_LOG_TO_UI = getBroadcastAction();
 
     public static final String EXTRA_MSG = MainActivity.class.getSimpleName() + ".EXTRA_MSG";
     public static final String EXTRA_TYPE = MainActivity.class.getSimpleName() + ".EXTRA_TYPE";
+    public static final String EXTRA_LOG = MainActivity.class.getSimpleName() + ".EXTRA_LOG";
     public static final String EXTRA_PEER = PeerChatActivity.class.getSimpleName() + ".EXTRA_PEER";
 
     private Peer peer;
@@ -44,9 +45,10 @@ public class PeerChatActivity extends BaseActivity {
 
             if (intent.hasExtra(EXTRA_MSG)) {
 
-                int type = intent.getIntExtra(EXTRA_TYPE, LogItem.TI);
+                int type = intent.getIntExtra(EXTRA_TYPE, LogItem.TYPE_NEUTRAL);
+                int log = intent.getIntExtra(EXTRA_LOG, LogItem.TI);
                 String msg = intent.getStringExtra(EXTRA_MSG);
-                PeerChatActivity.this.logToUI(new LogItem(type, msg));
+                PeerChatActivity.this.logToUI(new LogItem(msg, type, log));
             }
         }
     };
@@ -108,5 +110,14 @@ public class PeerChatActivity extends BaseActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * The broadcast action for receiving logs changes based on the current App.monitoringPeerIp
+     *
+     * @return
+     */
+    public static String getBroadcastAction() {
+        return MainActivity.class.getSimpleName() + ".ACTION_LOG_TO_UI." + App.monitoringPeerIP;
     }
 }
