@@ -7,6 +7,7 @@
     <color name="black">#000</color>
     <color name="white">#fff</color>
     <color name="transparent">#00ffffff</color>
+    <color name="text_light_grey">#717171</color>
 
     <color name="log_background">#FF212121</color>
     <color name="log_info">#149900</color>

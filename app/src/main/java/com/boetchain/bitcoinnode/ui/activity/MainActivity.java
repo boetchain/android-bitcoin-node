@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -21,7 +20,7 @@ import com.boetchain.bitcoinnode.worker.service.BitcoinService;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     public static final String ACTION_LOG_TO_UI = MainActivity.class.getName() + ".ACTION_LOG_TO_UI";
     public static final String EXTRA_MSG = MainActivity.class.getName() + ".EXTRA_MSG";
