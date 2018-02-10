@@ -36,7 +36,7 @@
         </receiver>
 
         <!-- SERVICE -->
-        <service android:name="com.boetchain.bitcoinnode.worker.service.BitcoinService"></service>
+        <service android:name="com.boetchain.bitcoinnode.worker.service.PeerManagementService"></service>
 
     </application>
 </manifest>

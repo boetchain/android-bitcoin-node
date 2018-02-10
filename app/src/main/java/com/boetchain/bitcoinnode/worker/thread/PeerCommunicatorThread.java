@@ -17,7 +17,7 @@ import com.boetchain.bitcoinnode.model.Message.VersionMessage;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.util.Lawg;
 import com.boetchain.bitcoinnode.util.Util;
-import com.boetchain.bitcoinnode.worker.service.BitcoinService;
+import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,16 +52,16 @@ public class PeerCommunicatorThread extends BaseThread {
                 peer.connected = true;
                 peer.save();
 
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(BitcoinService.ACTION_PEER_CONNECTED));
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(PeerManagementService.ACTION_PEER_CONNECTED));
 
                 handlePeerMessages(socket.getOutputStream(), socket.getInputStream());
             } else {
                 peer.delete(); // Fuck this peer, lets try not talk to him
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(BitcoinService.ACTION_PEER_DISCONNECTED));
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(PeerManagementService.ACTION_PEER_DISCONNECTED));
             }
         } catch (IOException e) {
             peer.delete(); // Fuck this peer, lets try not talk to him
-            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(BitcoinService.ACTION_PEER_DISCONNECTED));
+            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(PeerManagementService.ACTION_PEER_DISCONNECTED));
         }
 
         try {

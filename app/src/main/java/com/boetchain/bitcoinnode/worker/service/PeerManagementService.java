@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * Created by Ross Badenhorst.
  */
-public class BitcoinService extends Service {
+public class PeerManagementService extends Service {
 
     public static final String ACTION_DNS_SEED_DISCOVERY_COMPLETE   = "ACTION_DNS_SEED_DISCOVERY_COMPLETE";
     public static final String ACTION_PEER_CONNECTED                = "ACTION_PEER_CONNECTED";
