@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.boetchain.bitcoinnode.model.LogItem;
-import com.boetchain.bitcoinnode.ui.activity.MainActivity;
+import com.boetchain.bitcoinnode.ui.activity.PeerChatActivity;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -78,9 +78,9 @@ public class Lawg {
         }
 
         Intent intent = new Intent();
-        intent.setAction(MainActivity.ACTION_LOG_TO_UI);
-        intent.putExtra(MainActivity.EXTRA_MSG, msg);
-        intent.putExtra(MainActivity.EXTRA_TYPE, type);
+        intent.setAction(PeerChatActivity.ACTION_LOG_TO_UI);
+        intent.putExtra(PeerChatActivity.EXTRA_MSG, msg);
+        intent.putExtra(PeerChatActivity.EXTRA_TYPE, type);
         context.sendBroadcast(intent);
     }
 

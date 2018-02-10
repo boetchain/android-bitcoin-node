@@ -6,4 +6,5 @@
     <string name="activity_main_howzit_btn_toast_busy">Already Tuning Boet</string>
 
     <string name="error_cant_find_peers">Can\'t find peers</string>
+    <string name="error_peer_not_found">Peer not found</string>
 </resources>

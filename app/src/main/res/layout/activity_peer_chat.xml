@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.boetchain.bitcoinnode.ui.activity.PeerChatActivity"
+    android:background="@color/log_background"
     >
 
     <ListView
@@ -12,6 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/activity_main_howzit_btn"
+        android:dividerHeight="0dp"
+        android:divider="@color/transparent"
         />
 
 </RelativeLayout>

@@ -28,6 +28,12 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="com.boetchain.bitcoinnode.ui.activity.PeerChatActivity">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <!-- RECEIVER -->
         <receiver android:name="com.boetchain.bitcoinnode.worker.receiver.BootReceiver">
             <intent-filter>
