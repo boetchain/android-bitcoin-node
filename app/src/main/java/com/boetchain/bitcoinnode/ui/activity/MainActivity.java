@@ -9,10 +9,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.boetchain.bitcoinnode.R;
-import com.boetchain.bitcoinnode.model.LogItem;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.ui.adapter.PeerAdapter;
-import com.boetchain.bitcoinnode.util.Lawg;
 import com.boetchain.bitcoinnode.util.Notify;
 import com.boetchain.bitcoinnode.worker.service.BitcoinService;
 
@@ -74,7 +72,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
             case R.id.activity_main_howzit_btn:
                 if (!isTuningHowzit) {
-                    Lawg.u(this, "Let's start tuning...", LogItem.TYPE_NEUTRAL, LogItem.TI);
                     howzitBtn.setText(getString(R.string.activity_main_howzit_btn_start_working));
                     tuneHowzit();
                 } else {

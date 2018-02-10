@@ -26,8 +26,6 @@ import java.util.List;
 
 public class PeerChatActivity extends BaseActivity {
 
-    public static final String ACTION_LOG_TO_UI = getBroadcastAction();
-
     public static final String EXTRA_MSG = MainActivity.class.getSimpleName() + ".EXTRA_MSG";
     public static final String EXTRA_TYPE = MainActivity.class.getSimpleName() + ".EXTRA_TYPE";
     public static final String EXTRA_LOG = MainActivity.class.getSimpleName() + ".EXTRA_LOG";
@@ -86,7 +84,7 @@ public class PeerChatActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        App.monitoringPeerIP = peer.ip;
+        App.monitoringPeerIP = "";
         unregisterReceiver(logReceiver);
     }
 
@@ -94,9 +92,9 @@ public class PeerChatActivity extends BaseActivity {
     protected void onPostResume() {
         super.onPostResume();
 
-        App.monitoringPeerIP = "";
+        App.monitoringPeerIP = peer.ip;
 
-        IntentFilter intent = new IntentFilter(ACTION_LOG_TO_UI);
+        IntentFilter intent = new IntentFilter(getBroadcastAction());
         registerReceiver(logReceiver, intent);
     }
 

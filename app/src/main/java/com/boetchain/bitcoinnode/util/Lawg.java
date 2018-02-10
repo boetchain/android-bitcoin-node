@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.boetchain.bitcoinnode.App;
 import com.boetchain.bitcoinnode.model.LogItem;
+import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.ui.activity.PeerChatActivity;
 
 import java.io.PrintWriter;
@@ -49,7 +51,7 @@ public class Lawg {
      * @param context
      * @param msg
      */
-    public static void u(Context context, String msg, int type, int log) {
+    public static void u(Context context, Peer peer, String msg, int type, int log) {
 
         //TODO REMOVE THIS when UI is properly implemented
         switch (type) {
@@ -93,11 +95,15 @@ public class Lawg {
                 Lawg.i(msg);
         }
 
-        Intent intent = new Intent();
-        intent.setAction(PeerChatActivity.ACTION_LOG_TO_UI);
-        intent.putExtra(PeerChatActivity.EXTRA_MSG, msg);
-        intent.putExtra(PeerChatActivity.EXTRA_TYPE, log);
-        context.sendBroadcast(intent);
+        if (App.monitoringPeerIP.equals(peer.ip)) {
+
+            Intent intent = new Intent();
+            intent.setAction(PeerChatActivity.getBroadcastAction());
+            intent.putExtra(PeerChatActivity.EXTRA_MSG, msg);
+            intent.putExtra(PeerChatActivity.EXTRA_TYPE, type);
+            intent.putExtra(PeerChatActivity.EXTRA_LOG, log);
+            context.sendBroadcast(intent);
+        }
     }
 
     public static void e(String msg) {
