@@ -35,7 +35,8 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".worker.receiver.PeerConnectionCheckReceiver"></receiver>
+        <!-- SERVICE -->
+        <service android:name=".worker.service.BitcoinService"></service>
 
     </application>
 </manifest>
