@@ -1,28 +1,42 @@
 package com.boetchain.bitcoinnode.model;
 
-import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
-import com.boetchain.bitcoinnode.App;
 import com.orm.SugarRecord;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by rossbadenhorst on 2018/01/31.
+ * Created by Ross Badenhorst.
  */
-
-public class Peer extends SugarRecord implements Parcelable, Comparable<Peer> {
+public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
 
     /**
-     * The IP address of the peer
+     * The default port we use when connecting to a peer.
      */
-    public String ip;
+    public static final int DEFAULT_PORT = 8333;
+    /**
+     * The max amount of peers we want to keep in our poot.
+     * We normally connect to 8 peers at a time and each one gives us about 1000 addresses at a time.
+     */
+    public static final int MAX_POOL_SIZE = 8000;
+
+    /**
+     * The address of the peer
+     */
+    public String address;
+    /**
+     * The port of the peer.
+     * Typically 8333.
+     */
+    public int port = DEFAULT_PORT;
+    /**
+     * The services the peer is providing.
+     */
+    public long services;
     /**
      * When last we made contact with a peer
      */
@@ -35,48 +49,37 @@ public class Peer extends SugarRecord implements Parcelable, Comparable<Peer> {
     public Peer() {
     }
 
-    public Peer(String ip) {
-        this.ip = ip;
+    public Peer(String address) {
+        this.address = address;
+    }
+
+    public Peer(String address, int port, long services) {
+        this.address = address;
+        this.port = port;
+        this.services = services;
+        this.connected = false;
+    }
+
+    public Peer(String address, int port, long services, long timestamp) {
+        this.address = address;
+        this.port = port;
+        this.services = services;
+        this.timestamp = timestamp;
         this.connected = false;
     }
 
     /**
-     * Gets peers from the dnsSeeds.
-     * Used to boot up the node, if it doesn't know any one - Used for first run.
-     * @param dnsSeeds - dnsSeeds hardcoded into the application - See @values/arrays.xml
+     * Gets the entire peer pool.
+     * @return - entire peer pool.
      */
-    public static void findByDnsSeeds(final String[] dnsSeeds) {
-        Log.i(App.TAG, "findByDnsSeeds: " + dnsSeeds.length);
-
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                List<Peer> peers = new ArrayList<>();
-
-                try {
-                    for (String dnsSeed : dnsSeeds) {
-                        InetAddress[] peersFromDnsSeed = InetAddress.getAllByName(dnsSeed);
-
-                        for (InetAddress peerFromDnsSeed : peersFromDnsSeed) {
-                            peers.add(new Peer(peerFromDnsSeed.getHostAddress()));
-                        }
-                    }
-
-                    Log.i(App.TAG, "Found: " + peers.size() + " peers");
-
-                    Peer.deleteAll(Peer.class);
-                    Peer.saveInTx(peers);
-                } catch (Exception e) {
-
-                }
-            }
-        });
-    }
-
     public static List<Peer> getPeerPool() {
         return Peer.listAll(Peer.class);
     }
 
+    /**
+     * Gets all the peers we are currently trying to maintain connections with.
+     * @return only the connected peers.
+     */
     public static ArrayList<Peer> getConnectedPeers() {
         List<Peer> peerPool  = Peer.listAll(Peer.class);
         ArrayList<Peer> connectedPeers = new ArrayList<>();
@@ -90,9 +93,20 @@ public class Peer extends SugarRecord implements Parcelable, Comparable<Peer> {
         return connectedPeers;
     }
 
+    /**
+     * Adds peers to the peer pool.
+     * TODO stop duplicates
+     * TODO limit pool size, removing older peers
+     * @param newPeers - that we want to remember.
+     */
+    public static void addPeersToPool(List<Peer> newPeers) {
+        Peer.saveInTx(newPeers);
+    }
 
     protected Peer(Parcel in) {
-        ip = in.readString();
+        address = in.readString();
+        port = in.readInt();
+        services = in.readLong();
         timestamp = in.readLong();
         connected = in.readByte() != 0x00;
     }
@@ -104,7 +118,9 @@ public class Peer extends SugarRecord implements Parcelable, Comparable<Peer> {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(ip);
+        dest.writeString(address);
+        dest.writeInt(port);
+        dest.writeLong(services);
         dest.writeLong(timestamp);
         dest.writeByte((byte) (connected ? 0x01 : 0x00));
     }
