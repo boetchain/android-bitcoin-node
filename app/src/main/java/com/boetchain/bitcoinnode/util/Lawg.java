@@ -95,7 +95,7 @@ public class Lawg {
                 Lawg.i(msg);
         }
 
-        if (App.monitoringPeerIP.equals(peer.ip)) {
+        if (App.monitoringPeerIP.equals(peer.address)) {
 
             Intent intent = new Intent();
             intent.setAction(PeerChatActivity.getBroadcastAction());

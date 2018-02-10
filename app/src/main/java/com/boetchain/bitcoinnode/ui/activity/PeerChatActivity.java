@@ -65,7 +65,7 @@ public class PeerChatActivity extends BaseActivity {
 
             if (getSupportActionBar() != null) {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setTitle(peer.ip);
+                getSupportActionBar().setTitle(peer.address);
             }
 
             listView = (ListView) findViewById(R.id.activity_main_log_lv);
@@ -92,7 +92,7 @@ public class PeerChatActivity extends BaseActivity {
     protected void onPostResume() {
         super.onPostResume();
 
-        App.monitoringPeerIP = peer.ip;
+        App.monitoringPeerIP = peer.address;
 
         IntentFilter intent = new IntentFilter(getBroadcastAction());
         registerReceiver(logReceiver, intent);

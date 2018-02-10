@@ -61,7 +61,7 @@ public class PeerAdapter extends BaseAdapter {
             holder = (ViewHolder) view.getTag();
         }
 
-        holder.ipTextView.setText(peer.ip);
+        holder.ipTextView.setText(peer.address);
         holder.timestampTextView.setText(peer.timestamp + "");
 
         return view;

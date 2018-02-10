@@ -85,7 +85,7 @@ public class PeerCommunicatorThread extends BaseThread {
      * @return true if connection success, false if not.
      */
     private boolean connect(Socket socket) {
-        Lawg.u(context, peer, "connect: " + peer.ip, LogItem.TYPE_NEUTRAL, LogItem.TI);
+        Lawg.u(context, peer, "connect: " + peer.address, LogItem.TYPE_NEUTRAL, LogItem.TI);
 
         InetSocketAddress address = new InetSocketAddress(peer.address, peer.port);
 
@@ -156,7 +156,7 @@ public class PeerCommunicatorThread extends BaseThread {
      * @param out - the stream we want to send the message on.
      */
     private void writeMessage(BaseMessage message, OutputStream out) {
-        Lawg.u(context, peer, "message.getCommandName()", LogItem.TYPE_OUT, LogItem.TI);
+        Lawg.u(context, peer, message.getCommandName(), LogItem.TYPE_OUT, LogItem.TI);
 
         byte[] header   = message.getHeader();
         byte[] payload  = message.getPayload();
