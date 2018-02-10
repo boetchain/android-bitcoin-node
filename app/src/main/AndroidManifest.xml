@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.boetcoin.bitcoinnode">
+    package="com.boetchain.bitcoinnode">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -10,7 +10,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:name=".App"
+        android:name="com.boetchain.bitcoinnode.App"
         android:theme="@style/AppTheme">
 
         <!-- SUGAR ORM CONFIG -->
@@ -20,7 +20,7 @@
         <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="com.boetcoin.bitcoinnode.model" />
 
         <!-- ACTIVITIES -->
-        <activity android:name=".ui.activity.MainActivity">
+        <activity android:name="com.boetchain.bitcoinnode.ui.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,14 +29,14 @@
         </activity>
 
         <!-- RECEIVER -->
-        <receiver android:name=".worker.receiver.BootReceiver">
+        <receiver android:name="com.boetchain.bitcoinnode.worker.receiver.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
         <!-- SERVICE -->
-        <service android:name=".worker.service.BitcoinService"></service>
+        <service android:name="com.boetchain.bitcoinnode.worker.service.BitcoinService"></service>
 
     </application>
 </manifest>
