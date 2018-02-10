@@ -10,9 +10,10 @@ import android.widget.Toast;
 
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
+import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.ui.adapter.PeerAdapter;
 import com.boetchain.bitcoinnode.util.Notify;
-import com.boetchain.bitcoinnode.worker.service.BitcoinService;
+import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
 
 import java.util.List;
 
@@ -37,14 +38,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         peers = Peer.getConnectedPeers();
         adapter = new PeerAdapter(this, peers);
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener(this);
 
+
+        listView.setOnItemClickListener(this);
     }
 
     private void tuneHowzit() {
 
         toggleHowzitBtnState(true);
-        Intent bitcoinService = new Intent(this, BitcoinService.class);
+        Intent bitcoinService = new Intent(this, PeerManagementService.class);
         startService(bitcoinService);
     }
 
