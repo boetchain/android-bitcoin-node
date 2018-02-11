@@ -7,6 +7,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.boetchain.bitcoinnode.model.Message.AddrMessage;
 import com.boetchain.bitcoinnode.model.Message.AlertMessage;
 import com.boetchain.bitcoinnode.model.Message.BaseMessage;
+import com.boetchain.bitcoinnode.model.Message.GetAddrMessage;
 import com.boetchain.bitcoinnode.model.Message.PingMessage;
 import com.boetchain.bitcoinnode.model.Message.PongMessage;
 import com.boetchain.bitcoinnode.model.Message.RejectMessage;
@@ -17,7 +18,7 @@ import com.boetchain.bitcoinnode.model.Message.VersionMessage;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.util.Lawg;
 import com.boetchain.bitcoinnode.util.Util;
-import com.boetchain.bitcoinnode.worker.service.BitcoinService;
+import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +26,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.List;
 
 /**
  * Created by Ross Badenhorst.
@@ -52,16 +54,16 @@ public class PeerCommunicatorThread extends BaseThread {
                 peer.connected = true;
                 peer.save();
 
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(BitcoinService.ACTION_PEER_CONNECTED));
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(PeerManagementService.ACTION_PEER_CONNECTED));
 
                 handlePeerMessages(socket.getOutputStream(), socket.getInputStream());
             } else {
                 peer.delete(); // Fuck this peer, lets try not talk to him
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(BitcoinService.ACTION_PEER_DISCONNECTED));
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(PeerManagementService.ACTION_PEER_DISCONNECTED));
             }
         } catch (IOException e) {
             peer.delete(); // Fuck this peer, lets try not talk to him
-            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(BitcoinService.ACTION_PEER_DISCONNECTED));
+            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(PeerManagementService.ACTION_PEER_DISCONNECTED));
         }
 
         try {
@@ -82,9 +84,9 @@ public class PeerCommunicatorThread extends BaseThread {
      * @return true if connection success, false if not.
      */
     private boolean connect(Socket socket) {
-        Lawg.i("connect: " + peer.ip);
+        Lawg.i("connect: " + peer.address);
 
-        InetSocketAddress address = new InetSocketAddress(peer.ip, 8333);
+        InetSocketAddress address = new InetSocketAddress(peer.address, peer.port);
 
         try {
             socket.connect(address, 10000);
@@ -130,11 +132,18 @@ public class PeerCommunicatorThread extends BaseThread {
      * @throws IOException
      */
     private void handlePeerMessages(OutputStream out, InputStream in) throws IOException {
+        writeMessage(new GetAddrMessage(), out); // Send out a sneaky getAddress message.
+
         while (true) {
             BaseMessage message = readMessage(in);
 
             if (message instanceof PingMessage) {
                 writeMessage(new PongMessage(), out);
+            }
+
+            if (message instanceof AddrMessage) {
+                List<Peer> addresses = ((AddrMessage) message).addresses;
+                Peer.addPeersToPool(addresses);
             }
         }
     }
