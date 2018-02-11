@@ -2,8 +2,6 @@ package com.boetchain.bitcoinnode.model;
 
 import android.support.test.runner.AndroidJUnit4;
 
-import com.boetchain.bitcoinnode.util.Lawg;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +54,6 @@ public class PeerTest {
 
         List<Peer> pool = Peer.getPeerPool();
 
-        Lawg.d(Peer.MAX_POOL_SIZE + " | " + pool.size());
         assertEquals(Peer.MAX_POOL_SIZE, pool.size());
     }
 
@@ -90,7 +87,6 @@ public class PeerTest {
         Peer.addPeersToPool(duplicatePeers);
 
         List<Peer> pool = Peer.getPeerPool();
-        Lawg.i((numOfUniquePeersToAdd + 2) + " | " + pool.size());
         assertEquals(numOfUniquePeersToAdd + 2, pool.size());
     }
 
