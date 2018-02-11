@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import com.orm.SugarRecord;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -73,7 +74,10 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
      * @return - entire peer pool.
      */
     public static List<Peer> getPeerPool() {
-        return Peer.listAll(Peer.class);
+        List<Peer> pool = Peer.listAll(Peer.class);
+        Collections.sort(pool);
+
+        return pool;
     }
 
     /**
@@ -101,6 +105,20 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
      */
     public static void addPeersToPool(List<Peer> newPeers) {
         Peer.saveInTx(newPeers);
+        forgetOldPeers();
+    }
+
+    /**
+     * Gets the peer pool and trims it if we have more peers
+     * then the max amount.
+     */
+    public static void forgetOldPeers() {
+        List<Peer> pool = getPeerPool();
+
+        if (pool.size() > MAX_POOL_SIZE) {
+            List<Peer> peersToDelete = pool.subList(MAX_POOL_SIZE, pool.size());
+            Peer.deleteInTx(peersToDelete)
+        }
     }
 
     protected Peer(Parcel in) {
