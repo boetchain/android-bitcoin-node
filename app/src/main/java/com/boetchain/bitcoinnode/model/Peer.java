@@ -117,7 +117,7 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
 
         if (pool.size() > MAX_POOL_SIZE) {
             List<Peer> peersToDelete = pool.subList(MAX_POOL_SIZE, pool.size());
-            Peer.deleteInTx(peersToDelete)
+            Peer.deleteInTx(peersToDelete);
         }
     }
 
