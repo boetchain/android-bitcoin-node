@@ -99,13 +99,30 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
 
     /**
      * Adds peers to the peer pool.
-     * TODO stop duplicates
-     * TODO limit pool size, removing older peers
-     * @param newPeers - that we want to remember.
+     * @param peers - that we want to remember.
      */
-    public static void addPeersToPool(List<Peer> newPeers) {
-        Peer.saveInTx(newPeers);
-        forgetOldPeers();
+    public static void addPeersToPool(List<Peer> peers) {
+        // Add the pool into the incoming array
+        peers.addAll(Peer.getPeerPool());
+
+        // Remove dups from the peer pool
+        for(int i = 0; i <peers.size();i++){
+            for(int j=i+1;j<peers.size();j++){
+                if(peers.get(i).equals(peers.get(j))){
+                    peers.remove(j);
+                    j--;
+                }
+            }
+        }
+
+        // trim the pool if need be
+        Collections.sort(peers);
+        if (peers.size() > MAX_POOL_SIZE) {
+            peers = peers.subList(0 , MAX_POOL_SIZE);
+        }
+
+        Peer.deleteAll(Peer.class);
+        Peer.saveInTx(peers);
     }
 
     /**
@@ -119,6 +136,24 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
             List<Peer> peersToDelete = pool.subList(MAX_POOL_SIZE, pool.size());
             Peer.deleteInTx(peersToDelete);
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!Peer.class.isAssignableFrom(obj.getClass())) {
+            return false;
+        }
+
+        final Peer other = (Peer) obj;
+        if (this.address.equalsIgnoreCase(other.address)) {
+            return true;
+        }
+
+        return false;
     }
 
     protected Peer(Parcel in) {

@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -34,7 +35,6 @@ public class PeerTest {
 
     @Test
     public void newestPeerIsFirst() throws Exception {
-        Lawg.i( "newestPeerIsFirst");
         int numPeersToAdd = 10;
         addPeers(numPeersToAdd);
 
@@ -63,11 +63,11 @@ public class PeerTest {
     @Test
     public void noDuplicatePeersAreSaved() throws Exception {
         // Add duplicates
-        int numDuplicatePeersToAdd = 10;
+        int numDuplicatePeersToAdd = 5;
         ArrayList<Peer> duplicatePeers = new ArrayList<>();
         for (int i = 0; i < numDuplicatePeersToAdd; i++) {
             Peer peer = new Peer();
-            peer.address = "1"; // The address makes the peer unique
+            peer.address =  "1"; // The address makes the peer unique
             peer.timestamp = new Random().nextInt(numDuplicatePeersToAdd);
 
             duplicatePeers.add(peer);
@@ -75,19 +75,30 @@ public class PeerTest {
         Peer.addPeersToPool(duplicatePeers);
 
         // Add some uniques
-        int numOfUniquePeersToAdd = 10;
+        int numOfUniquePeersToAdd = 5;
         addPeers(numOfUniquePeersToAdd);
 
+        // Add more duplicates
+        duplicatePeers.clear();
+        for (int i = 0; i < numDuplicatePeersToAdd; i++) {
+            Peer peer = new Peer();
+            peer.address =  (i % 2 == 0)? "1" : "2"; // The address makes the peer unique
+            peer.timestamp = new Random().nextInt(numDuplicatePeersToAdd);
+
+            duplicatePeers.add(peer);
+        }
+        Peer.addPeersToPool(duplicatePeers);
+
         List<Peer> pool = Peer.getPeerPool();
-        Lawg.i((numOfUniquePeersToAdd + 1) + " | " + pool.size());
-        assertEquals(numOfUniquePeersToAdd + 1, pool.size());
+        Lawg.i((numOfUniquePeersToAdd + 2) + " | " + pool.size());
+        assertEquals(numOfUniquePeersToAdd + 2, pool.size());
     }
 
     private void addPeers(int numberOfPeersToAdd) {
         List<Peer> peers = new ArrayList<>();
         for (int i = 0; i < numberOfPeersToAdd; i++) {
             Peer peer = new Peer();
-            peer.address = new Random().nextInt(numberOfPeersToAdd) + ""; // Different addr = different peer
+            peer.address = UUID.randomUUID().toString();
             peer.timestamp = new Random().nextInt(numberOfPeersToAdd);
             peers.add(peer);
         }
