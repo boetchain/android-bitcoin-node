@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -55,9 +56,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         peers = Peer.getConnectedPeers();
         adapter = new PeerAdapter(this, peers);
         listView.setAdapter(adapter);
-
-        Intent about = new Intent(this, AboutActivity.class);
-        startActivity(about);
 
         listView.setOnItemClickListener(this);
 
@@ -122,7 +120,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         IntentFilter filter = new IntentFilter();
         filter.addAction(PeerManagementService.ACTION_PEER_CONNECTED);
         filter.addAction(PeerManagementService.ACTION_PEER_DISCONNECTED);
-        registerReceiver(peerReceiver, filter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(peerReceiver, filter);
     }
 
     @Override
