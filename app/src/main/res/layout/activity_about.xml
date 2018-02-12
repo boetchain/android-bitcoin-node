@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+            <ImageView
+                android:layout_width="250dp"
+                android:layout_height="250dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="50dp"
+                android:id="@+id/activity_about_logo_iv"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/activity_about_logo_iv"
+                android:layout_centerHorizontal="true"
+                android:textSize="8sp"
+                android:text="@string/activity_about_version_tv"
+                android:id="@+id/activity_about_version_tv"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/activity_about_version_tv"
+                android:layout_margin="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/activity_about_version_btn"
+                    android:text="@string/activity_about_header_about_tv"
+                    style="@style/about_activity_tv_headers"
+                    android:id="@+id/activity_about_header_about_tv"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/activity_about_version_btn"
+                    android:text="@string/activity_about_paragraph_about_tv"
+                    style="@style/about_activity_tv_paragraphs"
+                    android:id="@+id/activity_about_paragraph_tv"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/activity_about_version_btn"
+                    android:text="@string/activity_about_header_contributors_tv"
+                    style="@style/about_activity_tv_headers"
+                    android:id="@+id/activity_about_header_contributors_tv"/>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    style="@style/about_activity_tv_paragraphs">
+
+                    <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginRight="5dp"
+                        android:id="@+id/about_activity_photo_tyler_iv"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="@string/activity_about_name_contributor_tyler_tv"
+                        android:layout_toRightOf="@+id/about_activity_photo_tyler_iv"
+                        style="@style/about_activity_tv_contributor_name"
+                        android:id="@+id/activity_about_name_tyler_tv"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="@string/activity_about_detail_contributor_tyler_tv"
+                        android:layout_toRightOf="@+id/about_activity_photo_tyler_iv"
+                        android:layout_below="@+id/activity_about_name_tyler_tv"
+                        style="@style/about_activity_tv_contributor_detail"
+                        android:id="@+id/activity_about_detial_tyler_tv"/>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    style="@style/about_activity_tv_paragraphs">
+
+                    <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginRight="5dp"
+                        android:id="@+id/about_activity_photo_ross_iv"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="@string/activity_about_name_contributor_ross_tv"
+                        android:layout_toRightOf="@+id/about_activity_photo_ross_iv"
+                        style="@style/about_activity_tv_contributor_name"
+                        android:id="@+id/activity_about_name_contributor_tv"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="@string/activity_about_detail_contributor_ross_tv"
+                        android:layout_toRightOf="@+id/about_activity_photo_ross_iv"
+                        android:layout_below="@+id/activity_about_name_contributor_tv"
+                        style="@style/about_activity_tv_contributor_detail"
+                        android:id="@+id/activity_about_detial_contributor_tv"/>
+
+                </RelativeLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/activity_about_header_thanks_tv"
+                    style="@style/about_activity_tv_headers"
+                    android:id="@+id/activity_about_header_thanks_tv"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/activity_about_paragraph_tv_thanks_tv"
+                    style="@style/about_activity_tv_paragraphs"
+                    android:id="@+id/activity_about_paragraph_tv_thanks_tv"/>
+
+            </LinearLayout>
+    </RelativeLayout>
+
+</ScrollView>

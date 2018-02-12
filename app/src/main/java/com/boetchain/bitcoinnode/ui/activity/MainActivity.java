@@ -60,6 +60,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         logs = new ArrayList();
         adapter = new LogAdapter(this, logs);
         listView.setAdapter(adapter);
+
+        Intent about = new Intent(this, AboutActivity.class);
+        startActivity(about);
     }
 
     @Override

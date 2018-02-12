@@ -8,6 +8,25 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="about_activity_tv_headers">
+        <item name="android:layout_marginTop">5dp</item>
+    </style>
 
+    <style name="about_activity_tv_paragraphs">
+        <item name="android:layout_marginLeft">20dp</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <style name="about_activity_tv_contributor_name">
+        <item name="android:layout_marginTop">7dp</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="about_activity_tv_contributor_detail">
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:textSize">10sp</item>
+    </style>
 
 </resources>
