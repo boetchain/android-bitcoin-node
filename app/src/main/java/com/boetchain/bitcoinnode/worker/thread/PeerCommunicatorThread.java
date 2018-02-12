@@ -60,12 +60,12 @@ public class PeerCommunicatorThread extends BaseThread {
 
                 handlePeerMessages(socket.getOutputStream(), socket.getInputStream());
             } else {
-                peer.delete(); // Fuck this peer, lets try not talk to him
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(PeerManagementService.ACTION_PEER_DISCONNECTED));
+                // Called when the connection has failed (often the connection isn't live yet)
+                onPeerDisconnected();
             }
         } catch (IOException e) {
-            peer.delete(); // Fuck this peer, lets try not talk to him
-            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(PeerManagementService.ACTION_PEER_DISCONNECTED));
+            // Called when the connected is live and is disconnected.
+            onPeerDisconnected();
         }
 
         try {
@@ -75,6 +75,16 @@ public class PeerCommunicatorThread extends BaseThread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void onPeerDisconnected() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        peer.delete(); // Fuck this peer, lets try not talk to him
+        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(PeerManagementService.ACTION_PEER_DISCONNECTED));
     }
 
     /**

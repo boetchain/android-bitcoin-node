@@ -49,10 +49,23 @@ public class PeerManagementService extends Service {
         if (peerPool.size() == 0) {
             startDnsSeedDiscovery();
         } else {
+            disconnectFromPeers();
             connectToPeers();
         }
 
         return START_STICKY;
+    }
+
+    /**
+     * Often if the app is closed or crashes, the peers get saved in a connected state.
+     * Just to be sure when the app starts we make all the peers disconnected.
+     */
+    private void disconnectFromPeers() {
+        for (Peer peer : peerPool)
+            if (peer.connected) {
+                peer.connected = false;
+                peer.save();
+            }
     }
 
     /**
@@ -132,7 +145,9 @@ public class PeerManagementService extends Service {
             }
 
             if (intent.getAction().equalsIgnoreCase(ACTION_PEER_DISCONNECTED)) {
-                numberOfActiveConnections--;
+                if (numberOfActiveConnections > 0) {
+                    numberOfActiveConnections--;// Only minus connects if we have any...
+                }
                 Lawg.i("Peer disconnected: " + numberOfActiveConnections);
                 connectToPeers();
             }
