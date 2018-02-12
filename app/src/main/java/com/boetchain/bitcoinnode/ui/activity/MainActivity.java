@@ -110,7 +110,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     protected void onPause() {
         super.onPause();
 
-        unregisterReceiver(peerReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(peerReceiver);
     }
 
     @Override
