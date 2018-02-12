@@ -1,6 +1,9 @@
 package com.boetchain.bitcoinnode.ui.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -11,6 +14,7 @@ import android.widget.Toast;
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.ui.adapter.PeerAdapter;
+import com.boetchain.bitcoinnode.util.Lawg;
 import com.boetchain.bitcoinnode.util.Notify;
 import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
 
@@ -26,6 +30,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private ListView listView;
     private PeerAdapter adapter;
     private List<Peer> peers;
+
+    private BroadcastReceiver peerReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            Lawg.d("REFREEESH Peer list");
+            refreshPeers();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +93,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             @Override
             public void run() {
 
-                peers = Peer.getConnectedPeers();
+                peers.clear();
+                peers.addAll(Peer.getConnectedPeers());
+                Lawg.i("asdf size: " + peers.size());
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -92,6 +107,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 });
             }
         }).start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        unregisterReceiver(peerReceiver);
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(PeerManagementService.ACTION_PEER_CONNECTED);
+        filter.addAction(PeerManagementService.ACTION_PEER_DISCONNECTED);
+        registerReceiver(peerReceiver, filter);
     }
 
     @Override
