@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.boetchain.bitcoinnode.App;
 import com.boetchain.bitcoinnode.model.LogItem;
-import com.boetchain.bitcoinnode.ui.activity.MainActivity;
+import com.boetchain.bitcoinnode.model.Peer;
+import com.boetchain.bitcoinnode.ui.activity.PeerChatActivity;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -49,49 +51,35 @@ public class Lawg {
      * @param context
      * @param msg
      */
-    public static void u(Context context, String msg, int type) {
+    public static void u(Context context, Peer peer, String msg, int type, int log) {
 
+        //TODO REMOVE THIS when UI is properly implemented
         switch (type) {
-
-            case LogItem.TI:
-                Lawg.i(msg);
+            case LogItem.TYPE_NEUTRAL:
+                msg = "* " + msg + " *";
                 break;
-
-            case LogItem.TW:
-                Lawg.w(msg);
+            case LogItem.TYPE_IN:
+                msg = "<-- " + msg + " <--";
                 break;
-
-            case LogItem.TD:
-                Lawg.d(msg);
+            case LogItem.TYPE_OUT:
+                msg = "--> " + msg + " -->";
                 break;
-
-            case LogItem.TE:
-                Lawg.e(msg);
-                break;
-
-            case LogItem.TV:
-                Lawg.v(msg);
-                break;
-
             default:
-                Lawg.i(msg);
+                msg = "? " + msg + " ?";
+                break;
         }
 
-        Intent intent = new Intent();
-        intent.setAction(MainActivity.ACTION_LOG_TO_UI);
-        intent.putExtra(MainActivity.EXTRA_MSG, msg);
-        intent.putExtra(MainActivity.EXTRA_TYPE, type);
-        context.sendBroadcast(intent);
-    }
+        Lawg.d("Log peer: " + peer.address);
+        if (App.monitoringPeerIP.equals(peer.address)) {
 
-    /**
-     * Logs to i and to the UI via broadcast
-     * @param context
-     * @param msg
-     */
-    public static void u(Context context, String msg) {
-
-        u(context, msg, LogItem.TI);
+            Lawg.w("IPs match");
+            Intent intent = new Intent();
+            intent.setAction(PeerChatActivity.getBroadcastAction());
+            intent.putExtra(PeerChatActivity.EXTRA_MSG, msg);
+            intent.putExtra(PeerChatActivity.EXTRA_TYPE, type);
+            intent.putExtra(PeerChatActivity.EXTRA_LOG, log);
+            context.sendBroadcast(intent);
+        }
     }
 
     public static void e(String msg) {

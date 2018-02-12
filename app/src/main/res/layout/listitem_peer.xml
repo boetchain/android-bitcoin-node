@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="12dp"
+    >
+
+    <TextView
+        android:id="@+id/listitem_peer_timestamp_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_light_grey"
+        android:textSize="16dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        tools:text="127320114"
+        />
+
+    <TextView
+        android:id="@+id/listitem_peer_ip_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="22dp"
+        tools:text="12.51.61:8330"
+        android:layout_toLeftOf="@id/listitem_peer_timestamp_tv"
+        android:layout_alignParentLeft="true"
+        />
+
+
+</RelativeLayout>

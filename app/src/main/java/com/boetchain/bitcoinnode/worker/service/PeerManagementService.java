@@ -9,6 +9,8 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.boetchain.bitcoinnode.App;
+import com.boetchain.bitcoinnode.model.LogItem;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.util.Lawg;
 import com.boetchain.bitcoinnode.worker.thread.DnsSeedDiscoveryThread;
@@ -37,7 +39,7 @@ public class PeerManagementService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Lawg.i("Bitcoin Service Starting...");
+        Lawg.u(this, new Peer(App.monitoringPeerIP), "Bitcoin Service Starting...", LogItem.TYPE_NEUTRAL, LogItem.TI);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_DNS_SEED_DISCOVERY_COMPLETE));
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_PEER_CONNECTED));
@@ -103,7 +105,7 @@ public class PeerManagementService extends Service {
         super.onDestroy();
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
-        Lawg.i("Bitcoin Service Shutting down...");
+        Lawg.u(this, new Peer(App.monitoringPeerIP), "Bitcoin Service Shutting down...", LogItem.TYPE_NEUTRAL, LogItem.TI);
     }
 
     @Nullable
