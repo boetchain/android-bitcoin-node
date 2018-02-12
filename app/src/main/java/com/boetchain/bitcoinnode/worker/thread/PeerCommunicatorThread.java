@@ -77,6 +77,11 @@ public class PeerCommunicatorThread extends BaseThread {
         }
     }
 
+    /**
+     * Waits for a little bit before telling everyone the connection failed.
+     * We often found that a little bump in the mobile connection and we would eat through
+     * all the peers.
+     */
     private void onPeerDisconnected() {
         try {
             Thread.sleep(5000);
