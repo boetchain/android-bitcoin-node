@@ -95,7 +95,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
                 peers.clear();
                 peers.addAll(Peer.getConnectedPeers());
-                Lawg.i("asdf size: " + peers.size());
 
                 runOnUiThread(new Runnable() {
                     @Override
