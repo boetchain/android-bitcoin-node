@@ -10,7 +10,6 @@ import android.widget.Toast;
 
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
-import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.ui.adapter.PeerAdapter;
 import com.boetchain.bitcoinnode.util.Notify;
 import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
@@ -20,8 +19,10 @@ import java.util.List;
 public class MainActivity extends BaseActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
     private boolean isTuningHowzit = false;
+    private boolean refreshingPeers = false;
 
     private Button howzitBtn;
+    private Button refreshPeersBtn;
     private ListView listView;
     private PeerAdapter adapter;
     private List<Peer> peers;
@@ -34,6 +35,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         howzitBtn = (Button) findViewById(R.id.activity_main_howzit_btn);
         howzitBtn.setOnClickListener(this);
 
+        refreshPeersBtn = (Button) findViewById(R.id.activity_main_refresh_peers_btn);
+        refreshPeersBtn.setOnClickListener(this);
+
         listView = (ListView) findViewById(R.id.activity_main_log_lv);
         peers = Peer.getConnectedPeers();
         adapter = new PeerAdapter(this, peers);
@@ -41,10 +45,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         Intent about = new Intent(this, AboutActivity.class);
         startActivity(about);
-    }
-
 
         listView.setOnItemClickListener(this);
+
     }
 
     private void tuneHowzit() {
@@ -71,6 +74,26 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         isTuningHowzit = startTuning;
     }
 
+    private void refreshPeers() {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                peers = Peer.getConnectedPeers();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.notifyDataSetChanged();
+                        refreshingPeers = false;
+                        Notify.toast(MainActivity.this, R.string.activity_main_howzit_btn_refreshed_peers, Toast.LENGTH_SHORT);
+                    }
+                });
+            }
+        }).start();
+    }
+
     @Override
     public void onClick(View view) {
 
@@ -84,6 +107,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     Notify.toast(this, R.string.activity_main_howzit_btn_toast_busy, Toast.LENGTH_SHORT);
                 }
             break;
+
+            case R.id.activity_main_refresh_peers_btn:
+                if (!refreshingPeers) {
+                    refreshPeers();
+                }
+                break;
         }
     }
 

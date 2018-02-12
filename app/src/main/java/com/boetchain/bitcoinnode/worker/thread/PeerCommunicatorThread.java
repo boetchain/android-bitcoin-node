@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -86,6 +87,7 @@ public class PeerCommunicatorThread extends BaseThread {
      */
     private boolean connect(Socket socket) {
         Lawg.u(context, peer, "connect: " + peer.address, LogItem.TYPE_NEUTRAL, LogItem.TI);
+        Lawg.i("connect: " + peer.address);
 
         InetSocketAddress address = new InetSocketAddress(peer.address, peer.port);
 
@@ -109,18 +111,21 @@ public class PeerCommunicatorThread extends BaseThread {
             if (peerVerAckMessage != null) {
 
                 Lawg.u(context, peer, "Connection established", LogItem.TYPE_NEUTRAL, LogItem.TI);
+                Lawg.i("Connection established");
                 peer.timestamp = System.currentTimeMillis();
                 peer.connected = true;
                 peer.save();
                 success =  true;
             } else {
                 Lawg.u(context, peer, "Failed to establish connection", LogItem.TYPE_NEUTRAL, LogItem.TE);
+                Lawg.e("Failed to establish connection");
                 success = false;
             }
 
             return success;
         } catch (IOException e) {
             Lawg.u(context, peer, "Failed to establish connection", LogItem.TYPE_NEUTRAL, LogItem.TE);
+            Lawg.e("Failed to establish connection");
             return false;
         }
     }
@@ -144,6 +149,13 @@ public class PeerCommunicatorThread extends BaseThread {
 
             if (message instanceof AddrMessage) {
                 List<Peer> addresses = ((AddrMessage) message).addresses;
+
+                if (addresses.size() > Peer.MAX_POOL_SIZE) {
+                    
+                    Collections.sort(addresses);
+                    addresses = addresses.subList(0, Peer.MAX_POOL_SIZE - 1);
+                }
+
                 Peer.addPeersToPool(addresses);
             }
         }
@@ -157,6 +169,7 @@ public class PeerCommunicatorThread extends BaseThread {
      */
     private void writeMessage(BaseMessage message, OutputStream out) {
         Lawg.u(context, peer, message.getCommandName(), LogItem.TYPE_OUT, LogItem.TI);
+        Lawg.i("<-- " + message.getCommandName());
 
         byte[] header   = message.getHeader();
         byte[] payload  = message.getPayload();
@@ -170,6 +183,7 @@ public class PeerCommunicatorThread extends BaseThread {
             out.flush();
         } catch (IOException e) {
             Lawg.u(context, peer, "Failed to write message", LogItem.TYPE_OUT, LogItem.TE);
+            Lawg.e("Failed to write message");
         }
     }
 
@@ -351,6 +365,7 @@ public class PeerCommunicatorThread extends BaseThread {
     private BaseMessage constructMessage(byte[] header, byte[] payload) {
         String commandName = getCommandNameFromHeader(header);
         Lawg.u(context, peer, commandName, LogItem.TYPE_IN, LogItem.TI);
+        Lawg.i("--> " + commandName);
 
         if (commandName.toLowerCase().contains(RejectMessage.COMMAND_NAME)) {
             RejectMessage rejectMessage = new RejectMessage(header, payload);

@@ -69,34 +69,10 @@ public class Lawg {
                 break;
         }
 
-        switch (log) {
-
-            case LogItem.TI:
-                Lawg.i(msg);
-                break;
-
-            case LogItem.TW:
-                Lawg.w(msg);
-                break;
-
-            case LogItem.TD:
-                Lawg.d(msg);
-                break;
-
-            case LogItem.TE:
-                Lawg.e(msg);
-                break;
-
-            case LogItem.TV:
-                Lawg.v(msg);
-                break;
-
-            default:
-                Lawg.i(msg);
-        }
-
+        Lawg.d("Log peer: " + peer.address);
         if (App.monitoringPeerIP.equals(peer.address)) {
 
+            Lawg.w("IPs match");
             Intent intent = new Intent();
             intent.setAction(PeerChatActivity.getBroadcastAction());
             intent.putExtra(PeerChatActivity.EXTRA_MSG, msg);
