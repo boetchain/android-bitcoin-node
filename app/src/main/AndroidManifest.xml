@@ -27,6 +27,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.boetchain.bitcoinnode.ui.activity.AboutActivity" />=
 
         <activity android:name="com.boetchain.bitcoinnode.ui.activity.PeerChatActivity">
             <intent-filter>

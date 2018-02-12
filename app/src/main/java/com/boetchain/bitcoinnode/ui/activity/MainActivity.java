@@ -39,6 +39,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         adapter = new PeerAdapter(this, peers);
         listView.setAdapter(adapter);
 
+        Intent about = new Intent(this, AboutActivity.class);
+        startActivity(about);
+    }
+
 
         listView.setOnItemClickListener(this);
     }
