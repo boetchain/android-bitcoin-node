@@ -6,4 +6,15 @@
     <string name="activity_main_howzit_btn_toast_busy">Already Tuning Boet</string>
 
     <string name="error_cant_find_peers">Can\'t find peers</string>
+
+    <string name="activity_about_version_tv">Version: {:version}</string>
+    <string name="activity_about_header_about_tv">About</string>
+    <string name="activity_about_paragraph_about_tv">This app is an implementation of the Bitcoin protocol and it is released under the terms of the MIT license. \n\nYou can find the source code to the application here:\ngithub.com/boetchain/android-bitcoin-node</string>
+    <string name="activity_about_header_contributors_tv">Contributors</string>
+    <string name="activity_about_name_contributor_tyler_tv">Tyler Hogarth</string>
+    <string name="activity_about_detail_contributor_tyler_tv">github.com/tylerhogarth</string>
+    <string name="activity_about_name_contributor_ross_tv">Ross Badenhorst</string>
+    <string name="activity_about_detail_contributor_ross_tv">github.com/rossbadenhorst</string>
+    <string name="activity_about_header_thanks_tv">Thanks</string>
+    <string name="activity_about_paragraph_tv_thanks_tv">Alot of this project is based on code from the projects below, with out them none of this would be possible:\n\nBitcoin Core\nBitcoinj\nABcore</string>
 </resources>
