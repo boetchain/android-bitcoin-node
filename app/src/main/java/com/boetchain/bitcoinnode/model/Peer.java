@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import com.orm.SugarRecord;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -73,7 +74,10 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
      * @return - entire peer pool.
      */
     public static List<Peer> getPeerPool() {
-        return Peer.listAll(Peer.class);
+        List<Peer> pool = Peer.listAll(Peer.class);
+        Collections.sort(pool);
+
+        return pool;
     }
 
     /**
@@ -95,12 +99,61 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
 
     /**
      * Adds peers to the peer pool.
-     * TODO stop duplicates
-     * TODO limit pool size, removing older peers
-     * @param newPeers - that we want to remember.
+     * @param peers - that we want to remember.
      */
-    public static void addPeersToPool(List<Peer> newPeers) {
-        Peer.saveInTx(newPeers);
+    public static void addPeersToPool(List<Peer> peers) {
+        // Add the pool into the incoming array
+        peers.addAll(Peer.getPeerPool());
+
+        // Remove dups from the peer pool
+        for(int i = 0; i <peers.size();i++){
+            for(int j=i+1;j<peers.size();j++){
+                if(peers.get(i).equals(peers.get(j))){
+                    peers.remove(j);
+                    j--;
+                }
+            }
+        }
+
+        // trim the pool if need be
+        Collections.sort(peers);
+        if (peers.size() > MAX_POOL_SIZE) {
+            peers = peers.subList(0 , MAX_POOL_SIZE);
+        }
+
+        Peer.deleteAll(Peer.class);
+        Peer.saveInTx(peers);
+    }
+
+    /**
+     * Gets the peer pool and trims it if we have more peers
+     * then the max amount.
+     */
+    public static void forgetOldPeers() {
+        List<Peer> pool = getPeerPool();
+
+        if (pool.size() > MAX_POOL_SIZE) {
+            List<Peer> peersToDelete = pool.subList(MAX_POOL_SIZE, pool.size());
+            Peer.deleteInTx(peersToDelete);
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!Peer.class.isAssignableFrom(obj.getClass())) {
+            return false;
+        }
+
+        final Peer other = (Peer) obj;
+        if (this.address.equalsIgnoreCase(other.address)) {
+            return true;
+        }
+
+        return false;
     }
 
     protected Peer(Parcel in) {
