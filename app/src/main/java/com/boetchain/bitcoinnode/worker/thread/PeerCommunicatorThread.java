@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.boetchain.bitcoinnode.model.LogItem;
+import com.boetchain.bitcoinnode.model.ChatLog;
 import com.boetchain.bitcoinnode.model.Message.AddrMessage;
 import com.boetchain.bitcoinnode.model.Message.AlertMessage;
 import com.boetchain.bitcoinnode.model.Message.BaseMessage;
@@ -86,7 +86,7 @@ public class PeerCommunicatorThread extends BaseThread {
      * @return true if connection success, false if not.
      */
     private boolean connect(Socket socket) {
-        Lawg.u(context, peer, "connect: " + peer.address, LogItem.TYPE_NEUTRAL, LogItem.TI);
+        Lawg.u(context, peer, "connect: " + peer.address, ChatLog.TYPE_NEUTRAL);
         Lawg.i("connect: " + peer.address);
 
         InetSocketAddress address = new InetSocketAddress(peer.address, peer.port);
@@ -110,21 +110,21 @@ public class PeerCommunicatorThread extends BaseThread {
             boolean success;
             if (peerVerAckMessage != null) {
 
-                Lawg.u(context, peer, "Connection established", LogItem.TYPE_NEUTRAL, LogItem.TI);
+                Lawg.u(context, peer, "Connection established", ChatLog.TYPE_NEUTRAL);
                 Lawg.i("Connection established");
                 peer.timestamp = System.currentTimeMillis();
                 peer.connected = true;
                 peer.save();
                 success =  true;
             } else {
-                Lawg.u(context, peer, "Failed to establish connection", LogItem.TYPE_NEUTRAL, LogItem.TE);
+                Lawg.u(context, peer, "Failed to establish connection", ChatLog.TYPE_NEUTRAL);
                 Lawg.e("Failed to establish connection");
                 success = false;
             }
 
             return success;
         } catch (IOException e) {
-            Lawg.u(context, peer, "Failed to establish connection", LogItem.TYPE_NEUTRAL, LogItem.TE);
+            Lawg.u(context, peer, "Failed to establish connection", ChatLog.TYPE_NEUTRAL);
             Lawg.e("Failed to establish connection");
             return false;
         }
@@ -168,7 +168,7 @@ public class PeerCommunicatorThread extends BaseThread {
      * @param out - the stream we want to send the message on.
      */
     private void writeMessage(BaseMessage message, OutputStream out) {
-        Lawg.u(context, peer, message.getCommandName(), LogItem.TYPE_OUT, LogItem.TI);
+        Lawg.u(context, peer, message.getCommandName(), ChatLog.TYPE_OUT);
         Lawg.i("--> " + message.getCommandName());
 
         byte[] header   = message.getHeader();
@@ -182,7 +182,7 @@ public class PeerCommunicatorThread extends BaseThread {
             out.write(payload);
             out.flush();
         } catch (IOException e) {
-            Lawg.u(context, peer, "Failed to write message", LogItem.TYPE_OUT, LogItem.TE);
+            Lawg.u(context, peer, "Failed to write message", ChatLog.TYPE_OUT);
             Lawg.e("Failed to write message");
         }
     }
@@ -364,7 +364,7 @@ public class PeerCommunicatorThread extends BaseThread {
      */
     private BaseMessage constructMessage(byte[] header, byte[] payload) {
         String commandName = getCommandNameFromHeader(header);
-        Lawg.u(context, peer, commandName, LogItem.TYPE_IN, LogItem.TI);
+        Lawg.u(context, peer, commandName, ChatLog.TYPE_IN);
         Lawg.i("<-- " + commandName);
 
         if (commandName.toLowerCase().contains(RejectMessage.COMMAND_NAME)) {

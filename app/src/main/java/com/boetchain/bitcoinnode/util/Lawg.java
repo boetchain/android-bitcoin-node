@@ -6,12 +6,12 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.boetchain.bitcoinnode.App;
-import com.boetchain.bitcoinnode.model.LogItem;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.ui.activity.PeerChatActivity;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Random;
 
 /**
  * User: Tyler
@@ -51,33 +51,17 @@ public class Lawg {
      * @param context
      * @param msg
      */
-    public static void u(Context context, Peer peer, String msg, int type, int log) {
+    public static void u(Context context, Peer peer, String msg, int type) {
 
-        //TODO REMOVE THIS when UI is properly implemented
-        switch (type) {
-            case LogItem.TYPE_NEUTRAL:
-                msg = "* " + msg + " *";
-                break;
-            case LogItem.TYPE_IN:
-                msg = "<-- " + msg + " <--";
-                break;
-            case LogItem.TYPE_OUT:
-                msg = "--> " + msg + " -->";
-                break;
-            default:
-                msg = "? " + msg + " ?";
-                break;
-        }
+        //todo remove this line
+        type = new Random().nextInt(3);
 
-        Lawg.d("Log peer: " + peer.address);
         if (App.monitoringPeerIP.equals(peer.address)) {
 
-            Lawg.w("IPs match");
             Intent intent = new Intent();
             intent.setAction(PeerChatActivity.getBroadcastAction());
             intent.putExtra(PeerChatActivity.EXTRA_MSG, msg);
             intent.putExtra(PeerChatActivity.EXTRA_TYPE, type);
-            intent.putExtra(PeerChatActivity.EXTRA_LOG, log);
             context.sendBroadcast(intent);
         }
     }

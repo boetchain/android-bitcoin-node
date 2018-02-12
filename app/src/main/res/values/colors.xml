@@ -9,10 +9,7 @@
     <color name="transparent">#00ffffff</color>
     <color name="text_light_grey">#717171</color>
 
-    <color name="log_background">#FF212121</color>
-    <color name="log_info">#149900</color>
-    <color name="log_warning">#be6f00</color>
-    <color name="log_debug">#006ab1</color>
-    <color name="log_error">#ab0003</color>
-    <color name="log_verbose">#606060</color>
+    <color name="chat_log_bg_in">@color/colorPrimary</color>
+    <color name="chat_log_bg_out">#717171</color>
+    <color name="chat_log_bg_neutral">#0089bf</color>
 </resources>
