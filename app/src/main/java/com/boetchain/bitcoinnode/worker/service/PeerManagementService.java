@@ -117,6 +117,7 @@ public class PeerManagementService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
+        disconnectFromPeers();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
         Lawg.u(this, new Peer(App.monitoringPeerIP), "Bitcoin Service Shutting down...", LogItem.TYPE_NEUTRAL, LogItem.TI);
     }
