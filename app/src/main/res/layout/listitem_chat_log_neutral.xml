@@ -9,7 +9,7 @@
             android:id="@+id/listitem_chat_log_neutral_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="40dp"
+            android:minWidth="@dimen/chat_log_item_min_width_neutral"
             android:padding="8dp"
             tools:text="Neutral"
             android:gravity="center"

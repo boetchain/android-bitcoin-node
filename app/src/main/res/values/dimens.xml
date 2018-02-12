@@ -2,5 +2,7 @@
 <resources>
 
     <dimen name="chat_log_corner_radius">8dp</dimen>
+    <dimen name="chat_log_item_min_width">60dp</dimen>
+    <dimen name="chat_log_item_min_width_neutral">120dp</dimen>
 
 </resources>

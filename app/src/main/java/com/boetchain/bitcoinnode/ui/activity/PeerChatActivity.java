@@ -73,6 +73,7 @@ public class PeerChatActivity extends BaseActivity {
             listView.setAdapter(adapter);
         }
 
+        //todo remove for loop
         for (int i = 0; i < 20; i++) {
             logs.add(new ChatLog("test", new Random().nextInt(3)));
         }
