@@ -64,6 +64,7 @@
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_marginRight="5dp"
+                        android:src="@mipmap/profile_tyler"
                         android:id="@+id/about_activity_photo_tyler_iv"/>
 
                     <TextView
@@ -95,6 +96,7 @@
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_marginRight="5dp"
+                        android:src="@mipmap/profile_ross"
                         android:id="@+id/about_activity_photo_ross_iv"/>
 
                     <TextView

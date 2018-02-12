@@ -4,6 +4,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.TextView;
 
 import com.boetchain.bitcoinnode.R;
@@ -24,7 +25,7 @@ public class AboutActivity extends AppCompatActivity {
         try {
             activity_about_version_tv.setText(this.getPackageManager().getPackageInfo(this.getPackageName(), 0).versionName);
         } catch (PackageManager.NameNotFoundException e) {
-            activity_about_version_tv.setText("");
+            activity_about_version_tv.setVisibility(View.INVISIBLE);
         }
     }
 }
