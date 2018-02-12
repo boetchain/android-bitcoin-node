@@ -12,8 +12,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/activity_main_howzit_btn"
-        android:dividerHeight="0dp"
+        android:dividerHeight="8dp"
         android:divider="@color/transparent"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:clipToPadding="false"
         />
 
 </RelativeLayout>

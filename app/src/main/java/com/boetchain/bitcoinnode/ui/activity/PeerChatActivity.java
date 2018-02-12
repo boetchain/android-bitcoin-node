@@ -19,6 +19,7 @@ import com.boetchain.bitcoinnode.util.Notify;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Tyler Hogarth on 2018/02/10.
@@ -70,6 +71,10 @@ public class PeerChatActivity extends BaseActivity {
             logs = new ArrayList();
             adapter = new ChatLogAdapter(this, logs);
             listView.setAdapter(adapter);
+        }
+
+        for (int i = 0; i < 20; i++) {
+            logs.add(new ChatLog("test", new Random().nextInt(3)));
         }
     }
 

@@ -52,7 +52,7 @@ public class Lawg {
      * @param msg
      */
     public static void u(Context context, Peer peer, String msg, int type) {
-        
+
         //todo remove this line
         type = new Random().nextInt(3);
 

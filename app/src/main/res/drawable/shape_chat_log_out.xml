@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/listview_background_shape">
+    <padding
+        android:start="4dp"
+        android:top="4dp"
+        android:right="4dp"
+        android:bottom="4dp" />
+    <corners
+        android:bottomLeftRadius="@dimen/chat_log_corner_radius"
+        android:topLeftRadius="@dimen/chat_log_corner_radius"
+        />
+    <solid android:color="@color/chat_log_bg_out" />
+</shape>
