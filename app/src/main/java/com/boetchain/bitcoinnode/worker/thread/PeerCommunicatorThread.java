@@ -151,7 +151,7 @@ public class PeerCommunicatorThread extends BaseThread {
                 List<Peer> addresses = ((AddrMessage) message).addresses;
 
                 if (addresses.size() > Peer.MAX_POOL_SIZE) {
-                    
+
                     Collections.sort(addresses);
                     addresses = addresses.subList(0, Peer.MAX_POOL_SIZE - 1);
                 }
@@ -169,7 +169,7 @@ public class PeerCommunicatorThread extends BaseThread {
      */
     private void writeMessage(BaseMessage message, OutputStream out) {
         Lawg.u(context, peer, message.getCommandName(), LogItem.TYPE_OUT, LogItem.TI);
-        Lawg.i("<-- " + message.getCommandName());
+        Lawg.i("--> " + message.getCommandName());
 
         byte[] header   = message.getHeader();
         byte[] payload  = message.getPayload();
@@ -365,7 +365,7 @@ public class PeerCommunicatorThread extends BaseThread {
     private BaseMessage constructMessage(byte[] header, byte[] payload) {
         String commandName = getCommandNameFromHeader(header);
         Lawg.u(context, peer, commandName, LogItem.TYPE_IN, LogItem.TI);
-        Lawg.i("--> " + commandName);
+        Lawg.i("<-- " + commandName);
 
         if (commandName.toLowerCase().contains(RejectMessage.COMMAND_NAME)) {
             RejectMessage rejectMessage = new RejectMessage(header, payload);
