@@ -23,7 +23,7 @@ public class AboutActivity extends AppCompatActivity {
 
         activity_about_version_tv = findViewById(R.id.activity_about_version_tv);
         try {
-            activity_about_version_tv.setText(this.getPackageManager().getPackageInfo(this.getPackageName(), 0).versionName);
+            activity_about_version_tv.setText(activity_about_version_tv.getText().toString().replace("{:version}", this.getPackageManager().getPackageInfo(this.getPackageName(), 0).versionName));
         } catch (PackageManager.NameNotFoundException e) {
             activity_about_version_tv.setVisibility(View.INVISIBLE);
         }

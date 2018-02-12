@@ -10,6 +10,7 @@
 
     <style name="about_activity_tv_headers">
         <item name="android:layout_marginTop">5dp</item>
+        <item name="android:textColor">@color/colorPrimary</item>
     </style>
 
     <style name="about_activity_tv_paragraphs">
