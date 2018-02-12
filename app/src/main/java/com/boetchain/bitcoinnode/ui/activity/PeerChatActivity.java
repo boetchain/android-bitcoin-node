@@ -12,9 +12,9 @@ import android.widget.Toast;
 
 import com.boetchain.bitcoinnode.App;
 import com.boetchain.bitcoinnode.R;
-import com.boetchain.bitcoinnode.model.LogItem;
+import com.boetchain.bitcoinnode.model.ChatLog;
 import com.boetchain.bitcoinnode.model.Peer;
-import com.boetchain.bitcoinnode.ui.adapter.LogAdapter;
+import com.boetchain.bitcoinnode.ui.adapter.ChatLogAdapter;
 import com.boetchain.bitcoinnode.util.Notify;
 
 import java.util.ArrayList;
@@ -28,14 +28,13 @@ public class PeerChatActivity extends BaseActivity {
 
     public static final String EXTRA_MSG = MainActivity.class.getSimpleName() + ".EXTRA_MSG";
     public static final String EXTRA_TYPE = MainActivity.class.getSimpleName() + ".EXTRA_TYPE";
-    public static final String EXTRA_LOG = MainActivity.class.getSimpleName() + ".EXTRA_LOG";
     public static final String EXTRA_PEER = PeerChatActivity.class.getSimpleName() + ".EXTRA_PEER";
 
     private Peer peer;
 
     private ListView listView;
-    private LogAdapter adapter;
-    private List<LogItem> logs;
+    private ChatLogAdapter adapter;
+    private List<ChatLog> logs;
 
     private BroadcastReceiver logReceiver = new BroadcastReceiver() {
         @Override
@@ -43,10 +42,9 @@ public class PeerChatActivity extends BaseActivity {
 
             if (intent.hasExtra(EXTRA_MSG)) {
 
-                int type = intent.getIntExtra(EXTRA_TYPE, LogItem.TYPE_NEUTRAL);
-                int log = intent.getIntExtra(EXTRA_LOG, LogItem.TI);
+                int type = intent.getIntExtra(EXTRA_TYPE, ChatLog.TYPE_NEUTRAL);
                 String msg = intent.getStringExtra(EXTRA_MSG);
-                PeerChatActivity.this.logToUI(new LogItem(msg, type, log));
+                PeerChatActivity.this.logToUI(new ChatLog(msg, type));
             }
         }
     };
@@ -70,12 +68,12 @@ public class PeerChatActivity extends BaseActivity {
 
             listView = (ListView) findViewById(R.id.activity_main_log_lv);
             logs = new ArrayList();
-            adapter = new LogAdapter(this, logs);
+            adapter = new ChatLogAdapter(this, logs);
             listView.setAdapter(adapter);
         }
     }
 
-    private void logToUI(LogItem log) {
+    private void logToUI(ChatLog log) {
         logs.add(log);
         adapter.notifyDataSetChanged();
         listView.setSelection(adapter.getCount() - 1);
