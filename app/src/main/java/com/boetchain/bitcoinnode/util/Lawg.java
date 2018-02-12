@@ -11,7 +11,6 @@ import com.boetchain.bitcoinnode.ui.activity.PeerChatActivity;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Random;
 
 /**
  * User: Tyler
@@ -52,9 +51,6 @@ public class Lawg {
      * @param msg
      */
     public static void u(Context context, Peer peer, String msg, int type) {
-
-        //todo remove this line
-        type = new Random().nextInt(3);
 
         if (App.monitoringPeerIP.equals(peer.address)) {
 
