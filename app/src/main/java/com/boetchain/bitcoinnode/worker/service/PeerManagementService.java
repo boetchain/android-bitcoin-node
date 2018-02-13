@@ -60,6 +60,8 @@ public class PeerManagementService extends Service {
         Lawg.u(this, new Peer(App.monitoringPeerIP), "Bitcoin Service Starting...", ChatLog.TYPE_NEUTRAL);
         isRunning = true;
 
+        Peer.deleteAll(Peer.class);
+
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_DNS_SEED_DISCOVERY_COMPLETE));
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_PEER_CONNECTED));
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_PEER_DISCONNECTED));
@@ -80,11 +82,12 @@ public class PeerManagementService extends Service {
      * Just to be sure when the app starts we make all the peers disconnected.
      */
     private void disconnectFromPeers() {
-        for (Peer peer : peerPool)
+        for (Peer peer : peerPool) {
             if (peer.connected) {
                 peer.connected = false;
                 peer.save();
             }
+        }
     }
 
     /**
@@ -150,6 +153,8 @@ public class PeerManagementService extends Service {
         isRunning = false;
         Lawg.u(this, new Peer(App.monitoringPeerIP), "Bitcoin Service Shutting down...", ChatLog.TYPE_NEUTRAL);
         Lawg.i("onDestroy");
+
+        Peer.deleteAll(Peer.class);
     }
 
     /**

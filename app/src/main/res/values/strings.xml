@@ -1,11 +1,7 @@
 <resources>
     <string name="app_name">Bitcoin Node</string>
 
-    <string name="activity_main_howzit_btn">Tune Howzit</string>
-    <string name="activity_main_refresh_peers_button">Refresh Peers</string>
-    <string name="activity_main_howzit_btn_refreshed_peers">Refreshed peers</string>
-    <string name="activity_main_howzit_btn_start_working">Tuning…</string>
-    <string name="activity_main_howzit_btn_toast_busy">Already Tuning Boet</string>
+    <string name="activity_main_status_find_seeds">Yus boet, we need to find seed peers to\nhelp us connect to the network...</string>
 
     <string name="error_cant_find_peers">Can\'t find peers</string>
     <string name="error_peer_not_found">Peer not found</string>

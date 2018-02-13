@@ -190,23 +190,23 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
             String intentAction = intent.getAction();
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_STARTING)) {
-                setStatusUpdate("Finding seed peers to connect to...");
+                setStatusUpdate(getString(R.string.activity_main_status_find_seeds));
             }
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE)) {
-                setStatusUpdate("Found seed peers, attempting to connect");
+                //setStatusUpdate("Found seed peers, attempting to connect");
             }
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_PEER_CONNECTION_ATTEMPT)) {
-                setStatusUpdate("Trying to connect to a peer");
+                //setStatusUpdate("Trying to connect to a peer");
             }
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_PEER_CONNECTED)) {
-                refreshPeers(peerManagementService.getConnectedPeers());
+                //refreshPeers(peerManagementService.getConnectedPeers());
             }
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_PEER_DISCONNECTED)) {
-                refreshPeers(peerManagementService.getConnectedPeers());
+                //refreshPeers(peerManagementService.getConnectedPeers());
             }
         }
     };
