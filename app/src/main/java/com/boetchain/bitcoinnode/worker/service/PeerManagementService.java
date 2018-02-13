@@ -51,6 +51,7 @@ public class PeerManagementService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Lawg.i("onStartCommand");
         Lawg.u(this, new Peer(App.monitoringPeerIP), "Bitcoin Service Starting...", ChatLog.TYPE_NEUTRAL);
         isRunning = true;
 
@@ -135,6 +136,7 @@ public class PeerManagementService extends Service {
 
         isRunning = false;
         Lawg.u(this, new Peer(App.monitoringPeerIP), "Bitcoin Service Shutting down...", ChatLog.TYPE_NEUTRAL);
+        Lawg.i("onDestroy");
     }
 
     /**

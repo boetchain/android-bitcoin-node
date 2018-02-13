@@ -9,31 +9,31 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.ui.adapter.PeerAdapter;
 import com.boetchain.bitcoinnode.util.Lawg;
-import com.boetchain.bitcoinnode.util.Notify;
 import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
 
 import java.util.List;
 
-public class MainActivity extends BaseActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
+public class MainActivity extends BaseActivity implements AdapterView.OnItemClickListener {
 
-    private boolean isTuningHowzit = false;
-    private boolean refreshingPeers = false;
-
-    private Button howzitBtn;
-    private Button refreshPeersBtn;
     private ListView listView;
+
     private PeerAdapter adapter;
     private List<Peer> peers;
+
+    private Switch peerMgmtSwitch;
 
     private PeerManagementService peerManagementService;
 
@@ -42,7 +42,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         public void onReceive(Context context, Intent intent) {
 
             Lawg.d("REFREEESH Peer list");
-            refreshPeers();
         }
     };
 
@@ -50,64 +49,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        howzitBtn = (Button) findViewById(R.id.activity_main_howzit_btn);
-        howzitBtn.setOnClickListener(this);
-
-        refreshPeersBtn = (Button) findViewById(R.id.activity_main_refresh_peers_btn);
-        refreshPeersBtn.setOnClickListener(this);
-
         listView = (ListView) findViewById(R.id.activity_main_log_lv);
         peers = Peer.getConnectedPeers();
         adapter = new PeerAdapter(this, peers);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(this);
-    }
-
-    private void tuneHowzit() {
-
-        toggleHowzitBtnState(true);
-        Intent bitcoinService = new Intent(this, PeerManagementService.class);
-        startService(bitcoinService);
-    }
-
-    /**
-     * Sets the howzit button to working/not working
-     *
-     * @param startTuning determines whether to set the state as working or not working
-     */
-    private void toggleHowzitBtnState(boolean startTuning) {
-
-        if (startTuning) {
-
-            howzitBtn.setText(getResources().getString(R.string.activity_main_howzit_btn_start_working));
-        } else {
-
-            howzitBtn.setText(getResources().getString(R.string.activity_main_howzit_btn));
-        }
-        isTuningHowzit = startTuning;
-    }
-
-    private void refreshPeers() {
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                peers.clear();
-                peers.addAll(Peer.getConnectedPeers());
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter.notifyDataSetChanged();
-                        refreshingPeers = false;
-                        Notify.toast(MainActivity.this, R.string.activity_main_howzit_btn_refreshed_peers, Toast.LENGTH_SHORT);
-                    }
-                });
-            }
-        }).start();
     }
 
     @Override
@@ -117,6 +64,30 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(peerReceiver);
 
         unbindService(serviceConnection);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+
+        MenuItem item = menu.findItem(R.id.switchId).setActionView(R.layout.view_switch);
+        peerMgmtSwitch = item.getActionView().findViewById(R.id.switchAB);
+
+        peerMgmtSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Intent serviceIntent = new Intent(MainActivity.this, PeerManagementService.class);
+
+                if (isChecked) {
+                    MainActivity.this.startService(serviceIntent);
+                } else {
+                    MainActivity.this.stopService(serviceIntent);
+                }
+            }
+        });
+
+        setServiceState();
+        return true;
     }
 
     @Override
@@ -133,33 +104,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     @Override
-    public void onClick(View view) {
-
-        switch (view.getId()) {
-
-            case R.id.activity_main_howzit_btn:
-                if (!isTuningHowzit) {
-                    howzitBtn.setText(getString(R.string.activity_main_howzit_btn_start_working));
-                    tuneHowzit();
-                } else {
-                    Notify.toast(this, R.string.activity_main_howzit_btn_toast_busy, Toast.LENGTH_SHORT);
-                }
-            break;
-
-            case R.id.activity_main_refresh_peers_btn:
-                if (!refreshingPeers) {
-                    refreshPeers();
-                }
-                break;
-        }
-    }
-
-    @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
         Intent intent = new Intent(this, PeerChatActivity.class);
         intent.putExtra(PeerChatActivity.EXTRA_PEER, peers.get(i));
         startActivity(intent);
+    }
+
+    private void setServiceState() {
+        if (peerMgmtSwitch != null && peerManagementService != null) {
+            peerMgmtSwitch.setChecked(peerManagementService.isRunning());
+        }
     }
 
     /**
@@ -172,11 +127,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             Lawg.i("onServiceConnected");
             PeerManagementService.LocalBinder binder = (PeerManagementService.LocalBinder) iBinder;
             peerManagementService = binder.getService();
+
+            setServiceState();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-
+            setServiceState();
         }
     };
 }

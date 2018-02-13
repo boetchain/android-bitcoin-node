@@ -7,27 +7,10 @@
     tools:context="com.boetchain.bitcoinnode.ui.activity.MainActivity"
     >
 
-    <Button
-        android:id="@+id/activity_main_howzit_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/activity_main_howzit_btn"
-        android:layout_alignParentRight="true"
-        />
-
-    <Button
-        android:id="@+id/activity_main_refresh_peers_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/activity_main_refresh_peers_button"
-        android:layout_toLeftOf="@id/activity_main_howzit_btn"
-        />
-
     <ListView
         android:id="@+id/activity_main_log_lv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/activity_main_howzit_btn"
         />
 
 </RelativeLayout>
