@@ -32,6 +32,7 @@ public class PeerManagementService extends Service {
     public static final String ACTION_PEER_DISCONNECTED             = "ACTION_PEER_DISCONNECTED";
 
     public static final String KEY_PEER = "KEY_PEER";
+    public static final String KEY_PEERS = "KEY_PEERS";
 
     /**
      * Max number of connections we want to maintain with peers

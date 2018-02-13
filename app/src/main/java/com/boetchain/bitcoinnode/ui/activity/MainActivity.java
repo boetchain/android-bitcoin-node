@@ -190,23 +190,25 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
             String intentAction = intent.getAction();
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_STARTING)) {
-                setStatusUpdate(getString(R.string.activity_main_status_find_seeds));
+                setStatusUpdate(getString(R.string.activity_main_status_find_seeds_start));
             }
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE)) {
-                //setStatusUpdate("Found seed peers, attempting to connect");
+                int peersFoundFromDnsSeeds = intent.getParcelableArrayListExtra(PeerManagementService.KEY_PEERS).size();
+                setStatusUpdate(getString(R.string.activity_main_status_find_seeds_complete).replace("{:value}", "" +peersFoundFromDnsSeeds));
             }
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_PEER_CONNECTION_ATTEMPT)) {
-                //setStatusUpdate("Trying to connect to a peer");
+                String peerAddress = ((Peer)intent.getParcelableExtra(PeerManagementService.KEY_PEER)).address;
+                setStatusUpdate(getString(R.string.activity_main_status_connect_to_peer).replace("{:value}", peerAddress));
             }
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_PEER_CONNECTED)) {
-                //refreshPeers(peerManagementService.getConnectedPeers());
+                refreshPeers(peerManagementService.getConnectedPeers());
             }
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_PEER_DISCONNECTED)) {
-                //refreshPeers(peerManagementService.getConnectedPeers());
+                refreshPeers(peerManagementService.getConnectedPeers());
             }
         }
     };

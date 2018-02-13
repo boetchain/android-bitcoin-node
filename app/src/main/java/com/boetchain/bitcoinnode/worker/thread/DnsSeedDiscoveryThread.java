@@ -29,8 +29,12 @@ public class DnsSeedDiscoveryThread extends BaseThread {
     @Override
     public void run() {
         LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_STARTING));
-        startDnsSeedDiscovery();
-        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE));
+
+        ArrayList<Peer> peersFromDnsSeeds = startDnsSeedDiscovery();
+
+        Intent dnsSeedDiscoveryCompleteIntent = new Intent(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE);
+        dnsSeedDiscoveryCompleteIntent.putParcelableArrayListExtra(PeerManagementService.KEY_PEERS, peersFromDnsSeeds);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(dnsSeedDiscoveryCompleteIntent);
     }
 
     /**
@@ -38,10 +42,10 @@ public class DnsSeedDiscoveryThread extends BaseThread {
      * We get a list of seeds that are hard coded in to the application.
      * From there we do a lookup to get a list of peers from the seed.
      */
-    private List<Peer> startDnsSeedDiscovery() {
+    private ArrayList<Peer> startDnsSeedDiscovery() {
         Lawg.i("startDnsSeedDiscovery");
         String[] dnsSeeds = context.getResources().getStringArray(R.array.dns_seed_nodes);
-        List<Peer> peerList = new ArrayList<>();
+        ArrayList<Peer> peerList = new ArrayList<>();
 
         for (String dnsSeed : dnsSeeds) {
             try {
