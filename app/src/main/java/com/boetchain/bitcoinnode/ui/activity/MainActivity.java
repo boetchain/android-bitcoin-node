@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.ui.adapter.PeerAdapter;
+import com.boetchain.bitcoinnode.ui.adapter.StatusAdapter;
 import com.boetchain.bitcoinnode.util.Lawg;
 import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
 
@@ -45,21 +46,24 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
     private List<Peer> peers = new ArrayList<>();
     private ImageView activity_main_logo_iv;
     /**
-     * Displays the status of the service during startup.
-     */
-    private TextView activity_main_status_tv;
-    /**
      * The underlying service that handles connections with peers
      */
     private PeerManagementService peerManagementService;
+
+    private ListView activity_main_status_lv;
+    private StatusAdapter statusAdapter;
+    private List<String> statusMessages = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         activity_main_log_lv = findViewById(R.id.activity_main_log_lv);
-        activity_main_status_tv = findViewById(R.id.activity_main_status_tv);
+        activity_main_status_lv = findViewById(R.id.activity_main_status_lv);
         activity_main_logo_iv = findViewById(R.id.activity_main_logo_iv);
+
+        statusAdapter = new StatusAdapter(this, statusMessages);
+        activity_main_status_lv.setAdapter(statusAdapter);
 
         adapter = new PeerAdapter(this, peers);
         activity_main_log_lv.setAdapter(adapter);
@@ -134,7 +138,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         if (updatePeers.size() > 0) {
             activity_main_log_lv.setVisibility(View.VISIBLE);
 
-            activity_main_status_tv.setVisibility(View.GONE);
+            activity_main_status_lv.setVisibility(View.GONE);
             activity_main_logo_iv.setVisibility(View.GONE);
         }
 
@@ -149,15 +153,17 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         if (peers.size() > 0) {
             activity_main_log_lv.setVisibility(View.VISIBLE);
 
-            activity_main_status_tv.setVisibility(View.GONE);
+            activity_main_status_lv.setVisibility(View.GONE);
             activity_main_logo_iv.setVisibility(View.GONE);
         }
 
 
         activity_main_log_lv.setVisibility(View.GONE);
         activity_main_logo_iv.setVisibility(View.VISIBLE);
-        activity_main_status_tv.setVisibility(View.VISIBLE);
-        activity_main_status_tv.setText(newStatus);
+        activity_main_status_lv.setVisibility(View.VISIBLE);
+
+        statusMessages.add(0 , newStatus);
+        statusAdapter.notifyDataSetChanged();
     }
 
     /**

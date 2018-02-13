@@ -19,18 +19,15 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="50dp"
         android:src="@mipmap/logo"
-        android:visibility="gone"
+        android:visibility="visible"
         android:id="@+id/activity_main_logo_iv"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@color/transparent"
+        android:dividerHeight="0dp"
         android:layout_below="@id/activity_main_logo_iv"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="15dp"
-        android:gravity="center"
-        android:text=""
-        android:visibility="gone"
-        android:id="@+id/activity_main_status_tv"/>
+        android:id="@+id/activity_main_status_lv"/>
 
 </RelativeLayout>

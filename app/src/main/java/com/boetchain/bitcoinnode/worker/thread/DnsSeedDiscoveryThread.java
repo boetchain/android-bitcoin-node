@@ -32,9 +32,20 @@ public class DnsSeedDiscoveryThread extends BaseThread {
 
         ArrayList<Peer> peersFromDnsSeeds = startDnsSeedDiscovery();
 
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         Intent dnsSeedDiscoveryCompleteIntent = new Intent(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE);
         dnsSeedDiscoveryCompleteIntent.putParcelableArrayListExtra(PeerManagementService.KEY_PEERS, peersFromDnsSeeds);
         LocalBroadcastManager.getInstance(context).sendBroadcast(dnsSeedDiscoveryCompleteIntent);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
