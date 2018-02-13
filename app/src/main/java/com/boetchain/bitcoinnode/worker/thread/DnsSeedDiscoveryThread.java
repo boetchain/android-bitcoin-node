@@ -28,8 +28,8 @@ public class DnsSeedDiscoveryThread extends BaseThread {
 
     @Override
     public void run() {
+        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_STARTING));
         startDnsSeedDiscovery();
-
         LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE));
     }
 

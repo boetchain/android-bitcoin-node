@@ -24,9 +24,12 @@ import java.util.List;
  */
 public class PeerManagementService extends Service {
 
+    public static final String ACTION_DNS_SEED_DISCOVERY_STARTING   = "ACTION_DNS_SEED_DISCOVERY_STARTING";
     public static final String ACTION_DNS_SEED_DISCOVERY_COMPLETE   = "ACTION_DNS_SEED_DISCOVERY_COMPLETE";
     public static final String ACTION_PEER_CONNECTED                = "ACTION_PEER_CONNECTED";
     public static final String ACTION_PEER_DISCONNECTED             = "ACTION_PEER_DISCONNECTED";
+
+    public static final String KEY_PEER = "KEY_PEER";
 
     /**
      * Max number of connections we want to maintain with peers
@@ -104,6 +107,14 @@ public class PeerManagementService extends Service {
                 Lawg.e("No peers to connect to...");
             }
         }
+    }
+
+    /**
+     * Gets a list of connected peers.
+     * TODO make the service keep track of the connected peers and not rely on a DB look up to see who we are connected to
+     */
+    public List<Peer> getConnectedPeers() {
+        return Peer.getConnectedPeers();
     }
 
     /**

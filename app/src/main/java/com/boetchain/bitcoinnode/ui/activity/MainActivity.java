@@ -14,9 +14,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Switch;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
@@ -24,44 +25,53 @@ import com.boetchain.bitcoinnode.ui.adapter.PeerAdapter;
 import com.boetchain.bitcoinnode.util.Lawg;
 import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends BaseActivity implements AdapterView.OnItemClickListener {
 
-    private ListView listView;
-
-    private PeerAdapter adapter;
-    private List<Peer> peers;
-
+    /**
+     * Switch to turn off or on the bitcoin service
+     */
     private Switch peerMgmtSwitch;
-
+    /**
+     * Peer list view, contains peers we are connected to.
+     */
+    private ListView activity_main_log_lv;
+    private PeerAdapter adapter;
+    /**
+     * List of peers we want to display to the user.
+     */
+    private List<Peer> peers = new ArrayList<>();
+    private ImageView activity_main_logo_iv;
+    /**
+     * Displays the status of the service during startup.
+     */
+    private TextView activity_main_status_tv;
+    /**
+     * The underlying service that handles connections with peers
+     */
     private PeerManagementService peerManagementService;
-
-    private BroadcastReceiver peerReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            Lawg.d("REFREEESH Peer list");
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        listView = (ListView) findViewById(R.id.activity_main_log_lv);
-        peers = Peer.getConnectedPeers();
-        adapter = new PeerAdapter(this, peers);
-        listView.setAdapter(adapter);
+        activity_main_log_lv = findViewById(R.id.activity_main_log_lv);
+        activity_main_status_tv = findViewById(R.id.activity_main_status_tv);
+        activity_main_logo_iv = findViewById(R.id.activity_main_logo_iv);
 
-        listView.setOnItemClickListener(this);
+        adapter = new PeerAdapter(this, peers);
+        activity_main_log_lv.setAdapter(adapter);
+
+        activity_main_log_lv.setOnItemClickListener(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(peerReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
 
         unbindService(serviceConnection);
     }
@@ -97,7 +107,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         IntentFilter filter = new IntentFilter();
         filter.addAction(PeerManagementService.ACTION_PEER_CONNECTED);
         filter.addAction(PeerManagementService.ACTION_PEER_DISCONNECTED);
-        LocalBroadcastManager.getInstance(this).registerReceiver(peerReceiver, filter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, filter);
 
         Intent intent = new Intent(this, PeerManagementService.class);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -117,6 +127,18 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         }
     }
 
+    private void refreshPeers(List<Peer> updatePeers) {
+        if (updatePeers.size() > 0) {
+            activity_main_log_lv.setVisibility(View.VISIBLE);
+
+            activity_main_status_tv.setVisibility(View.INVISIBLE);
+        }
+
+        peers.clear();
+        peers.addAll(updatePeers);
+        adapter.notifyDataSetChanged();
+    }
+
     /**
      * Allows us to make comms with the PeerManagement Service
      */
@@ -129,11 +151,38 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
             peerManagementService = binder.getService();
 
             setServiceState();
+            refreshPeers(peerManagementService.getConnectedPeers());
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             setServiceState();
+        }
+    };
+
+    /**
+     * Listens for broadcasts from other parts of the app.
+     */
+    private BroadcastReceiver localBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String intentAction = intent.getAction();
+
+            if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_STARTING)) {
+
+            }
+
+            if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE)) {
+
+            }
+
+            if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_PEER_CONNECTED)) {
+
+            }
+
+            if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_PEER_DISCONNECTED)) {
+
+            }
         }
     };
 }

@@ -56,8 +56,8 @@ public class PeerCommunicatorThread extends BaseThread {
                 peer.connected = true;
                 peer.save();
 
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(PeerManagementService.ACTION_PEER_CONNECTED));
 
+                onPeerConencted();
                 handlePeerMessages(socket.getOutputStream(), socket.getInputStream());
             } else {
                 // Called when the connection has failed (often the connection isn't live yet)
@@ -78,6 +78,15 @@ public class PeerCommunicatorThread extends BaseThread {
     }
 
     /**
+     * Lets every one know we have a connection with this peer.
+     */
+    private void onPeerConencted() {
+        Intent connectedPeerIntent = new Intent(PeerManagementService.ACTION_PEER_CONNECTED);
+        connectedPeerIntent.putExtra(PeerManagementService.KEY_PEER, peer);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(connectedPeerIntent);
+    }
+
+    /**
      * Waits for a little bit before telling everyone the connection failed.
      * We often found that a little bump in the mobile connection and we would eat through
      * all the peers.
@@ -89,7 +98,10 @@ public class PeerCommunicatorThread extends BaseThread {
             e.printStackTrace();
         }
         peer.delete(); // Fuck this peer, lets try not talk to him
-        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(PeerManagementService.ACTION_PEER_DISCONNECTED));
+
+        Intent disconnectedPeerIntent = new Intent(PeerManagementService.ACTION_PEER_DISCONNECTED);
+        disconnectedPeerIntent.putExtra(PeerManagementService.KEY_PEER, peer);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(disconnectedPeerIntent);
     }
 
     /**

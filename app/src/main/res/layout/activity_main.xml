@@ -1,16 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.boetchain.bitcoinnode.ui.activity.MainActivity"
-    >
+    tools:context="com.boetchain.bitcoinnode.ui.activity.MainActivity">
 
     <ListView
         android:id="@+id/activity_main_log_lv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:visibility="gone"
         />
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="50dp"
+        android:src="@mipmap/logo"
+        android:id="@+id/activity_main_logo_iv"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/activity_main_logo_iv"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"
+        android:text=""
+        android:id="@+id/activity_main_status_tv"/>
 
 </RelativeLayout>
