@@ -47,6 +47,8 @@ public class PeerCommunicatorThread extends BaseThread {
 
     @Override
     public void run() {
+        onPeerConnectionAttempt();
+
         Socket socket = new Socket();
         boolean success = connect(socket);
 
@@ -75,6 +77,15 @@ public class PeerCommunicatorThread extends BaseThread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Lets everyone know we are trying to connect to a peer.
+     */
+    private void onPeerConnectionAttempt() {
+        Intent attemptedConnectedPeerIntent = new Intent(PeerManagementService.ACTION_PEER_CONNECTION_ATTEMPT);
+        attemptedConnectedPeerIntent.putExtra(PeerManagementService.KEY_PEER, peer);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(attemptedConnectedPeerIntent);
     }
 
     /**

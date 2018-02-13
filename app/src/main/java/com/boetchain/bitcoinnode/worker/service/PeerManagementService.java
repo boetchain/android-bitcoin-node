@@ -17,6 +17,7 @@ import com.boetchain.bitcoinnode.util.Lawg;
 import com.boetchain.bitcoinnode.worker.thread.DnsSeedDiscoveryThread;
 import com.boetchain.bitcoinnode.worker.thread.PeerCommunicatorThread;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,6 +27,7 @@ public class PeerManagementService extends Service {
 
     public static final String ACTION_DNS_SEED_DISCOVERY_STARTING   = "ACTION_DNS_SEED_DISCOVERY_STARTING";
     public static final String ACTION_DNS_SEED_DISCOVERY_COMPLETE   = "ACTION_DNS_SEED_DISCOVERY_COMPLETE";
+    public static final String ACTION_PEER_CONNECTION_ATTEMPT       = "ACTION_PEER_CONNECTION_ATTEMPT";
     public static final String ACTION_PEER_CONNECTED                = "ACTION_PEER_CONNECTED";
     public static final String ACTION_PEER_DISCONNECTED             = "ACTION_PEER_DISCONNECTED";
 
@@ -42,7 +44,7 @@ public class PeerManagementService extends Service {
     /**
      * All the peers we currently have in the pool.
      */
-    private List<Peer> peerPool;
+    private List<Peer> peerPool = new ArrayList<>();
     /**
      * Used to see if the service is active or now.
      */

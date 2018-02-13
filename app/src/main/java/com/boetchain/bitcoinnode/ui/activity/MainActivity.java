@@ -105,6 +105,9 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         super.onPostResume();
 
         IntentFilter filter = new IntentFilter();
+        filter.addAction(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_STARTING);
+        filter.addAction(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE);
+        filter.addAction(PeerManagementService.ACTION_PEER_CONNECTION_ATTEMPT);
         filter.addAction(PeerManagementService.ACTION_PEER_CONNECTED);
         filter.addAction(PeerManagementService.ACTION_PEER_DISCONNECTED);
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, filter);
@@ -131,12 +134,30 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         if (updatePeers.size() > 0) {
             activity_main_log_lv.setVisibility(View.VISIBLE);
 
-            activity_main_status_tv.setVisibility(View.INVISIBLE);
+            activity_main_status_tv.setVisibility(View.GONE);
+            activity_main_logo_iv.setVisibility(View.GONE);
         }
 
         peers.clear();
         peers.addAll(updatePeers);
         adapter.notifyDataSetChanged();
+    }
+
+    private void setStatusUpdate(String newStatus) {
+        Lawg.i("setStatusUpdate: " + newStatus);
+
+        if (peers.size() > 0) {
+            activity_main_log_lv.setVisibility(View.VISIBLE);
+
+            activity_main_status_tv.setVisibility(View.GONE);
+            activity_main_logo_iv.setVisibility(View.GONE);
+        }
+
+
+        activity_main_log_lv.setVisibility(View.GONE);
+        activity_main_logo_iv.setVisibility(View.VISIBLE);
+        activity_main_status_tv.setVisibility(View.VISIBLE);
+        activity_main_status_tv.setText(newStatus);
     }
 
     /**
@@ -169,19 +190,23 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
             String intentAction = intent.getAction();
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_STARTING)) {
-
+                setStatusUpdate("Finding seed peers to connect to...");
             }
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE)) {
+                setStatusUpdate("Found seed peers, attempting to connect");
+            }
 
+            if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_PEER_CONNECTION_ATTEMPT)) {
+                setStatusUpdate("Trying to connect to a peer");
             }
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_PEER_CONNECTED)) {
-
+                refreshPeers(peerManagementService.getConnectedPeers());
             }
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_PEER_DISCONNECTED)) {
-
+                refreshPeers(peerManagementService.getConnectedPeers());
             }
         }
     };
