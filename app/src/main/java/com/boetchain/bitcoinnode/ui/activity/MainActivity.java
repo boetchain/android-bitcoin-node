@@ -12,6 +12,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -94,6 +96,9 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 
                 if (isChecked) {
                     MainActivity.this.startService(serviceIntent);
+
+                    Animation startRotateAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
+                    activity_main_logo_iv.startAnimation(startRotateAnimation);
                 } else {
                     MainActivity.this.stopService(serviceIntent);
                 }
