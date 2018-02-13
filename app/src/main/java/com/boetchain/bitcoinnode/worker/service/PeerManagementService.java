@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
@@ -35,11 +36,23 @@ public class PeerManagementService extends Service {
      * How many connections are currently active.
      */
     private int numberOfActiveConnections = 0;
+    /**
+     * All the peers we currently have in the pool.
+     */
     private List<Peer> peerPool;
+    /**
+     * Used to see if the service is active or now.
+     */
+    private boolean isRunning;
+    /**
+     * Binder given to clients
+     */
+    private final IBinder binder = new LocalBinder();
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Lawg.u(this, new Peer(App.monitoringPeerIP), "Bitcoin Service Starting...", ChatLog.TYPE_NEUTRAL);
+        isRunning = true;
 
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_DNS_SEED_DISCOVERY_COMPLETE));
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_PEER_CONNECTED));
@@ -119,13 +132,23 @@ public class PeerManagementService extends Service {
 
         disconnectFromPeers();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
+
+        isRunning = false;
         Lawg.u(this, new Peer(App.monitoringPeerIP), "Bitcoin Service Shutting down...", ChatLog.TYPE_NEUTRAL);
+    }
+
+    /**
+     * Clients can call this to see if the service is running or not.
+     * @return true if yes, false if not.
+     */
+    public boolean isRunning() {
+        return this.isRunning;
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return binder;
     }
 
     /**
@@ -154,4 +177,13 @@ public class PeerManagementService extends Service {
             }
         }
     };
+
+    /**
+     *
+     */
+    public class LocalBinder extends Binder {
+        public PeerManagementService getService() {
+            return PeerManagementService.this;
+        }
+    }
 }

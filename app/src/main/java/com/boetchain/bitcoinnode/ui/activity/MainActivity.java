@@ -1,10 +1,13 @@
 package com.boetchain.bitcoinnode.ui.activity;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.widget.AdapterView;
@@ -32,6 +35,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private PeerAdapter adapter;
     private List<Peer> peers;
 
+    private PeerManagementService peerManagementService;
+
     private BroadcastReceiver peerReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -58,7 +63,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(this);
-
     }
 
     private void tuneHowzit() {
@@ -111,6 +115,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         super.onPause();
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(peerReceiver);
+
+        unbindService(serviceConnection);
     }
 
     @Override
@@ -121,6 +127,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         filter.addAction(PeerManagementService.ACTION_PEER_CONNECTED);
         filter.addAction(PeerManagementService.ACTION_PEER_DISCONNECTED);
         LocalBroadcastManager.getInstance(this).registerReceiver(peerReceiver, filter);
+
+        Intent intent = new Intent(this, PeerManagementService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -152,4 +161,22 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         intent.putExtra(PeerChatActivity.EXTRA_PEER, peers.get(i));
         startActivity(intent);
     }
+
+    /**
+     * Allows us to make comms with the PeerManagement Service
+     */
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            Lawg.i("onServiceConnected");
+            PeerManagementService.LocalBinder binder = (PeerManagementService.LocalBinder) iBinder;
+            peerManagementService = binder.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+
+        }
+    };
 }
