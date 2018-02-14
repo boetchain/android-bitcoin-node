@@ -5,8 +5,13 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorPrimary</item>
     </style>
+
+    <style name="about_main_btn_go" parent="Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">@color/black</item>
+    </style>
+
 
     <style name="about_activity_tv_headers">
         <item name="android:layout_marginTop">5dp</item>

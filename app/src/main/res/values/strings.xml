@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Bitcoin Node</string>
 
+    <string name="activity_main_start_service_button">GO - BABY - GO!</string>
     <string name="activity_main_status_find_seeds_start">Yus boet, we need to find seed peers to\nhelp us connect to the network...</string>
     <string name="activity_main_status_find_seeds_complete">Yoh, we found {:value} other peers from the seeds!</string>
     <string name="activity_main_status_connect_to_peer">Trying to connect to a china here\n{:value}</string>

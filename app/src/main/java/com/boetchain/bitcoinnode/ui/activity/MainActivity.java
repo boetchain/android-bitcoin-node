@@ -9,17 +9,13 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
-import android.widget.CompoundButton;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Switch;
-import android.widget.TextView;
 
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
@@ -31,12 +27,12 @@ import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends BaseActivity implements AdapterView.OnItemClickListener {
+public class MainActivity extends BaseActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
     /**
-     * Switch to turn off or on the bitcoin service
+     * Gets this shit on the road...
      */
-    private Switch peerMgmtSwitch;
+    private Button activity_main_gobaby_btn;
     /**
      * Peer list view, contains peers we are connected to.
      */
@@ -60,6 +56,8 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        activity_main_gobaby_btn = findViewById(R.id.activity_main_gobaby_btn);
         activity_main_log_lv = findViewById(R.id.activity_main_log_lv);
         activity_main_status_lv = findViewById(R.id.activity_main_status_lv);
         activity_main_logo_iv = findViewById(R.id.activity_main_logo_iv);
@@ -70,6 +68,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         adapter = new PeerAdapter(this, peers);
         activity_main_log_lv.setAdapter(adapter);
 
+        activity_main_gobaby_btn.setOnClickListener(this);
         activity_main_log_lv.setOnItemClickListener(this);
     }
 
@@ -80,33 +79,6 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
 
         unbindService(serviceConnection);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-
-        MenuItem item = menu.findItem(R.id.switchId).setActionView(R.layout.view_switch);
-        peerMgmtSwitch = item.getActionView().findViewById(R.id.switchAB);
-
-        peerMgmtSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Intent serviceIntent = new Intent(MainActivity.this, PeerManagementService.class);
-
-                if (isChecked) {
-                    MainActivity.this.startService(serviceIntent);
-
-                    Animation startRotateAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
-                    activity_main_logo_iv.startAnimation(startRotateAnimation);
-                } else {
-                    MainActivity.this.stopService(serviceIntent);
-                }
-            }
-        });
-
-        setServiceState();
-        return true;
     }
 
     @Override
@@ -126,17 +98,25 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
     }
 
     @Override
+    public void onClick(View view) {
+        switch(view.getId()) {
+            case R.id.activity_main_gobaby_btn:
+                Intent serviceIntent = new Intent(MainActivity.this, PeerManagementService.class);
+                MainActivity.this.startService(serviceIntent);
+
+                Animation startRotateAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
+                activity_main_logo_iv.startAnimation(startRotateAnimation);
+                activity_main_gobaby_btn.setVisibility(View.GONE);
+                break;
+        }
+    }
+
+    @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
         Intent intent = new Intent(this, PeerChatActivity.class);
         intent.putExtra(PeerChatActivity.EXTRA_PEER, peers.get(i));
         startActivity(intent);
-    }
-
-    private void setServiceState() {
-        if (peerMgmtSwitch != null && peerManagementService != null) {
-            peerMgmtSwitch.setChecked(peerManagementService.isRunning());
-        }
     }
 
     private void refreshPeers(List<Peer> updatePeers) {
@@ -160,6 +140,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 
             activity_main_status_lv.setVisibility(View.GONE);
             activity_main_logo_iv.setVisibility(View.GONE);
+            activity_main_gobaby_btn.setVisibility(View.GONE);
         }
 
 
@@ -182,13 +163,12 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
             PeerManagementService.LocalBinder binder = (PeerManagementService.LocalBinder) iBinder;
             peerManagementService = binder.getService();
 
-            setServiceState();
             refreshPeers(peerManagementService.getConnectedPeers());
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            setServiceState();
+
         }
     };
 
