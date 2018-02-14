@@ -48,8 +48,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     private PeerManagementService peerManagementService;
 
+    /**
+     * List view displaying status messages to the user.
+     */
     private ListView activity_main_status_lv;
     private StatusAdapter statusAdapter;
+    /**
+     * List of status messages to display to the user.
+     */
     private List<String> statusMessages = new ArrayList<>();
 
     @Override
@@ -119,6 +125,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         startActivity(intent);
     }
 
+    /**
+     * Updates the peers in the list view.
+     * If there are peers to display, we hide other elements on the screen
+     * such as the logo etc.
+     * @param updatePeers - list of peers to show the user.
+     */
     private void refreshPeers(List<Peer> updatePeers) {
         if (updatePeers.size() > 0) {
             activity_main_log_lv.setVisibility(View.VISIBLE);
@@ -132,9 +144,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         adapter.notifyDataSetChanged();
     }
 
+    /**
+     * Adds a status to let the user know what is going on.
+     * If there are peers, we rather show the user that
+     * then some stupid status message no one reads anyways...
+     * @param newStatus - to show the user.
+     */
     private void setStatusUpdate(String newStatus) {
-        Lawg.i("setStatusUpdate: " + newStatus);
-
         if (peers.size() > 0) {
             activity_main_log_lv.setVisibility(View.VISIBLE);
 
