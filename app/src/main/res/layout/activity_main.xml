@@ -1,33 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.boetchain.bitcoinnode.ui.activity.MainActivity"
-    >
-
-    <Button
-        android:id="@+id/activity_main_howzit_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/activity_main_howzit_btn"
-        android:layout_alignParentRight="true"
-        />
-
-    <Button
-        android:id="@+id/activity_main_refresh_peers_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/activity_main_refresh_peers_button"
-        android:layout_toLeftOf="@id/activity_main_howzit_btn"
-        />
+    tools:context="com.boetchain.bitcoinnode.ui.activity.MainActivity">
 
     <ListView
         android:id="@+id/activity_main_log_lv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/activity_main_howzit_btn"
+        android:visibility="gone"
         />
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="50dp"
+        android:src="@mipmap/logo"
+        android:visibility="visible"
+        android:id="@+id/activity_main_logo_iv"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/activity_main_logo_iv"
+        android:layout_centerHorizontal="true"
+        style="@style/about_main_btn_go"
+        android:text="@string/activity_main_start_service_button"
+        android:id="@+id/activity_main_gobaby_btn"/>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@color/transparent"
+        android:dividerHeight="0dp"
+        android:visibility="gone"
+        android:layout_below="@id/activity_main_logo_iv"
+        android:id="@+id/activity_main_status_lv"/>
 
 </RelativeLayout>

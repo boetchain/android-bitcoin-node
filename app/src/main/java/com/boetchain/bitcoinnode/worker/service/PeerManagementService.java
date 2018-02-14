@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
@@ -16,6 +17,7 @@ import com.boetchain.bitcoinnode.util.Lawg;
 import com.boetchain.bitcoinnode.worker.thread.DnsSeedDiscoveryThread;
 import com.boetchain.bitcoinnode.worker.thread.PeerCommunicatorThread;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,9 +25,14 @@ import java.util.List;
  */
 public class PeerManagementService extends Service {
 
+    public static final String ACTION_DNS_SEED_DISCOVERY_STARTING   = "ACTION_DNS_SEED_DISCOVERY_STARTING";
     public static final String ACTION_DNS_SEED_DISCOVERY_COMPLETE   = "ACTION_DNS_SEED_DISCOVERY_COMPLETE";
+    public static final String ACTION_PEER_CONNECTION_ATTEMPT       = "ACTION_PEER_CONNECTION_ATTEMPT";
     public static final String ACTION_PEER_CONNECTED                = "ACTION_PEER_CONNECTED";
     public static final String ACTION_PEER_DISCONNECTED             = "ACTION_PEER_DISCONNECTED";
+
+    public static final String KEY_PEER = "KEY_PEER";
+    public static final String KEY_PEERS = "KEY_PEERS";
 
     /**
      * Max number of connections we want to maintain with peers
@@ -35,11 +42,26 @@ public class PeerManagementService extends Service {
      * How many connections are currently active.
      */
     private int numberOfActiveConnections = 0;
-    private List<Peer> peerPool;
+    /**
+     * All the peers we currently have in the pool.
+     */
+    private List<Peer> peerPool = new ArrayList<>();
+    /**
+     * Used to see if the service is active or now.
+     */
+    private boolean isRunning;
+    /**
+     * Binder given to clients
+     */
+    private final IBinder binder = new LocalBinder();
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Lawg.i("onStartCommand");
         Lawg.u(this, new Peer(App.monitoringPeerIP), "Bitcoin Service Starting...", ChatLog.TYPE_NEUTRAL);
+        isRunning = true;
+
+        Peer.deleteAll(Peer.class);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_DNS_SEED_DISCOVERY_COMPLETE));
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_PEER_CONNECTED));
@@ -61,11 +83,12 @@ public class PeerManagementService extends Service {
      * Just to be sure when the app starts we make all the peers disconnected.
      */
     private void disconnectFromPeers() {
-        for (Peer peer : peerPool)
+        for (Peer peer : peerPool) {
             if (peer.connected) {
                 peer.connected = false;
                 peer.save();
             }
+        }
     }
 
     /**
@@ -90,6 +113,14 @@ public class PeerManagementService extends Service {
                 Lawg.e("No peers to connect to...");
             }
         }
+    }
+
+    /**
+     * Gets a list of connected peers.
+     * TODO make the service keep track of the connected peers and not rely on a DB look up to see who we are connected to
+     */
+    public List<Peer> getConnectedPeers() {
+        return Peer.getConnectedPeers();
     }
 
     /**
@@ -119,13 +150,26 @@ public class PeerManagementService extends Service {
 
         disconnectFromPeers();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
+
+        isRunning = false;
         Lawg.u(this, new Peer(App.monitoringPeerIP), "Bitcoin Service Shutting down...", ChatLog.TYPE_NEUTRAL);
+        Lawg.i("onDestroy");
+
+        Peer.deleteAll(Peer.class);
+    }
+
+    /**
+     * Clients can call this to see if the service is running or not.
+     * @return true if yes, false if not.
+     */
+    public boolean isRunning() {
+        return this.isRunning;
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return binder;
     }
 
     /**
@@ -154,4 +198,13 @@ public class PeerManagementService extends Service {
             }
         }
     };
+
+    /**
+     *
+     */
+    public class LocalBinder extends Binder {
+        public PeerManagementService getService() {
+            return PeerManagementService.this;
+        }
+    }
 }
