@@ -105,6 +105,7 @@ public class PeerManagementService extends Service {
      * Starts threads to start connecting to peers.
      */
     private void connectToPeers() {
+
         int numberOfConnectionsNeeded = MAX_CONNECTIONS - numberOfActiveConnections;
         Lawg.i("Starting " + numberOfConnectionsNeeded + " new connections");
         for (int i = 0; i < numberOfConnectionsNeeded; i++) {
@@ -115,6 +116,7 @@ public class PeerManagementService extends Service {
                 thread.start();
             } else {
                 Lawg.e("No peers to connect to...");
+                startDnsSeedDiscovery();
             }
         }
     }
