@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * Created by Ross Badenhorst.
  */
-public class PeerCommunicatorThread extends BaseThread {
+public class PeerCommunicatorThread extends BaseRunnable {
 
     /**
      * The peer that this thread is making comms with.

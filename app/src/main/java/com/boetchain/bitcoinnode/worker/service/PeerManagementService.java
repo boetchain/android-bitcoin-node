@@ -55,6 +55,8 @@ public class PeerManagementService extends Service {
      */
     private final IBinder binder = new LocalBinder();
 
+    private List<Thread> peerCommunicatorThreads = new ArrayList();
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Lawg.i("onStartCommand");
@@ -108,7 +110,9 @@ public class PeerManagementService extends Service {
         for (int i = 0; i < numberOfConnectionsNeeded; i++) {
             Peer peerToConnectTo = findPeerToConnectTo();
             if (peerToConnectTo != null) {
-                new Thread(new PeerCommunicatorThread(this, peerToConnectTo)).start();
+                Thread thread = new Thread(new PeerCommunicatorThread(this, peerToConnectTo));
+                peerCommunicatorThreads.add(thread);
+                thread.start();
             } else {
                 Lawg.e("No peers to connect to...");
             }
@@ -144,6 +148,13 @@ public class PeerManagementService extends Service {
         return null;
     }
 
+    private void killPeerCommunicatorThreads() {
+
+        for (int i = 0; i < peerCommunicatorThreads.size(); i++) {
+            peerCommunicatorThreads.get(i).interrupt();
+        }
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -156,6 +167,8 @@ public class PeerManagementService extends Service {
         Lawg.i("onDestroy");
 
         Peer.deleteAll(Peer.class);
+
+        killPeerCommunicatorThreads();
     }
 
     /**
