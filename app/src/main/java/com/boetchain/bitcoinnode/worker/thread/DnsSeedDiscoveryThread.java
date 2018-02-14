@@ -7,6 +7,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.util.Lawg;
+import com.boetchain.bitcoinnode.worker.broadcaster.PeerBroadcaster;
 import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
 
 import java.net.InetAddress;
@@ -39,7 +40,7 @@ public class DnsSeedDiscoveryThread extends BaseThread {
         }
 
         Intent dnsSeedDiscoveryCompleteIntent = new Intent(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE);
-        dnsSeedDiscoveryCompleteIntent.putParcelableArrayListExtra(PeerManagementService.KEY_PEERS, peersFromDnsSeeds);
+        dnsSeedDiscoveryCompleteIntent.putParcelableArrayListExtra(PeerBroadcaster.KEY_PEERS, peersFromDnsSeeds);
         LocalBroadcastManager.getInstance(context).sendBroadcast(dnsSeedDiscoveryCompleteIntent);
         try {
             Thread.sleep(2000);

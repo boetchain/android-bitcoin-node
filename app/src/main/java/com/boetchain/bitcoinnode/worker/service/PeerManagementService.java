@@ -14,6 +14,7 @@ import com.boetchain.bitcoinnode.App;
 import com.boetchain.bitcoinnode.model.ChatLog;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.util.Lawg;
+import com.boetchain.bitcoinnode.worker.broadcaster.PeerBroadcaster;
 import com.boetchain.bitcoinnode.worker.thread.DnsSeedDiscoveryThread;
 import com.boetchain.bitcoinnode.worker.thread.PeerCommunicatorThread;
 
@@ -27,12 +28,6 @@ public class PeerManagementService extends Service {
 
     public static final String ACTION_DNS_SEED_DISCOVERY_STARTING   = "ACTION_DNS_SEED_DISCOVERY_STARTING";
     public static final String ACTION_DNS_SEED_DISCOVERY_COMPLETE   = "ACTION_DNS_SEED_DISCOVERY_COMPLETE";
-    public static final String ACTION_PEER_CONNECTION_ATTEMPT       = "ACTION_PEER_CONNECTION_ATTEMPT";
-    public static final String ACTION_PEER_CONNECTED                = "ACTION_PEER_CONNECTED";
-    public static final String ACTION_PEER_DISCONNECTED             = "ACTION_PEER_DISCONNECTED";
-
-    public static final String KEY_PEER = "KEY_PEER";
-    public static final String KEY_PEERS = "KEY_PEERS";
 
     /**
      * Max number of connections we want to maintain with peers
@@ -60,14 +55,14 @@ public class PeerManagementService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Lawg.i("onStartCommand");
-        Lawg.u(this, new Peer(App.monitoringPeerIP), "Bitcoin Service Starting...", ChatLog.TYPE_NEUTRAL);
+        new PeerBroadcaster(this, new Peer(App.monitoringPeerIP)).broadcastLogAll("Bitcoin Service Starting...", ChatLog.TYPE_NEUTRAL);
         isRunning = true;
 
         Peer.deleteAll(Peer.class);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_DNS_SEED_DISCOVERY_COMPLETE));
-        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_PEER_CONNECTED));
-        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_PEER_DISCONNECTED));
+        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_CONNECTED));
+        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_DISCONNECTED));
 
         peerPool = Peer.getPeerPool();
         if (peerPool.size() == 0) {
@@ -173,7 +168,7 @@ public class PeerManagementService extends Service {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
 
         isRunning = false;
-        Lawg.u(this, new Peer(App.monitoringPeerIP), "Bitcoin Service Shutting down...", ChatLog.TYPE_NEUTRAL);
+        new PeerBroadcaster(this, new Peer(App.monitoringPeerIP)).broadcastLogAll("Bitcoin Service Shutting down...", ChatLog.TYPE_NEUTRAL);
         Lawg.i("onDestroy");
 
         Peer.deleteAll(Peer.class);
@@ -207,12 +202,12 @@ public class PeerManagementService extends Service {
                 connectToPeers();
             }
 
-            if (intent.getAction().equalsIgnoreCase(ACTION_PEER_CONNECTED)) {
+            if (intent.getAction().equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_CONNECTED)) {
                 numberOfActiveConnections++;
                 Lawg.i("Peer connected: " + numberOfActiveConnections);
             }
 
-            if (intent.getAction().equalsIgnoreCase(ACTION_PEER_DISCONNECTED)) {
+            if (intent.getAction().equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_DISCONNECTED)) {
                 if (numberOfActiveConnections > 0) {
                     numberOfActiveConnections--;// Only minus connects if we have any...
                 }

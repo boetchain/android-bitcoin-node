@@ -22,6 +22,7 @@ import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.ui.adapter.PeerAdapter;
 import com.boetchain.bitcoinnode.ui.adapter.StatusAdapter;
 import com.boetchain.bitcoinnode.util.Lawg;
+import com.boetchain.bitcoinnode.worker.broadcaster.PeerBroadcaster;
 import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
 
 import java.util.ArrayList;
@@ -94,9 +95,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         IntentFilter filter = new IntentFilter();
         filter.addAction(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_STARTING);
         filter.addAction(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE);
-        filter.addAction(PeerManagementService.ACTION_PEER_CONNECTION_ATTEMPT);
-        filter.addAction(PeerManagementService.ACTION_PEER_CONNECTED);
-        filter.addAction(PeerManagementService.ACTION_PEER_DISCONNECTED);
+        filter.addAction(PeerBroadcaster.ACTION_PEER_CONNECTION_ATTEMPT);
+        filter.addAction(PeerBroadcaster.ACTION_PEER_CONNECTED);
+        filter.addAction(PeerBroadcaster.ACTION_PEER_DISCONNECTED);
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, filter);
 
         Intent intent = new Intent(this, PeerManagementService.class);
@@ -201,20 +202,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             }
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE)) {
-                int peersFoundFromDnsSeeds = intent.getParcelableArrayListExtra(PeerManagementService.KEY_PEERS).size();
+                int peersFoundFromDnsSeeds = intent.getParcelableArrayListExtra(PeerBroadcaster.KEY_PEERS).size();
                 setStatusUpdate(getString(R.string.activity_main_status_find_seeds_complete).replace("{:value}", "" +peersFoundFromDnsSeeds));
             }
 
-            if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_PEER_CONNECTION_ATTEMPT)) {
-                String peerAddress = ((Peer)intent.getParcelableExtra(PeerManagementService.KEY_PEER)).address;
+            if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_CONNECTION_ATTEMPT)) {
+                String peerAddress = ((Peer)intent.getParcelableExtra(PeerBroadcaster.KEY_PEER)).address;
                 setStatusUpdate(getString(R.string.activity_main_status_connect_to_peer).replace("{:value}", peerAddress));
             }
 
-            if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_PEER_CONNECTED)) {
+            if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_CONNECTED)) {
                 refreshPeers(peerManagementService.getConnectedPeers());
             }
 
-            if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_PEER_DISCONNECTED)) {
+            if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_DISCONNECTED)) {
                 refreshPeers(peerManagementService.getConnectedPeers());
             }
         }
