@@ -33,7 +33,10 @@ import java.util.List;
 /**
  * Created by Ross Badenhorst.
  */
-public class PeerCommunicatorThread extends BaseRunnable {
+public class PeerCommunicatorThread extends BaseThread {
+
+    private Socket socket;
+
 
     /**
      * The peer that this thread is making comms with.
@@ -49,7 +52,7 @@ public class PeerCommunicatorThread extends BaseRunnable {
     public void run() {
         onPeerConnectionAttempt();
 
-        Socket socket = new Socket();
+        socket = new Socket();
         boolean success = connect(socket);
 
         try {
@@ -454,5 +457,14 @@ public class PeerCommunicatorThread extends BaseRunnable {
         }
 
         return null;
+    }
+
+    public boolean isSocketConnected() {
+
+        return socket != null && socket.isConnected();
+    }
+
+    public Peer getPeer() {
+        return peer;
     }
 }

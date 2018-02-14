@@ -9,12 +9,12 @@ import com.android.volley.toolbox.Volley;
  * Created by rossbadenhorst on 2018/02/08.
  */
 
-public abstract class BaseRunnable implements Runnable {
+public abstract class BaseThread extends Thread {
 
     protected RequestQueue requestQueue;
     protected Context context;
 
-    public BaseRunnable(Context context) {
+    public BaseThread(Context context) {
         this.context = context;
         requestQueue = Volley.newRequestQueue(context);
     }

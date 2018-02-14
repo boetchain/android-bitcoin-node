@@ -55,7 +55,7 @@ public class PeerManagementService extends Service {
      */
     private final IBinder binder = new LocalBinder();
 
-    private List<Thread> peerCommunicatorThreads = new ArrayList();
+    private List<PeerCommunicatorThread> peerCommunicatorThreads = new ArrayList();
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -98,7 +98,7 @@ public class PeerManagementService extends Service {
      */
     private void startDnsSeedDiscovery() {
         Lawg.i("startDnsSeedDiscovery");
-        new Thread(new DnsSeedDiscoveryThread(this)).start();
+        new DnsSeedDiscoveryThread(this).start();
     }
 
     /**
@@ -111,7 +111,7 @@ public class PeerManagementService extends Service {
         for (int i = 0; i < numberOfConnectionsNeeded; i++) {
             Peer peerToConnectTo = findPeerToConnectTo();
             if (peerToConnectTo != null) {
-                Thread thread = new Thread(new PeerCommunicatorThread(this, peerToConnectTo));
+                PeerCommunicatorThread thread = new PeerCommunicatorThread(this, peerToConnectTo);
                 peerCommunicatorThreads.add(thread);
                 thread.start();
             } else {
@@ -123,10 +123,18 @@ public class PeerManagementService extends Service {
 
     /**
      * Gets a list of connected peers.
-     * TODO make the service keep track of the connected peers and not rely on a DB look up to see who we are connected to
-     */
+     * */
     public List<Peer> getConnectedPeers() {
-        return Peer.getConnectedPeers();
+
+        List<Peer> peers = new ArrayList<>();
+
+        for (int i = 0; i < peerCommunicatorThreads.size(); i++) {
+            PeerCommunicatorThread thread = peerCommunicatorThreads.get(i);
+            if (thread.isSocketConnected() && thread.getPeer() != null) {
+                peers.add(thread.getPeer());
+            }
+        }
+        return peers;
     }
 
     /**

@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Created by Ross Badenhorst.
  */
-public class DnsSeedDiscoveryThread extends BaseRunnable {
+public class DnsSeedDiscoveryThread extends BaseThread {
 
     private Context context;
 

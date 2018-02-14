@@ -12,7 +12,7 @@ import com.boetchain.bitcoinnode.util.Prefs;
  * Created by rossbadenhorst on 2018/02/08.
  */
 
-public class GetExternalIpThread extends BaseRunnable implements Response.Listener<GETExternalIpResponse>, Response.ErrorListener  {
+public class GetExternalIpThread extends BaseThread implements Response.Listener<GETExternalIpResponse>, Response.ErrorListener  {
 
     public GetExternalIpThread(Context context) {
         super(context);
