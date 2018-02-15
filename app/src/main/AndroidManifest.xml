@@ -20,6 +20,11 @@
         <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="com.boetchain.bitcoinnode.model" />
 
         <!-- ACTIVITIES -->
+        <activity android:name="com.boetchain.bitcoinnode.ui.activity.MainActivity1">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity android:name="com.boetchain.bitcoinnode.ui.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

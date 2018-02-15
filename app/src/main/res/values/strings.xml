@@ -5,6 +5,8 @@
     <string name="activity_main_status_find_seeds_start">Yus boet, we need to find seed peers to\nhelp us connect to the network...</string>
     <string name="activity_main_status_find_seeds_complete">Yoh, we found {:value} other peers from the seeds!</string>
     <string name="activity_main_status_connect_to_peer">Trying to connect to a china here\n{:value}</string>
+    <string name="activity_main_drawer_open">Drawer Open</string>
+    <string name="activity_main_drawer_close">Drawer Closed</string>
 
     <string name="error_cant_find_peers">Can\'t find peers</string>
     <string name="error_peer_not_found">Peer not found</string>

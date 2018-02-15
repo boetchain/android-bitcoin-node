@@ -77,6 +77,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         activity_main_gobaby_btn.setOnClickListener(this);
         activity_main_log_lv.setOnItemClickListener(this);
+
+        Intent intent = new Intent(this, MainActivity1.class);
+        startActivity(intent);
     }
 
     @Override
