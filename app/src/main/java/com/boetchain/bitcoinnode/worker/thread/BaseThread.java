@@ -9,7 +9,7 @@ import com.android.volley.toolbox.Volley;
  * Created by rossbadenhorst on 2018/02/08.
  */
 
-public abstract class BaseThread implements Runnable {
+public abstract class BaseThread extends Thread {
 
     protected RequestQueue requestQueue;
     protected Context context;

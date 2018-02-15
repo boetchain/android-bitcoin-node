@@ -1,13 +1,7 @@
 package com.boetchain.bitcoinnode.util;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-
-import com.boetchain.bitcoinnode.App;
-import com.boetchain.bitcoinnode.model.Peer;
-import com.boetchain.bitcoinnode.ui.activity.PeerChatActivity;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -42,24 +36,6 @@ public class Lawg {
         className = sElements[1].getFileName().replace(".java", "");
         methodName = sElements[1].getMethodName() + "()";
         lineNumber = sElements[1].getLineNumber();
-    }
-
-    /**
-     * Logs to i and to the UI via broadcast
-     * Type determines color
-     * @param context
-     * @param msg
-     */
-    public static void u(Context context, Peer peer, String msg, int type) {
-
-        if (App.monitoringPeerIP.equals(peer.address)) {
-
-            Intent intent = new Intent();
-            intent.setAction(PeerChatActivity.getBroadcastAction());
-            intent.putExtra(PeerChatActivity.EXTRA_MSG, msg);
-            intent.putExtra(PeerChatActivity.EXTRA_TYPE, type);
-            context.sendBroadcast(intent);
-        }
     }
 
     public static void e(String msg) {

@@ -1,8 +1,6 @@
 package com.boetchain.bitcoinnode.worker.thread;
 
 import android.content.Context;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.boetchain.bitcoinnode.model.ChatLog;
 import com.boetchain.bitcoinnode.model.Message.AddrMessage;
@@ -19,7 +17,7 @@ import com.boetchain.bitcoinnode.model.Message.VersionMessage;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.util.Lawg;
 import com.boetchain.bitcoinnode.util.Util;
-import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
+import com.boetchain.bitcoinnode.worker.broadcaster.PeerBroadcaster;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +33,9 @@ import java.util.List;
  */
 public class PeerCommunicatorThread extends BaseThread {
 
+    private Socket socket;
+    private PeerBroadcaster broadcaster;
+
     /**
      * The peer that this thread is making comms with.
      */
@@ -43,13 +44,15 @@ public class PeerCommunicatorThread extends BaseThread {
     public PeerCommunicatorThread(Context context, Peer peer) {
         super(context);
         this.peer = peer;
+
+        broadcaster = new PeerBroadcaster(context, peer);
     }
 
     @Override
     public void run() {
         onPeerConnectionAttempt();
 
-        Socket socket = new Socket();
+        socket = new Socket();
         boolean success = connect(socket);
 
         try {
@@ -83,18 +86,14 @@ public class PeerCommunicatorThread extends BaseThread {
      * Lets everyone know we are trying to connect to a peer.
      */
     private void onPeerConnectionAttempt() {
-        Intent attemptedConnectedPeerIntent = new Intent(PeerManagementService.ACTION_PEER_CONNECTION_ATTEMPT);
-        attemptedConnectedPeerIntent.putExtra(PeerManagementService.KEY_PEER, peer);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(attemptedConnectedPeerIntent);
+        broadcaster.broadcast(PeerBroadcaster.ACTION_PEER_CONNECTION_ATTEMPT);
     }
 
     /**
      * Lets every one know we have a connection with this peer.
      */
     private void onPeerConencted() {
-        Intent connectedPeerIntent = new Intent(PeerManagementService.ACTION_PEER_CONNECTED);
-        connectedPeerIntent.putExtra(PeerManagementService.KEY_PEER, peer);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(connectedPeerIntent);
+        broadcaster.broadcast(PeerBroadcaster.ACTION_PEER_CONNECTED);
     }
 
     /**
@@ -110,9 +109,7 @@ public class PeerCommunicatorThread extends BaseThread {
         }
         peer.delete(); // Fuck this peer, lets try not talk to him
 
-        Intent disconnectedPeerIntent = new Intent(PeerManagementService.ACTION_PEER_DISCONNECTED);
-        disconnectedPeerIntent.putExtra(PeerManagementService.KEY_PEER, peer);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(disconnectedPeerIntent);
+        broadcaster.broadcast(PeerBroadcaster.ACTION_PEER_DISCONNECTED);
     }
 
     /**
@@ -124,7 +121,7 @@ public class PeerCommunicatorThread extends BaseThread {
      * @return true if connection success, false if not.
      */
     private boolean connect(Socket socket) {
-        Lawg.u(context, peer, "connect: " + peer.address, ChatLog.TYPE_NEUTRAL);
+        broadcaster.broadcastLog("connect: " + peer.address, ChatLog.TYPE_NEUTRAL);
         Lawg.i("connect: " + peer.address);
 
         InetSocketAddress address = new InetSocketAddress(peer.address, peer.port);
@@ -148,21 +145,21 @@ public class PeerCommunicatorThread extends BaseThread {
             boolean success;
             if (peerVerAckMessage != null) {
 
-                Lawg.u(context, peer, "Connection established", ChatLog.TYPE_NEUTRAL);
+                broadcaster.broadcastLog("Connection established", ChatLog.TYPE_NEUTRAL);
                 Lawg.i("Connection established");
                 peer.timestamp = System.currentTimeMillis();
                 peer.connected = true;
                 peer.save();
                 success =  true;
             } else {
-                Lawg.u(context, peer, "Failed to establish connection", ChatLog.TYPE_NEUTRAL);
+                broadcaster.broadcastLog("Failed to establish connection", ChatLog.TYPE_NEUTRAL);
                 Lawg.e("Failed to establish connection");
                 success = false;
             }
 
             return success;
         } catch (IOException e) {
-            Lawg.u(context, peer, "Failed to establish connection", ChatLog.TYPE_NEUTRAL);
+            broadcaster.broadcastLog("Failed to establish connection", ChatLog.TYPE_NEUTRAL);
             Lawg.e("Failed to establish connection");
             return false;
         }
@@ -206,7 +203,7 @@ public class PeerCommunicatorThread extends BaseThread {
      * @param out - the stream we want to send the message on.
      */
     private void writeMessage(BaseMessage message, OutputStream out) {
-        Lawg.u(context, peer, message.getCommandName(), ChatLog.TYPE_OUT);
+        broadcaster.broadcastLog(message.getCommandName(), ChatLog.TYPE_OUT);
         Lawg.i("--> " + message.getCommandName());
 
         byte[] header   = message.getHeader();
@@ -220,7 +217,7 @@ public class PeerCommunicatorThread extends BaseThread {
             out.write(payload);
             out.flush();
         } catch (IOException e) {
-            Lawg.u(context, peer, "Failed to write message", ChatLog.TYPE_OUT);
+            broadcaster.broadcastLog("Failed to write message", ChatLog.TYPE_OUT);
             Lawg.e("Failed to write message");
         }
     }
@@ -402,7 +399,7 @@ public class PeerCommunicatorThread extends BaseThread {
      */
     private BaseMessage constructMessage(byte[] header, byte[] payload) {
         String commandName = getCommandNameFromHeader(header);
-        Lawg.u(context, peer, commandName, ChatLog.TYPE_IN);
+        broadcaster.broadcastLog(commandName, ChatLog.TYPE_IN);
         Lawg.i("<-- " + commandName);
 
         if (commandName.toLowerCase().contains(RejectMessage.COMMAND_NAME)) {
@@ -454,5 +451,14 @@ public class PeerCommunicatorThread extends BaseThread {
         }
 
         return null;
+    }
+
+    public boolean isSocketConnected() {
+
+        return socket != null && socket.isConnected();
+    }
+
+    public Peer getPeer() {
+        return peer;
     }
 }
