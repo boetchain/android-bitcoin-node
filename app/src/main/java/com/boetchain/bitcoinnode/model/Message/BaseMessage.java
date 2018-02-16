@@ -1,5 +1,7 @@
 package com.boetchain.bitcoinnode.model.Message;
 
+import android.content.Context;
+
 import com.boetchain.bitcoinnode.util.Util;
 
 import java.math.BigInteger;
@@ -109,6 +111,12 @@ public abstract class BaseMessage {
      * @return - command name of message
      */
     public abstract String getCommandName();
+
+    /**
+     * Returns the command in a human readable String.
+     * @return
+     */
+    public abstract String getHumanReadableCommand(Context context);
 
     /**
      * Takes the payload and tries to make sense of it!

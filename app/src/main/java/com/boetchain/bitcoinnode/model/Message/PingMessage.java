@@ -1,5 +1,9 @@
 package com.boetchain.bitcoinnode.model.Message;
 
+import android.content.Context;
+
+import com.boetchain.bitcoinnode.R;
+
 import java.util.Random;
 
 /**
@@ -26,6 +30,11 @@ public class PingMessage extends BaseMessage {
     @Override
     public String getCommandName() {
         return COMMAND_NAME;
+    }
+
+    @Override
+    public String getHumanReadableCommand(Context context) {
+        return context.getString(R.string.command_ping_message_1);
     }
 
     @Override
