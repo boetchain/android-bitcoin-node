@@ -19,9 +19,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
@@ -56,10 +56,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private ActionBarDrawerToggle drawerToggle;
 
     /**
-     * Gets this shit on the road...
-     */
-    private Button activity_main_gobaby_btn;
-    /**
      * Peer list view, contains peers we are connected to.
      */
     private ListView activity_main_log_lv;
@@ -68,6 +64,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      * List of peers we want to display to the user.
      */
     private List<Peer> peers = new ArrayList<>();
+    private TextView activity_main_start_tv;
     private ImageView activity_main_logo_iv;
     /**
      * The underlying service that handles connections with peers
@@ -144,7 +141,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         constructDrawerMenu();
         setupDrawerUI();
 
-        activity_main_gobaby_btn = findViewById(R.id.activity_main_gobaby_btn);
+        activity_main_start_tv = findViewById(R.id.activity_main_start_tv);
         activity_main_log_lv = findViewById(R.id.activity_main_log_lv);
         activity_main_status_lv = findViewById(R.id.activity_main_status_lv);
         activity_main_logo_iv = findViewById(R.id.activity_main_logo_iv);
@@ -155,12 +152,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         adapter = new PeerAdapter(this, peers);
         activity_main_log_lv.setAdapter(adapter);
 
-        activity_main_gobaby_btn.setOnClickListener(this);
+        activity_main_logo_iv.setOnClickListener(this);
         activity_main_log_lv.setOnItemClickListener(this);
-
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+
+        if (peers.size() > 0) {
+
+            activity_main_start_tv.setVisibility(View.GONE);
+            activity_main_logo_iv.setImageDrawable(getResources().getDrawable(R.mipmap.logo));
+        } else {
+
+            activity_main_start_tv.setVisibility(View.VISIBLE);
+            activity_main_logo_iv.setImageDrawable(getResources().getDrawable(R.drawable.shape_circle_primary));
+        }
     }
 
     private void constructDrawerMenu() {
@@ -252,12 +258,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      * @param newStatus - to show the user.
      */
     private void setStatusUpdate(String newStatus) {
+
         if (peers.size() > 0) {
             activity_main_log_lv.setVisibility(View.VISIBLE);
 
             activity_main_status_lv.setVisibility(View.GONE);
             activity_main_logo_iv.setVisibility(View.GONE);
-            activity_main_gobaby_btn.setVisibility(View.GONE);
+            activity_main_start_tv.setVisibility(View.GONE);
         }
 
 
@@ -269,16 +276,77 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         statusAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Animation to make the red GO button 'shrink' to 0% scale
+     */
+    private void animateShrink() {
+
+        Animation shrink = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.shrink);
+        shrink.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                activity_main_start_tv.setVisibility(View.GONE);
+                activity_main_logo_iv.setImageDrawable(getResources().getDrawable(R.mipmap.logo));
+                activity_main_logo_iv.clearAnimation();
+                animateGrow();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+        activity_main_logo_iv.startAnimation(shrink);
+    }
+
+    /**
+     * Animation to make the logo 'grow' to 100% scale
+     */
+    private void animateGrow() {
+
+        Animation grow = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.grow);
+        grow.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+                startPeerSerivce();
+                activity_main_logo_iv.clearAnimation();
+                animatePulse();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+
+        activity_main_logo_iv.startAnimation(grow);
+    }
+
+    /**
+     * Animation to make the logo pulsate
+     */
+    private void animatePulse() {
+
+        Animation pulse = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.pulse);
+        activity_main_logo_iv.startAnimation(pulse);
+    }
+
+    private void startPeerSerivce() {
+        
+        Intent serviceIntent = new Intent(MainActivity.this, PeerManagementService.class);
+        MainActivity.this.startService(serviceIntent);
+    }
+
     @Override
     public void onClick(View view) {
         switch(view.getId()) {
-            case R.id.activity_main_gobaby_btn:
-                Intent serviceIntent = new Intent(MainActivity.this, PeerManagementService.class);
-                MainActivity.this.startService(serviceIntent);
-
-                Animation startRotateAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
-                activity_main_logo_iv.startAnimation(startRotateAnimation);
-                activity_main_gobaby_btn.setVisibility(View.GONE);
+            case R.id.activity_main_logo_iv:
+                if (peers.size() <= 0) {
+                    animateShrink();
+                }
                 break;
         }
     }
@@ -371,9 +439,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         // We take into account headers and footers using this integer
         int diff = drawerList.getCount() - DRAWER_MENU_SIZE;
 
-        Lawg.i("asdf count: " + drawerList.getCount());
-        Lawg.i("asdf position: " + position);
-        Lawg.i("asdf diff: " + diff);
         switch (position - diff) {
 
             case DRAWER_POS_ABOUT:
