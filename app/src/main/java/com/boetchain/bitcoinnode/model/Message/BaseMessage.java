@@ -2,6 +2,7 @@ package com.boetchain.bitcoinnode.model.Message;
 
 import android.content.Context;
 
+import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.util.Util;
 
 import java.math.BigInteger;
@@ -354,5 +355,9 @@ public abstract class BaseMessage {
         } else {
             writeBytes(new byte[]{0});
         }
+    }
+
+    public static String getDefaultHumanReadableCommand(Context context) {
+        return context.getString(R.string.command_default_message_1);
     }
 }

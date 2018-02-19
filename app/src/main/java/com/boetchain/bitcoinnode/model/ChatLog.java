@@ -24,10 +24,19 @@ public class ChatLog {
     public static final int TYPE_OUT = 2;
 
     public String text = "";
+    public String command = "";
+    public String time;
     public int type = TYPE_NEUTRAL;
 
-    public ChatLog(String text, int type) {
+    public ChatLog(String text, String command, long time, int type) {
         this.text = text;
+        this.command = command;
+        this.time = getHumanReadableTime(time);
         this.type = type;
+    }
+
+    public static String getHumanReadableTime(long time) {
+        //todo return proper time
+        return "22:00";
     }
 }

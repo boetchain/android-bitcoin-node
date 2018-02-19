@@ -26,7 +26,9 @@ import java.util.List;
 
 public class PeerChatActivity extends BaseActivity {
 
-    public static final String EXTRA_MSG = MainActivity.class.getSimpleName() + ".EXTRA_MSG";
+    public static final String EXTRA_TEXT = MainActivity.class.getSimpleName() + ".EXTRA_TEXT";
+    public static final String EXTRA_COMMAND = MainActivity.class.getSimpleName() + ".EXTRA_COMMAND";
+    public static final String EXTRA_TIME = MainActivity.class.getSimpleName() + ".EXTRA_TIME";
     public static final String EXTRA_TYPE = MainActivity.class.getSimpleName() + ".EXTRA_TYPE";
     public static final String EXTRA_PEER = PeerChatActivity.class.getSimpleName() + ".EXTRA_PEER";
 
@@ -40,11 +42,13 @@ public class PeerChatActivity extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            if (intent.hasExtra(EXTRA_MSG)) {
+            if (intent.hasExtra(EXTRA_TEXT)) {
 
+                String text = intent.getStringExtra(EXTRA_TEXT);
+                String command = intent.getStringExtra(EXTRA_COMMAND);
+                long time = intent.getLongExtra(EXTRA_TIME, System.currentTimeMillis());
                 int type = intent.getIntExtra(EXTRA_TYPE, ChatLog.TYPE_NEUTRAL);
-                String msg = intent.getStringExtra(EXTRA_MSG);
-                PeerChatActivity.this.logToUI(new ChatLog(msg, type));
+                PeerChatActivity.this.logToUI(new ChatLog(text, command, time, type));
             }
         }
     };

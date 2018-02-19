@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="command_default_message_1">What can I say bru?</string>
     <string name="command_addr_message_1">Howzit, here are some addresses boet.</string>
     <string name="command_alert_message_1">Yussie!</string>
     <string name="command_compct_block_message_1">I got some news about the block china.</string>

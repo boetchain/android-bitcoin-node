@@ -203,7 +203,8 @@ public class PeerCommunicatorThread extends BaseThread {
      * @param out - the stream we want to send the message on.
      */
     private void writeMessage(BaseMessage message, OutputStream out) {
-        broadcaster.broadcastLog(message.getCommandName(), ChatLog.TYPE_OUT);
+        broadcaster.broadcastLog(message.getHumanReadableCommand(context),
+                message.getCommandName(), ChatLog.TYPE_OUT);
         Lawg.i("--> " + message.getCommandName());
 
         byte[] header   = message.getHeader();
@@ -398,59 +399,50 @@ public class PeerCommunicatorThread extends BaseThread {
      * @return
      */
     private BaseMessage constructMessage(byte[] header, byte[] payload) {
+
+        BaseMessage message = null;
+
         String commandName = getCommandNameFromHeader(header);
-        broadcaster.broadcastLog(commandName, ChatLog.TYPE_IN);
+        String commandText;
         Lawg.i("<-- " + commandName);
 
         if (commandName.toLowerCase().contains(RejectMessage.COMMAND_NAME)) {
-            RejectMessage rejectMessage = new RejectMessage(header, payload);
-            //Lawg.i(rejectMessage.toString());
-            return  rejectMessage;
+
+            message = new RejectMessage(header, payload);
+        } else if (commandName.toLowerCase().contains(VersionMessage.COMMAND_NAME)) {
+
+            message = new VersionMessage(header, payload);
+        } else if (commandName.toLowerCase().contains(VerAckMessage.COMMAND_NAME)) {
+
+            message = new VerAckMessage(header, payload);
+        } else if (commandName.toLowerCase().contains(AlertMessage.COMMAND_NAME)) {
+
+            message = new AlertMessage(header, payload);
+        } else if (commandName.toLowerCase().contains(AddrMessage.COMMAND_NAME)) {
+
+            message = new AddrMessage(header, payload);
+        } else if (commandName.toLowerCase().contains(SendHeadersMessage.COMMAND_NAME)) {
+
+            message = new SendHeadersMessage(header, payload);
+        } else if (commandName.toLowerCase().contains(SendCmpctMessage.COMMAND_NAME)) {
+
+            message = new SendCmpctMessage(header, payload);
+        } else if (commandName.toLowerCase().contains(PingMessage.COMMAND_NAME)) {
+
+            message = new PingMessage(header, payload);
         }
 
-        if (commandName.toLowerCase().contains(VersionMessage.COMMAND_NAME)) {
-            VersionMessage versionMessage = new VersionMessage(header, payload);
-            //Lawg.i(versionMessage.toString());
-            return versionMessage;
+        if (message != null) {
+
+            commandText = message.getHumanReadableCommand(context);
+        } else {
+
+            commandText = BaseMessage.getDefaultHumanReadableCommand(context);
         }
 
-        if (commandName.toLowerCase().contains(VerAckMessage.COMMAND_NAME)) {
-            VerAckMessage verAckMessage = new VerAckMessage(header, payload);
-            //Lawg.i(verAckMessage.toString());
-            return new VerAckMessage(header, payload);
-        }
+        broadcaster.broadcastLog(commandText, commandName, ChatLog.TYPE_IN);
 
-        if (commandName.toLowerCase().contains(AlertMessage.COMMAND_NAME)) {
-            AlertMessage alertMessage = new AlertMessage(header, payload);
-            //Lawg.i(alertMessage.toString());
-            return new VerAckMessage(header, payload);
-        }
-
-        if (commandName.toLowerCase().contains(AddrMessage.COMMAND_NAME)) {
-            AddrMessage addrMessage = new AddrMessage(header, payload);
-            //Lawg.i(addrMessage.toString());
-            return addrMessage;
-        }
-
-        if (commandName.toLowerCase().contains(SendHeadersMessage.COMMAND_NAME)) {
-            SendHeadersMessage sendHeadersMessage = new SendHeadersMessage(header, payload);
-            //Lawg.i(sendHeadersMessage.toString());
-            return sendHeadersMessage;
-        }
-
-        if (commandName.toLowerCase().contains(SendCmpctMessage.COMMAND_NAME)) {
-            SendCmpctMessage sendCmpctMessage = new SendCmpctMessage(header, payload);
-            //Lawg.i(sendCmpctMessage.toString());
-            return sendCmpctMessage;
-        }
-
-        if (commandName.toLowerCase().contains(PingMessage.COMMAND_NAME)) {
-            PingMessage pingMessage = new PingMessage(header, payload);
-            //Lawg.i(sendCmpctMessage.toString());
-            return pingMessage;
-        }
-
-        return null;
+        return message;
     }
 
     public boolean isSocketConnected() {
