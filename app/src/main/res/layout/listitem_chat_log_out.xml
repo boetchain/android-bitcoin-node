@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:background="@drawable/shape_chat_log_out"
         android:padding="8dp"
-        android:minWidth="@dimen/chat_log_item_min_width"
         android:layout_alignParentEnd="true"
         >
 
@@ -25,6 +24,7 @@
             android:paddingLeft="@dimen/chat_log_msg_side_padding"
             android:paddingRight="@dimen/chat_log_msg_side_padding"
             android:layout_alignParentEnd="true"
+            android:minWidth="@dimen/chat_log_item_min_width"
             />
 
         <TextView

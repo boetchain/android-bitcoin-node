@@ -1,5 +1,8 @@
 package com.boetchain.bitcoinnode.model;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by Tyler Hogarth on 2018/02/08.
  */
@@ -36,7 +39,6 @@ public class ChatLog {
     }
 
     public static String getHumanReadableTime(long time) {
-        //todo return proper time
-        return "22:00";
+        return new SimpleDateFormat("HH:mm").format(new Date(time));
     }
 }

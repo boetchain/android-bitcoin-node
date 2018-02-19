@@ -9,7 +9,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:minWidth="@dimen/chat_log_item_min_width_neutral"
         android:background="@drawable/shape_chat_log_neutral"
         >
 
@@ -21,6 +20,7 @@
             android:gravity="center"
             android:layout_centerHorizontal="true"
             android:textColor="@color/white"
+            android:minWidth="@dimen/chat_log_item_min_width_neutral"
             />
 
         <TextView
