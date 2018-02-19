@@ -18,12 +18,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Here is a message about all this bru"
-            android:gravity="right"
+            android:gravity="end"
             android:textColor="@color/white"
             android:layout_below="@id/listitem_chat_log_out_command_tv"
             android:paddingLeft="@dimen/chat_log_msg_side_padding"
             android:paddingRight="@dimen/chat_log_msg_side_padding"
-            android:layout_alignParentEnd="true"
             android:minWidth="@dimen/chat_log_item_min_width"
             />
 
@@ -46,6 +45,8 @@
             android:textSize="@dimen/chat_log_command_text_size"
             android:layout_alignStart="@id/listitem_chat_log_out_tv"
             />
+
+
 
     </RelativeLayout>
 

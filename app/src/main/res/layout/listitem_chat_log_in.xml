@@ -18,6 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Here is a message about all this bru"
+            android:gravity="start"
             android:textColor="@color/white"
             android:layout_below="@id/listitem_chat_log_in_command_tv"
             android:paddingLeft="@dimen/chat_log_msg_side_padding"
