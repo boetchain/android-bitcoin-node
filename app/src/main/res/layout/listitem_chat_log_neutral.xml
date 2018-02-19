@@ -5,17 +5,33 @@
     android:layout_height="wrap_content"
     >
 
-    <TextView
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/shape_chat_log_neutral"
+        >
+
+        <TextView
             android:id="@+id/listitem_chat_log_neutral_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="@dimen/chat_log_item_min_width_neutral"
-            android:padding="8dp"
             tools:text="Neutral"
             android:gravity="center"
-            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
             android:textColor="@color/white"
-            android:background="@drawable/shape_chat_log_neutral"
+            android:minWidth="@dimen/chat_log_item_min_width_neutral"
             />
 
+        <TextView
+            android:id="@+id/listitem_chat_log_neutral_time_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="22:00"
+            android:textColor="@color/chat_command_text"
+            android:textSize="@dimen/chat_log_command_text_size"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/listitem_chat_log_neutral_tv"
+            />
+    </RelativeLayout>
 </RelativeLayout>

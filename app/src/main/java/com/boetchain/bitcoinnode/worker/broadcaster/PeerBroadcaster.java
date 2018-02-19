@@ -38,20 +38,35 @@ public class PeerBroadcaster {
         LocalBroadcastManager.getInstance(context).sendBroadcast(disconnectedPeerIntent);
     }
 
-    public void broadcastLog(String msg, int type) {
+    public void broadcastLog(String text, String command, int type) {
 
         if (App.monitoringPeerIP.equals(peer.address)) {
 
-            broadcastLogAll(msg, type);
+            broadcastLogAll(text, command, type);
         }
     }
 
-    public void broadcastLogAll(String msg, int type) {
+    public void broadcastLog(String text, int type) {
+
+        if (App.monitoringPeerIP.equals(peer.address)) {
+
+            broadcastLogAll(text, type);
+        }
+    }
+
+    public void broadcastLogAll(String text, String command, int type) {
 
         Intent disconnectedPeerIntent = new Intent();
         disconnectedPeerIntent.setAction(PeerChatActivity.getBroadcastAction());
-        disconnectedPeerIntent.putExtra(PeerChatActivity.EXTRA_MSG, msg);
+        disconnectedPeerIntent.putExtra(PeerChatActivity.EXTRA_TEXT, text);
+        disconnectedPeerIntent.putExtra(PeerChatActivity.EXTRA_COMMAND, command);
+        disconnectedPeerIntent.putExtra(PeerChatActivity.EXTRA_TIME, System.currentTimeMillis());
         disconnectedPeerIntent.putExtra(PeerChatActivity.EXTRA_TYPE, type);
         context.sendBroadcast(disconnectedPeerIntent);
+    }
+
+    public void broadcastLogAll(String text, int type) {
+
+        broadcastLogAll(text, "", type);
     }
 }

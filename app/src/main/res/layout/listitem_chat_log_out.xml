@@ -5,17 +5,49 @@
     android:layout_height="wrap_content"
     >
 
-    <TextView
-        android:id="@+id/listitem_chat_log_out_tv"
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minWidth="@dimen/chat_log_item_min_width"
-        android:padding="8dp"
-        tools:text="Out"
-        android:gravity="start"
-        android:layout_alignParentEnd="true"
-        android:textColor="@color/white"
         android:background="@drawable/shape_chat_log_out"
-        />
+        android:padding="8dp"
+        android:layout_alignParentEnd="true"
+        >
+
+        <TextView
+            android:id="@+id/listitem_chat_log_out_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Here is a message about all this bru"
+            android:gravity="end"
+            android:textColor="@color/white"
+            android:layout_below="@id/listitem_chat_log_out_command_tv"
+            android:paddingLeft="@dimen/chat_log_msg_side_padding"
+            android:paddingRight="@dimen/chat_log_msg_side_padding"
+            android:minWidth="@dimen/chat_log_item_min_width"
+            />
+
+        <TextView
+            android:id="@+id/listitem_chat_log_out_command_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="pong"
+            android:textColor="@color/chat_command_text"
+            android:textSize="@dimen/chat_log_command_text_size"
+            android:layout_alignEnd="@id/listitem_chat_log_out_tv"
+            />
+
+        <TextView
+            android:id="@+id/listitem_chat_log_out_time_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="22:00"
+            android:textColor="@color/chat_command_text"
+            android:textSize="@dimen/chat_log_command_text_size"
+            android:layout_alignStart="@id/listitem_chat_log_out_tv"
+            />
+
+
+
+    </RelativeLayout>
 
 </RelativeLayout>
