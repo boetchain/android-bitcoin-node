@@ -1,5 +1,9 @@
 package com.boetchain.bitcoinnode.model.Message;
 
+import android.content.Context;
+
+import com.boetchain.bitcoinnode.R;
+
 /**
  * Created by rossbadenhorst on 2018/02/05.
  */
@@ -88,6 +92,12 @@ public class RejectMessage extends BaseMessage {
     public String getCommandName() {
         return COMMAND_NAME;
     }
+
+    @Override
+    public String getHumanReadableCommand(Context context) {
+        return context.getString(R.string.command_reject_message_1);
+    }
+
     @Override
     public String toString() {
         return "Reject: " + message + ", " + reason;

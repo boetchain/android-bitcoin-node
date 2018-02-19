@@ -1,5 +1,8 @@
 package com.boetchain.bitcoinnode.model.Message;
 
+import android.content.Context;
+
+import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
 
 import java.util.ArrayList;
@@ -43,6 +46,11 @@ public class VerAckMessage extends BaseMessage {
     @Override
     public String getCommandName() {
         return COMMAND_NAME;
+    }
+
+    @Override
+    public String getHumanReadableCommand(Context context) {
+        return context.getString(R.string.command_ver_ack_message_1);
     }
 
     @Override

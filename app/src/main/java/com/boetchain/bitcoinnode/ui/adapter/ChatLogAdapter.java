@@ -72,49 +72,28 @@ public class ChatLogAdapter extends BaseAdapter {
             }
         }
 
-
         switch (log.type) {
 
             case ChatLog.TYPE_IN:
-                ((ViewHolderIn) holder).text.setText(log.text);
+                ViewHolderIn holderIn = (ViewHolderIn) holder;
+                holderIn.textTv.setText(log.text);
+                holderIn.commandTv.setText(log.command);
+                holderIn.timeTv.setText(log.time);
                 break;
 
             case ChatLog.TYPE_OUT:
-                ((ViewHolderOut) holder).text.setText(log.text);
+                ViewHolderOut holderOut = (ViewHolderOut) holder;
+                holderOut.textTv.setText(log.text);
+                holderOut.commandTv.setText(log.command);
+                holderOut.timeTv.setText(log.time);
                 break;
 
             case ChatLog.TYPE_NEUTRAL:
-                ((ViewHolderNeutral) holder).text.setText(log.text);
+                ViewHolderNeutral holderNeutral = (ViewHolderNeutral) holder;
+                holderNeutral.textTv.setText(log.text);
+                holderNeutral.timeTv.setText(log.time);
                 break;
         }
-
-        /*
-        switch (log.type) {
-
-            case ChatLog.TI:
-                holder.text.setTextColor(colorInfo);
-                break;
-
-            case ChatLog.TW:
-                holder.text.setTextColor(colorWarning);
-                break;
-
-            case ChatLog.TD:
-                holder.text.setTextColor(colorDebug);
-                break;
-
-            case ChatLog.TE:
-                holder.text.setTextColor(colorError);
-                break;
-
-            case ChatLog.TV:
-                holder.text.setTextColor(colorVerbose);
-                break;
-
-            default:
-                holder.text.setTextColor(colorInfo);
-        }
-         */
 
         return view;
     }
@@ -139,19 +118,24 @@ public class ChatLogAdapter extends BaseAdapter {
         switch (type) {
             case ChatLog.TYPE_IN:
                 ViewHolderIn holderIn = new ViewHolderIn();
-                holderIn.text = (TextView) view.findViewById(R.id.listitem_chat_log_in_tv);
+                holderIn.textTv = (TextView) view.findViewById(R.id.listitem_chat_log_in_tv);
+                holderIn.commandTv = (TextView) view.findViewById(R.id.listitem_chat_log_in_command_tv);
+                holderIn.timeTv = (TextView) view.findViewById(R.id.listitem_chat_log_in_time_tv);
                 holder = holderIn;
                 break;
 
             case ChatLog.TYPE_OUT:
                 ViewHolderOut holderOut = new ViewHolderOut();
-                holderOut.text = (TextView) view.findViewById(R.id.listitem_chat_log_out_tv);
+                holderOut.textTv = (TextView) view.findViewById(R.id.listitem_chat_log_out_tv);
+                holderOut.commandTv = (TextView) view.findViewById(R.id.listitem_chat_log_out_command_tv);
+                holderOut.timeTv = (TextView) view.findViewById(R.id.listitem_chat_log_out_time_tv);
                 holder = holderOut;
                 break;
 
             default:
                 ViewHolderNeutral holderNeu = new ViewHolderNeutral();
-                holderNeu.text = (TextView) view.findViewById(R.id.listitem_chat_log_neutral_tv);
+                holderNeu.textTv = (TextView) view.findViewById(R.id.listitem_chat_log_neutral_tv);
+                holderNeu.timeTv = (TextView) view.findViewById(R.id.listitem_chat_log_neutral_time_tv);
                 holder = holderNeu;
         }
 
@@ -164,16 +148,21 @@ public class ChatLogAdapter extends BaseAdapter {
 
     public static class ViewHolderIn extends ViewHolder {
 
-        TextView text;
+        TextView textTv;
+        TextView commandTv;
+        TextView timeTv;
     }
 
     public static class ViewHolderOut extends ViewHolder {
 
-        TextView text;
+        TextView textTv;
+        TextView commandTv;
+        TextView timeTv;
     }
 
     public static class ViewHolderNeutral extends ViewHolder {
 
-        TextView text;
+        TextView textTv;
+        TextView timeTv;
     }
 }

@@ -1,5 +1,9 @@
 package com.boetchain.bitcoinnode.model.Message;
 
+import android.content.Context;
+
+import com.boetchain.bitcoinnode.R;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -78,6 +82,11 @@ public class AlertMessage extends BaseMessage {
     @Override
     public String getCommandName() {
         return COMMAND_NAME;
+    }
+
+    @Override
+    public String getHumanReadableCommand(Context context) {
+        return context.getString(R.string.command_alert_message_1);
     }
 
     @Override

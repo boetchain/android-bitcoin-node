@@ -1,5 +1,9 @@
 package com.boetchain.bitcoinnode.model.Message;
 
+import android.content.Context;
+
+import com.boetchain.bitcoinnode.R;
+
 /**
  * Created by rossbadenhorst on 2018/02/07.
  */
@@ -22,6 +26,11 @@ public class CompctBlockMessage extends BaseMessage {
     @Override
     public String getCommandName() {
         return COMMAND_NAME;
+    }
+
+    @Override
+    public String getHumanReadableCommand(Context context) {
+        return context.getString(R.string.command_compct_block_message_1);
     }
 
     @Override

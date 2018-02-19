@@ -1,5 +1,8 @@
 package com.boetchain.bitcoinnode.model.Message;
 
+import android.content.Context;
+
+import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
 
 import java.net.InetAddress;
@@ -39,6 +42,11 @@ public class AddrMessage extends BaseMessage {
     @Override
     public String getCommandName() {
         return COMMAND_NAME;
+    }
+
+    @Override
+    public String getHumanReadableCommand(Context context) {
+        return context.getString(R.string.command_addr_message_1);
     }
 
     @Override

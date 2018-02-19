@@ -9,6 +9,7 @@
     <color name="transparent">#00ffffff</color>
     <color name="text_light_grey">#717171</color>
 
+    <color name="chat_command_text">#c7c7c7</color>
     <color name="chat_log_bg_in">@color/colorPrimary</color>
     <color name="chat_log_bg_out">#717171</color>
     <color name="chat_log_bg_neutral">#0089bf</color>
