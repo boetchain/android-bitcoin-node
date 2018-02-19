@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.MenuItem;
+import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -38,6 +39,11 @@ public class PeerChatActivity extends BaseActivity {
     private ListView listView;
     private ChatLogAdapter adapter;
     private List<ChatLog> logs;
+
+    /**
+     * True if the user has scrolled to the bottom of the listview
+     */
+    private boolean atBottom;
 
     private BroadcastReceiver logReceiver = new BroadcastReceiver() {
         @Override
@@ -72,6 +78,19 @@ public class PeerChatActivity extends BaseActivity {
             }
 
             listView = (ListView) findViewById(R.id.activity_main_log_lv);
+            listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(AbsListView absListView, int i) {}
+
+                @Override
+                public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                    if (firstVisibleItem + visibleItemCount == totalItemCount) {
+                        atBottom = true;
+                    } else {
+                        atBottom = false;
+                    }
+                }
+            });
             logs = new ArrayList();
             adapter = new ChatLogAdapter(this, logs);
             listView.setAdapter(adapter);
@@ -81,9 +100,9 @@ public class PeerChatActivity extends BaseActivity {
     private void logToUI(ChatLog log) {
         logs.add(log);
         adapter.notifyDataSetChanged();
-        listView.setSelection(adapter.getCount() - 1);
-        if (listView.getSelectedItemPosition() == listView.getCount() - 2) {
 
+        if (atBottom) {
+            listView.setSelection(adapter.getCount() - 1);
         }
     }
 
@@ -103,6 +122,7 @@ public class PeerChatActivity extends BaseActivity {
         IntentFilter intent = new IntentFilter(getBroadcastAction());
         registerReceiver(logReceiver, intent);
 
+        //todo 
         for (int i = 0; i < 25; i++) {
             logs.add(new ChatLog("text", "cmd", System.currentTimeMillis(), new Random().nextInt(3)));
         }
