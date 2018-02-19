@@ -6,13 +6,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -21,6 +27,7 @@ import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.ui.adapter.PeerAdapter;
 import com.boetchain.bitcoinnode.ui.adapter.StatusAdapter;
+import com.boetchain.bitcoinnode.ui.view.DrawerHeaderView;
 import com.boetchain.bitcoinnode.util.Lawg;
 import com.boetchain.bitcoinnode.worker.broadcaster.PeerBroadcaster;
 import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
@@ -28,7 +35,25 @@ import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Created by Ross Badenhorst.
+ */
 public class MainActivity extends BaseActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
+
+    /**
+     * The number of actual menu items in the drawer menu EXCLUDING header and footer items
+     */
+    public static int DRAWER_MENU_SIZE = 1;
+
+    /**
+     * These are the indexes of menu items in the drawer nav
+     */
+    public static final int DRAWER_POS_ABOUT = 0;
+
+    private String[] drawerItems;
+    private DrawerLayout drawerLayout;
+    private ListView drawerList;
+    private ActionBarDrawerToggle drawerToggle;
 
     /**
      * Gets this shit on the road...
@@ -59,10 +84,65 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     private List<String> statusMessages = new ArrayList<>();
 
+    /**
+     * Listens for broadcasts from other parts of the app.
+     */
+    private BroadcastReceiver localBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String intentAction = intent.getAction();
+
+            if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_STARTING)) {
+                setStatusUpdate(getString(R.string.activity_main_status_find_seeds_start));
+            }
+
+            if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE)) {
+                int peersFoundFromDnsSeeds = intent.getParcelableArrayListExtra(PeerBroadcaster.KEY_PEERS).size();
+                setStatusUpdate(getString(R.string.activity_main_status_find_seeds_complete).replace("{:value}", "" +peersFoundFromDnsSeeds));
+            }
+
+            if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_CONNECTION_ATTEMPT)) {
+                String peerAddress = ((Peer)intent.getParcelableExtra(PeerBroadcaster.KEY_PEER)).address;
+                setStatusUpdate(getString(R.string.activity_main_status_connect_to_peer).replace("{:value}", peerAddress));
+            }
+
+            if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_CONNECTED)) {
+                refreshPeers(peerManagementService.getConnectedPeers());
+            }
+
+            if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_DISCONNECTED)) {
+                refreshPeers(peerManagementService.getConnectedPeers());
+            }
+        }
+    };
+
+    /**
+     * Allows us to make comms with the PeerManagement Service
+     */
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            Lawg.i("onServiceConnected");
+            PeerManagementService.LocalBinder binder = (PeerManagementService.LocalBinder) iBinder;
+            peerManagementService = binder.getService();
+
+            refreshPeers(peerManagementService.getConnectedPeers());
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+
+        }
+    };
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        constructDrawerMenu();
+        setupDrawerUI();
 
         activity_main_gobaby_btn = findViewById(R.id.activity_main_gobaby_btn);
         activity_main_log_lv = findViewById(R.id.activity_main_log_lv);
@@ -77,53 +157,73 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         activity_main_gobaby_btn.setOnClickListener(this);
         activity_main_log_lv.setOnItemClickListener(this);
+
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
-
-        unbindService(serviceConnection);
+    private void constructDrawerMenu() {
+        drawerItems = new String[DRAWER_MENU_SIZE];
+        drawerItems[DRAWER_POS_ABOUT] = getString(R.string.activity_main_drawer_item_about);
     }
 
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
+    private void setupDrawerUI() {
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerList = (ListView) findViewById(R.id.left_drawer);
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_STARTING);
-        filter.addAction(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE);
-        filter.addAction(PeerBroadcaster.ACTION_PEER_CONNECTION_ATTEMPT);
-        filter.addAction(PeerBroadcaster.ACTION_PEER_CONNECTED);
-        filter.addAction(PeerBroadcaster.ACTION_PEER_DISCONNECTED);
-        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, filter);
+        DrawerHeaderView headerView = new DrawerHeaderView(this);
+        drawerList.addHeaderView(headerView.getView(), null, false);
 
-        Intent intent = new Intent(this, PeerManagementService.class);
-        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-    }
+        // Set the adapter for the list view
+        drawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, drawerItems));
+        // Set the list's click listener
+        drawerList.setOnItemClickListener(new DrawerItemClickListener());
 
-    @Override
-    public void onClick(View view) {
-        switch(view.getId()) {
-            case R.id.activity_main_gobaby_btn:
-                Intent serviceIntent = new Intent(MainActivity.this, PeerManagementService.class);
-                MainActivity.this.startService(serviceIntent);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
+                R.string.activity_main_drawer_open, R.string.activity_main_drawer_close) {
 
-                Animation startRotateAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
-                activity_main_logo_iv.startAnimation(startRotateAnimation);
-                activity_main_gobaby_btn.setVisibility(View.GONE);
-                break;
-        }
-    }
+            /* Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
 
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            /* Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
 
-        Intent intent = new Intent(this, PeerChatActivity.class);
-        intent.putExtra(PeerChatActivity.EXTRA_PEER, peers.get(i));
-        startActivity(intent);
+        // Set the drawer toggle as the DrawerListener
+        drawerLayout.setDrawerListener(drawerToggle);
+
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                drawerLayout,         /* DrawerLayout object */
+                R.string.activity_main_drawer_open,  /* "open drawer" description */
+                R.string.activity_main_drawer_close  /* "close drawer" description */
+        ) {
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+
+            }
+        };
+
+        // Set the drawer toggle as the DrawerListener
+        drawerLayout.setDrawerListener(drawerToggle);
     }
 
     /**
@@ -169,55 +269,118 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         statusAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    public void onClick(View view) {
+        switch(view.getId()) {
+            case R.id.activity_main_gobaby_btn:
+                Intent serviceIntent = new Intent(MainActivity.this, PeerManagementService.class);
+                MainActivity.this.startService(serviceIntent);
+
+                Animation startRotateAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
+                activity_main_logo_iv.startAnimation(startRotateAnimation);
+                activity_main_gobaby_btn.setVisibility(View.GONE);
+                break;
+        }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+        Intent intent = new Intent(this, PeerChatActivity.class);
+        intent.putExtra(PeerChatActivity.EXTRA_PEER, peers.get(i));
+        startActivity(intent);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Pass the event to ActionBarDrawerToggle, if it returns
+        // true, then it has handled the app icon touch event
+        if (drawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        // Handle your other action bar items...
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
+
+        unbindService(serviceConnection);
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_STARTING);
+        filter.addAction(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE);
+        filter.addAction(PeerBroadcaster.ACTION_PEER_CONNECTION_ATTEMPT);
+        filter.addAction(PeerBroadcaster.ACTION_PEER_CONNECTED);
+        filter.addAction(PeerBroadcaster.ACTION_PEER_DISCONNECTED);
+        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, filter);
+
+        Intent intent = new Intent(this, PeerManagementService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    /* Called whenever we call invalidateOptionsMenu() */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // If the nav drawer is open, hide action items related to the content view
+        boolean drawerOpen = drawerLayout.isDrawerOpen(drawerList);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
+    }
+
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            selectItem(position);
+        }
+    }
+
     /**
-     * Allows us to make comms with the PeerManagement Service
+     * Called when a user clicks on a draw nav menu item
+     *
+     * @param position
      */
-    private ServiceConnection serviceConnection = new ServiceConnection() {
+    private void selectItem(int position) {
 
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            Lawg.i("onServiceConnected");
-            PeerManagementService.LocalBinder binder = (PeerManagementService.LocalBinder) iBinder;
-            peerManagementService = binder.getService();
+        // We take into account headers and footers using this integer
+        int diff = drawerList.getCount() - DRAWER_MENU_SIZE;
 
-            refreshPeers(peerManagementService.getConnectedPeers());
+        Lawg.i("asdf count: " + drawerList.getCount());
+        Lawg.i("asdf position: " + position);
+        Lawg.i("asdf diff: " + diff);
+        switch (position - diff) {
+
+            case DRAWER_POS_ABOUT:
+                startActivity(new Intent(this, AboutActivity.class));
+                break;
         }
 
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-
-        }
-    };
-
-    /**
-     * Listens for broadcasts from other parts of the app.
-     */
-    private BroadcastReceiver localBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String intentAction = intent.getAction();
-
-            if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_STARTING)) {
-                setStatusUpdate(getString(R.string.activity_main_status_find_seeds_start));
-            }
-
-            if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE)) {
-                int peersFoundFromDnsSeeds = intent.getParcelableArrayListExtra(PeerBroadcaster.KEY_PEERS).size();
-                setStatusUpdate(getString(R.string.activity_main_status_find_seeds_complete).replace("{:value}", "" +peersFoundFromDnsSeeds));
-            }
-
-            if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_CONNECTION_ATTEMPT)) {
-                String peerAddress = ((Peer)intent.getParcelableExtra(PeerBroadcaster.KEY_PEER)).address;
-                setStatusUpdate(getString(R.string.activity_main_status_connect_to_peer).replace("{:value}", peerAddress));
-            }
-
-            if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_CONNECTED)) {
-                refreshPeers(peerManagementService.getConnectedPeers());
-            }
-
-            if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_DISCONNECTED)) {
-                refreshPeers(peerManagementService.getConnectedPeers());
-            }
-        }
-    };
+        drawerLayout.closeDrawer(drawerList);
+    }
 }
