@@ -7,6 +7,7 @@
     <string name="activity_main_status_connect_to_peer">Trying to connect to a china here\n{:value}</string>
     <string name="activity_main_drawer_open">Drawer Open</string>
     <string name="activity_main_drawer_close">Drawer Closed</string>
+    <string name="activity_main_drawer_item_about">About</string>
 
     <string name="error_cant_find_peers">Can\'t find peers</string>
     <string name="error_peer_not_found">Peer not found</string>

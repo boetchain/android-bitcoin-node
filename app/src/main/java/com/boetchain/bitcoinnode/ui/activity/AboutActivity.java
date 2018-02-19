@@ -4,6 +4,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -21,11 +22,25 @@ public class AboutActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         activity_about_version_tv = findViewById(R.id.activity_about_version_tv);
         try {
             activity_about_version_tv.setText(activity_about_version_tv.getText().toString().replace("{:version}", this.getPackageManager().getPackageInfo(this.getPackageName(), 0).versionName));
         } catch (PackageManager.NameNotFoundException e) {
             activity_about_version_tv.setVisibility(View.INVISIBLE);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

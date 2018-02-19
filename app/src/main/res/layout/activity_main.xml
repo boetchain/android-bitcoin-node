@@ -1,43 +1,24 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.boetchain.bitcoinnode.ui.activity.MainActivity">
+    android:layout_height="match_parent">
+    <!-- The main content view -->
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include layout="@layout/activity_main_layout" />
+
+    </FrameLayout>
 
     <ListView
-        android:id="@+id/activity_main_log_lv"
+        android:id="@+id/left_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
+        android:layout_gravity="start"
+        android:background="@color/white"
         />
 
-    <ImageView
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="50dp"
-        android:src="@mipmap/logo"
-        android:visibility="visible"
-        android:id="@+id/activity_main_logo_iv"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/activity_main_logo_iv"
-        android:layout_centerHorizontal="true"
-        style="@style/about_main_btn_go"
-        android:text="@string/activity_main_start_service_button"
-        android:id="@+id/activity_main_gobaby_btn"/>
-
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:divider="@color/transparent"
-        android:dividerHeight="0dp"
-        android:visibility="gone"
-        android:layout_below="@id/activity_main_logo_iv"
-        android:id="@+id/activity_main_status_lv"/>
-
-</RelativeLayout>
+</android.support.v4.widget.DrawerLayout>
