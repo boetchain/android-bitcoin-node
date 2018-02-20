@@ -66,7 +66,10 @@ public class PeerAdapter extends BaseAdapter {
         holder.ipTextView.setText(peer.address);
         int gmtOffSet = 0;
         holder.timestampTextView.setText(DateUtils.getRelativeTimeSpanString(peer.timestamp + gmtOffSet, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS, 0));
-        holder.listitem_peer_status_tv.setText(peer.country);
+        String status = holder.listitem_peer_status_tv.getText().toString();
+        status.replace("{:city}", peer.city);
+        status.replace("{:country}", peer.country);
+        holder.listitem_peer_status_tv.setText(status);
 
         return view;
     }
