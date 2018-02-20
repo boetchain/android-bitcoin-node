@@ -72,7 +72,7 @@ public class PeerCommunicatorThread extends BaseThread {
                 peer.save();
 
 
-                onPeerConencted();
+                onPeerConnected();
                 handlePeerMessages(socket.getOutputStream(), socket.getInputStream());
             } else {
                 // Called when the connection has failed (often the connection isn't live yet)
@@ -96,13 +96,15 @@ public class PeerCommunicatorThread extends BaseThread {
      * Lets everyone know we are trying to connect to a peer.
      */
     private void onPeerConnectionAttempt() {
+
         broadcaster.broadcast(PeerBroadcaster.ACTION_PEER_CONNECTION_ATTEMPT);
     }
 
     /**
      * Lets every one know we have a connection with this peer.
      */
-    private void onPeerConencted() {
+    private void onPeerConnected() {
+
         broadcaster.broadcast(PeerBroadcaster.ACTION_PEER_CONNECTED);
     }
 
@@ -165,12 +167,14 @@ public class PeerCommunicatorThread extends BaseThread {
                 broadcaster.broadcastLog("Failed to establish connection", ChatLog.TYPE_NEUTRAL);
                 Lawg.e("Failed to establish connection");
                 success = false;
+                onPeerDisconnected();
             }
 
             return success;
         } catch (IOException e) {
             broadcaster.broadcastLog("Failed to establish connection", ChatLog.TYPE_NEUTRAL);
             Lawg.e("Failed to establish connection");
+            onPeerDisconnected();
             return false;
         }
     }
@@ -473,6 +477,10 @@ public class PeerCommunicatorThread extends BaseThread {
     public boolean isSocketConnected() {
 
         return socket != null && socket.isConnected();
+    }
+
+    public void setStayConnected(boolean connected) {
+        stayConnected = connected;
     }
 
     public Peer getPeer() {

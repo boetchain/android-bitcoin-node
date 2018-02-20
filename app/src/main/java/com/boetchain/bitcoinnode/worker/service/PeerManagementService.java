@@ -34,11 +34,8 @@ public class PeerManagementService extends Service {
     /**
      * Max number of connections we want to maintain with peers
      */
-    public static final int MAX_CONNECTIONS = 1;
-    /**
-     * How many connections are currently active.
-     */
-    private int numberOfActiveConnections = 0;
+    public static final int MAX_CONNECTIONS = 4;
+
     /**
      * All the peers we currently have in the pool.
      */
@@ -92,11 +89,33 @@ public class PeerManagementService extends Service {
     private void findPeersAndConnect() {
 
         peerPool = Peer.getPeerPool();
+
+        removeConnectedPeersFromPool();
+
         if (peerPool.size() == 0) {
             startDnsSeedDiscovery();
         } else {
             disconnectFromPeers();
-            connectToPeers();
+            connectToNextPeer();
+        }
+    }
+
+    /**
+     * Removes all peers that are connected from the peer pool
+     *
+     */
+    private void removeConnectedPeersFromPool() {
+
+        List<Peer> connectedPeers = getConnectedPeers();
+
+        for (int i = 0; i < connectedPeers.size(); i++) {
+
+            for (int j = 0; j < peerPool.size(); j++) {
+                if (peerPool.get(j).address.equals(connectedPeers.get(i).address)) {
+                    peerPool.remove(j);
+                    break;
+                }
+            }
         }
     }
 
@@ -105,6 +124,7 @@ public class PeerManagementService extends Service {
      * Just to be sure when the app starts we make all the peers disconnected.
      */
     private void disconnectFromPeers() {
+        Lawg.i("DISCONNECT FROM PEERS");
         for (Peer peer : peerPool) {
             if (peer.connected) {
                 peer.connected = false;
@@ -126,22 +146,31 @@ public class PeerManagementService extends Service {
     }
 
     /**
-     * Starts threads to start connecting to peers.
+     * Attepts to connect to a peer in the peer pool list
      */
-    private void connectToPeers() {
+    private void connectToNextPeer() {
 
-        int numberOfConnectionsNeeded = MAX_CONNECTIONS - numberOfActiveConnections;
-        Lawg.i("Starting " + numberOfConnectionsNeeded + " new connections");
-        for (int i = 0; i < numberOfConnectionsNeeded; i++) {
+        if (getConnectedPeers().size() < MAX_CONNECTIONS) {
+
+            Lawg.i("connectingToPeers");
             Peer peerToConnectTo = findPeerToConnectTo();
+
             if (peerToConnectTo != null) {
+
                 PeerCommunicatorThread thread = new PeerCommunicatorThread(this, peerToConnectTo);
                 peerCommunicatorThreads.add(thread);
                 thread.start();
+
             } else {
+
                 Lawg.e("No peers to connect to...");
                 startDnsSeedDiscovery();
             }
+
+        } else {
+
+            Lawg.e("No peers to connect to...");
+            startDnsSeedDiscovery();
         }
     }
 
@@ -170,7 +199,6 @@ public class PeerManagementService extends Service {
      * @return - a peer we can connect to.
      */
     private Peer findPeerToConnectTo() {
-        peerPool = Peer.getPeerPool();
 
         for (int i = 0; i < peerPool.size(); i++) {
             Peer peer  = peerPool.get(i);
@@ -185,11 +213,10 @@ public class PeerManagementService extends Service {
     private void killPeerCommunicatorThreads() {
 
         for (int i = 0; i < peerCommunicatorThreads.size(); i++) {
+            peerCommunicatorThreads.get(i).setStayConnected(false);
             peerCommunicatorThreads.get(i).interrupt();
         }
     }
-
-
 
     @Override
     public void onDestroy() {
@@ -238,20 +265,48 @@ public class PeerManagementService extends Service {
         public void onReceive(Context context, Intent intent) {
 
             if (intent.getAction().equalsIgnoreCase(ACTION_DNS_SEED_DISCOVERY_COMPLETE)) {
-                connectToPeers();
+                connectToNextPeer();
             }
 
             if (intent.getAction().equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_CONNECTED)) {
-                numberOfActiveConnections++;
-                Lawg.i("Peer connected: " + numberOfActiveConnections);
+                Lawg.i("Peer connected: ");
+
+                Peer connectedPeer = intent.getParcelableExtra(PeerBroadcaster.KEY_PEER);
+
+                for (Peer peer : peerPool) {
+                    if (peer.address.equals(connectedPeer.address)) {
+                        peerPool.remove(peer);
+                        Lawg.i("remove connected peer: " + connectedPeer.address);
+                        break;
+                    }
+                }
+
+                connectToNextPeer();
             }
 
             if (intent.getAction().equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_DISCONNECTED)) {
-                if (numberOfActiveConnections > 0) {
-                    numberOfActiveConnections--;// Only minus connects if we have any...
+
+                Peer disconnectedPeer = intent.getParcelableExtra(PeerBroadcaster.KEY_PEER);
+
+                for (PeerCommunicatorThread thread : peerCommunicatorThreads) {
+                    if (thread.getPeer().address.equals(disconnectedPeer.address)) {
+                        Lawg.i("remove thread: " + thread.getPeer().address);
+                        peerCommunicatorThreads.remove(thread);
+                        break;
+                    }
                 }
-                Lawg.i("Peer disconnected: " + numberOfActiveConnections);
-                connectToPeers();
+
+                for (Peer peer : peerPool) {
+                    if (peer.address.equals(disconnectedPeer.address)) {
+                        peerPool.remove(peer);
+                        Lawg.i("remove disconnected peer: " + disconnectedPeer.address);
+                        break;
+                    }
+                }
+
+                Lawg.i("Peer disconnected: " + disconnectedPeer.address);
+                //todo remove from connected thread list
+                connectToNextPeer();
             }
         }
     };
