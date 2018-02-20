@@ -14,6 +14,7 @@ import com.boetchain.bitcoinnode.App;
 import com.boetchain.bitcoinnode.model.ChatLog;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.util.Lawg;
+import com.boetchain.bitcoinnode.util.UserPreferences;
 import com.boetchain.bitcoinnode.worker.broadcaster.PeerBroadcaster;
 import com.boetchain.bitcoinnode.worker.thread.DnsSeedDiscoveryThread;
 import com.boetchain.bitcoinnode.worker.thread.PeerCommunicatorThread;
@@ -195,6 +196,8 @@ public class PeerManagementService extends Service {
     @Override
     public void onDestroy() {
         Lawg.i("onDestroy");
+
+
 
         Intent dnsSeedDiscoveryCompleteIntent = new Intent(PeerManagementService.ACTION_SERVICE_DESTROYED);
         LocalBroadcastManager.getInstance(this).sendBroadcast(dnsSeedDiscoveryCompleteIntent);

@@ -30,6 +30,7 @@ import com.boetchain.bitcoinnode.ui.adapter.PeerAdapter;
 import com.boetchain.bitcoinnode.ui.adapter.StatusAdapter;
 import com.boetchain.bitcoinnode.ui.view.DrawerHeaderView;
 import com.boetchain.bitcoinnode.util.Lawg;
+import com.boetchain.bitcoinnode.util.UserPreferences;
 import com.boetchain.bitcoinnode.worker.broadcaster.PeerBroadcaster;
 import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
 
@@ -156,6 +157,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        isPeerServiceRunning = UserPreferences.getBoolean(this, UserPreferences.PEER_MANAGEMENT_SERVICE_ON, false);
+
         constructDrawerMenu();
         setupDrawerUI();
 
@@ -186,8 +189,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerList = (ListView) findViewById(R.id.left_drawer);
 
-        //todo set this to the correct values
-        headerView = new DrawerHeaderView(this, false, 0);
+        headerView = new DrawerHeaderView(this, isPeerServiceRunning, 0);
         headerView.setOnServiceChangeListener(this);
         drawerList.addHeaderView(headerView.getView(), null, false);
 
@@ -409,6 +411,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     private void startPeerService() {
 
+        UserPreferences.setBoolean(this, UserPreferences.PEER_MANAGEMENT_SERVICE_ON, true);
         headerView.setSwitching(false);
         bindPeerService();
         startService(new Intent(this, PeerManagementService.class));
@@ -416,6 +419,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     private void stopPeerService() {
 
+        UserPreferences.setBoolean(this, UserPreferences.PEER_MANAGEMENT_SERVICE_ON, false);
         unbindPeerService();
         stopService(new Intent(this, PeerManagementService.class));
     }
@@ -481,7 +485,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
 
-        //todo in onCreate, check if the peer service is running
         if (isPeerServiceRunning) {
             unbindPeerService();
         }
