@@ -14,7 +14,6 @@ import com.boetchain.bitcoinnode.App;
 import com.boetchain.bitcoinnode.model.ChatLog;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.util.Lawg;
-import com.boetchain.bitcoinnode.util.UserPreferences;
 import com.boetchain.bitcoinnode.worker.broadcaster.PeerBroadcaster;
 import com.boetchain.bitcoinnode.worker.thread.DnsSeedDiscoveryThread;
 import com.boetchain.bitcoinnode.worker.thread.PeerCommunicatorThread;
@@ -67,8 +66,6 @@ public class PeerManagementService extends Service {
 
             Lawg.i("Bitcoin Service Starting...");
 
-            Peer.deleteAll(Peer.class);
-
             LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_DNS_SEED_DISCOVERY_COMPLETE));
             LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_SERVICE_STARTED));
             LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_SERVICE_DESTROYED));
@@ -78,7 +75,7 @@ public class PeerManagementService extends Service {
             findPeersAndConnect();
         } else {
 
-            if (getConnectedPeers().size() <= 0) {
+            if (getConnectedPeers().size() < MAX_CONNECTIONS) {
                 findPeersAndConnect();
             }
         }
@@ -94,6 +91,7 @@ public class PeerManagementService extends Service {
      */
     private void findPeersAndConnect() {
 
+        peerPool = Peer.getPeerPool();
         if (peerPool.size() == 0) {
             startDnsSeedDiscovery();
         } else {
@@ -196,8 +194,6 @@ public class PeerManagementService extends Service {
     @Override
     public void onDestroy() {
         Lawg.i("onDestroy");
-
-
 
         Intent dnsSeedDiscoveryCompleteIntent = new Intent(PeerManagementService.ACTION_SERVICE_DESTROYED);
         LocalBroadcastManager.getInstance(this).sendBroadcast(dnsSeedDiscoveryCompleteIntent);
