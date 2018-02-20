@@ -49,7 +49,7 @@ public class PeerCommunicatorThread extends BaseThread {
     }
 
     @Override
-    public void run() {
+    public void runThread() {
         onPeerConnectionAttempt();
 
         socket = new Socket();

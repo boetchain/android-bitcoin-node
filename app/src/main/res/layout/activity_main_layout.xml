@@ -13,31 +13,38 @@
         />
 
     <ImageView
+        android:id="@+id/activity_main_logo_iv"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="50dp"
-        android:src="@mipmap/logo"
+        android:layout_marginTop="51dp"
+        android:src="@drawable/shape_circle_primary"
         android:visibility="visible"
-        android:id="@+id/activity_main_logo_iv"/>
+        />
 
-    <Button
+    <TextView
+        android:id="@+id/activity_main_start_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/activity_main_logo_iv"
-        android:layout_centerHorizontal="true"
-        style="@style/about_main_btn_go"
         android:text="@string/activity_main_start_service_button"
-        android:id="@+id/activity_main_gobaby_btn"/>
+        android:layout_centerHorizontal="true"
+        android:textSize="32dp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:layout_alignTop="@id/activity_main_logo_iv"
+        android:layout_marginTop="55dp"
+        />
 
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:divider="@color/transparent"
         android:dividerHeight="0dp"
         android:visibility="gone"
         android:layout_below="@id/activity_main_logo_iv"
+        android:layout_marginTop="8dp"
         android:id="@+id/activity_main_status_lv"/>
+
+
 
 </RelativeLayout>
