@@ -194,6 +194,6 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
     @Override
     public int compareTo(@NonNull Peer peer) {
 
-        return (int) (this.timestamp - peer.timestamp);
+        return (int) (peer.timestamp - this.timestamp);
     }
 }
