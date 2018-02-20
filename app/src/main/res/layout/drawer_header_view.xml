@@ -1,17 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:paddingTop="12dp"
+    android:paddingLeft="12dp"
+    android:paddingRight="12dp"
+    >
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/colorPrimary"
-        android:text="HEEEEEADER"
-        android:padding="55dp"
+    <ImageView
+        android:id="@+id/drawer_header_view_logo_iv"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginEnd="12dp"
+        android:src="@mipmap/logo"
         />
 
-    <!-- todo add buttons to turn NODE one and off -->
+    <TextView
+        android:id="@+id/drawer_header_view_status_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/drawer_header_view_logo_iv"
+        android:textColor="@color/black"
+        android:textSize="16dp"
+        tools:text="Status: ON"
+        />
 
+    <TextView
+        android:id="@+id/drawer_header_view_connected_peers_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/drawer_header_view_logo_iv"
+        android:layout_below="@id/drawer_header_view_status_tv"
+        android:textColor="@color/text_light_grey"
+        android:textSize="12dp"
+        tools:text="Connected Peers: 22"
+        />
+
+    <Switch
+        android:id="@+id/drawer_header_view_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider_grey"
+        android:layout_below="@id/drawer_header_view_logo_iv"
+        android:layout_marginTop="12dp"
+        />
 </RelativeLayout>
