@@ -159,6 +159,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         isPeerServiceRunning = UserPreferences.getBoolean(this, UserPreferences.PEER_MANAGEMENT_SERVICE_ON, false);
 
+        //Lets make sure the service is running
+        if (isPeerServiceRunning) {
+            restartPeerService();
+        }
+
         constructDrawerMenu();
         setupDrawerUI();
 
@@ -417,6 +422,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         startService(new Intent(this, PeerManagementService.class));
     }
 
+    /**
+     * Call this to make sure the peer service is running
+     */
+    private void restartPeerService() {
+        startService(new Intent(this, PeerManagementService.class));
+    }
+
     private void stopPeerService() {
 
         UserPreferences.setBoolean(this, UserPreferences.PEER_MANAGEMENT_SERVICE_ON, false);
@@ -509,7 +521,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         headerView.setStatus(isPeerServiceRunning);
         if (isPeerServiceRunning) {
 
-            hideStartAndLoadingButton();
+            //We want to show the user that the peers are being loaded
+            if (peers.size() <= 0) {
+                showLoadingButton();
+                animateStartButtonGrow();
+            } else {
+                hideStartAndLoadingButton();
+            }
+
             bindPeerService();
         } else {
 
