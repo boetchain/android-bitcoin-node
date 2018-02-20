@@ -1,6 +1,7 @@
 package com.boetchain.bitcoinnode.ui.adapter;
 
 import android.content.Context;
+import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -62,7 +63,8 @@ public class PeerAdapter extends BaseAdapter {
         }
 
         holder.ipTextView.setText(peer.address);
-        holder.timestampTextView.setText(peer.timestamp + "");
+        int gmtOffSet = 0;
+        holder.timestampTextView.setText(DateUtils.getRelativeTimeSpanString(peer.timestamp + gmtOffSet, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS, 0));
 
         return view;
     }
