@@ -71,6 +71,12 @@ public class PeerAdapter extends BaseAdapter {
         return view;
     }
 
+    /**
+     * Displays the status of the peer (a little bit of text under the ip).
+     * Lets the user know whats happening with the peer.
+     * @param holder - view holder.
+     * @param peer - peer to display a status of.
+     */
     private void setPeerStatus(ViewHolder holder, Peer peer) {
         if (!peer.country.isEmpty() && !peer.city.isEmpty()) {
             String status = context.getString(R.string.listitem_peer_status);
