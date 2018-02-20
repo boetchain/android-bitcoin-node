@@ -19,7 +19,8 @@ public class GetExternalIpThread extends BaseThread implements Response.Listener
     }
 
     @Override
-    public void run() {
+    public void runThread() {
+
         GETExternalIpRequest getExternalIpRequest = new GETExternalIpRequest(context, this, this);
         requestQueue.add(getExternalIpRequest);
     }

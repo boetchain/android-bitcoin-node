@@ -50,6 +50,8 @@ public class PeerManagementService extends Service {
      */
     private final IBinder binder = new LocalBinder();
 
+    private DnsSeedDiscoveryThread dnsSeedDiscoveryThread;
+
     private List<PeerCommunicatorThread> peerCommunicatorThreads = new ArrayList();
 
     @Override
@@ -108,9 +110,13 @@ public class PeerManagementService extends Service {
 
     /**
      * Starts the look up process to find initial peers or seeds to connect to.
+     * We only want one of these running at a time.
      */
     private void startDnsSeedDiscovery() {
-        new DnsSeedDiscoveryThread(this).start();
+        if (dnsSeedDiscoveryThread != null && !dnsSeedDiscoveryThread.isRunning()) {
+            dnsSeedDiscoveryThread = new DnsSeedDiscoveryThread(this);
+            dnsSeedDiscoveryThread.start();
+        }
     }
 
     /**

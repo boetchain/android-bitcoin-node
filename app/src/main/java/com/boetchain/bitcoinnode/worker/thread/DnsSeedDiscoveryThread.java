@@ -28,7 +28,7 @@ public class DnsSeedDiscoveryThread extends BaseThread {
     }
 
     @Override
-    public void run() {
+    public void runThread() {
         LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_STARTING));
 
         ArrayList<Peer> peersFromDnsSeeds = startDnsSeedDiscovery();
