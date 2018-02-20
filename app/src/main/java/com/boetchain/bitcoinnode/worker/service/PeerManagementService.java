@@ -82,7 +82,6 @@ public class PeerManagementService extends Service {
             }
         }
 
-        Lawg.i("asdf send start broadcast");
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(PeerManagementService.ACTION_SERVICE_STARTED));
 
         return START_STICKY;
@@ -94,7 +93,6 @@ public class PeerManagementService extends Service {
      */
     private void findPeersAndConnect() {
 
-        Lawg.i("asdf peerPool: " + peerPool.size());
         if (peerPool.size() == 0) {
             startDnsSeedDiscovery();
         } else {
@@ -192,9 +190,11 @@ public class PeerManagementService extends Service {
         }
     }
 
+
+
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        Lawg.i("onDestroy");
 
         Intent dnsSeedDiscoveryCompleteIntent = new Intent(PeerManagementService.ACTION_SERVICE_DESTROYED);
         LocalBroadcastManager.getInstance(this).sendBroadcast(dnsSeedDiscoveryCompleteIntent);
@@ -207,13 +207,15 @@ public class PeerManagementService extends Service {
         }
 
         new PeerBroadcaster(this, new Peer(App.monitoringPeerIP)).broadcastLogAll("Bitcoin Service Shutting down...", ChatLog.TYPE_NEUTRAL);
-        Lawg.i("onDestroy");
 
         Peer.deleteAll(Peer.class);
 
         killPeerCommunicatorThreads();
 
+        stopSelf();
         isRunning = false;
+
+        super.onDestroy();
     }
 
     /**

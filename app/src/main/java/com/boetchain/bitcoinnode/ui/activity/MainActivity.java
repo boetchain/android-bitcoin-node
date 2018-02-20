@@ -120,13 +120,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             }
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_SERVICE_STARTED)) {
-                Lawg.i("asdf service started");
                 headerView.setStatus(true);
                 isPeerServiceRunning = true;
             }
 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_SERVICE_DESTROYED)) {
-                Lawg.i("asdf service destroyed");
                 headerView.setStatus(false);
                 isPeerServiceRunning = false;
             }
@@ -250,7 +248,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     private void showStartButton() {
 
-        Lawg.i("asdf show that shit");
         statusMessages.clear();
         statusAdapter.notifyDataSetChanged();
 
@@ -280,8 +277,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     private void hideStartAndLoadingButton() {
 
-        //todo remove asdf logs
-        Lawg.i("asdf hide that shit");
         activity_main_start_tv.setVisibility(View.INVISIBLE);
         activity_main_logo_iv.clearAnimation();
         activity_main_logo_iv.setVisibility(View.INVISIBLE);
@@ -379,6 +374,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         activity_main_logo_iv.startAnimation(pulse);
     }
 
+    /**
+     * Starts the PeerManagementService after a delay for the sake of the UI.
+     */
     private void startPeerServiceDelayed() {
 
         headerView.setStatus(true);
@@ -406,22 +404,38 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }).start();
     }
 
+    /**
+     * Binds and starts the PeerManagementService and updates the UI with this information.
+     */
     private void startPeerService() {
 
         headerView.setSwitching(false);
+        bindPeerService();
         startService(new Intent(this, PeerManagementService.class));
     }
 
     private void stopPeerService() {
 
+        unbindPeerService();
         stopService(new Intent(this, PeerManagementService.class));
+    }
+
+    private void bindPeerService() {
+
+        Intent intent = new Intent(this, PeerManagementService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void unbindPeerService() {
+
+        unbindService(serviceConnection);
     }
 
     @Override
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.activity_main_logo_iv:
-                if (peers.size() <= 0) {
+                if (!isPeerServiceRunning) {
                     startPeerServiceDelayed();
                 }
                 break;
@@ -467,7 +481,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
 
-        unbindService(serviceConnection);
+        //todo in onCreate, check if the peer service is running
+        if (isPeerServiceRunning) {
+            unbindPeerService();
+        }
     }
 
     @Override
@@ -484,13 +501,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         filter.addAction(PeerBroadcaster.ACTION_PEER_DISCONNECTED);
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, filter);
 
-        Intent intent = new Intent(this, PeerManagementService.class);
-        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        bindPeerService();
 
         headerView.setStatus(isPeerServiceRunning);
         if (isPeerServiceRunning) {
 
             hideStartAndLoadingButton();
+            bindPeerService();
         } else {
 
             showStartButton();
@@ -510,6 +527,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     }
 
+    /**
+     * When the user clicks the switch button in the nav drawer we call this method and
+     * attempt to turn the service on/off.
+     *
+     * @param on determines whether we are turning the service on or off
+     */
     @Override
     public void onServiceChange(boolean on) {
 
@@ -521,6 +544,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             animateStartButtonShrink();
         } else {
 
+            peers.clear();
             stopPeerService();
             showStartButton();
         }
