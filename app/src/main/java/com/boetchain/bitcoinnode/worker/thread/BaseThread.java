@@ -33,7 +33,6 @@ public abstract class BaseThread extends Thread {
         if (isInterrupted()) {
             isRunning = false;
         }
-
         return isRunning;
     }
 

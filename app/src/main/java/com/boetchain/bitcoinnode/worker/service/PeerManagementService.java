@@ -28,6 +28,8 @@ public class PeerManagementService extends Service {
 
     public static final String ACTION_DNS_SEED_DISCOVERY_STARTING   = "ACTION_DNS_SEED_DISCOVERY_STARTING";
     public static final String ACTION_DNS_SEED_DISCOVERY_COMPLETE   = "ACTION_DNS_SEED_DISCOVERY_COMPLETE";
+    public static final String ACTION_SERVICE_STARTED               = "ACTION_SERVICE_STARTED";
+    public static final String ACTION_SERVICE_DESTROYED             = "ACTION_SERVICE_DESTROYED";
 
     /**
      * Max number of connections we want to maintain with peers
@@ -67,6 +69,8 @@ public class PeerManagementService extends Service {
             Peer.deleteAll(Peer.class);
 
             LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_DNS_SEED_DISCOVERY_COMPLETE));
+            LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_SERVICE_STARTED));
+            LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_SERVICE_DESTROYED));
             LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_CONNECTED));
             LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_DISCONNECTED));
 
@@ -78,6 +82,9 @@ public class PeerManagementService extends Service {
             }
         }
 
+        Lawg.i("asdf send start broadcast");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(PeerManagementService.ACTION_SERVICE_STARTED));
+
         return START_STICKY;
     }
 
@@ -87,6 +94,7 @@ public class PeerManagementService extends Service {
      */
     private void findPeersAndConnect() {
 
+        Lawg.i("asdf peerPool: " + peerPool.size());
         if (peerPool.size() == 0) {
             startDnsSeedDiscovery();
         } else {
@@ -113,7 +121,8 @@ public class PeerManagementService extends Service {
      * We only want one of these running at a time.
      */
     private void startDnsSeedDiscovery() {
-        if (dnsSeedDiscoveryThread != null && !dnsSeedDiscoveryThread.isRunning()) {
+
+        if (dnsSeedDiscoveryThread == null || !dnsSeedDiscoveryThread.isRunning()) {
             dnsSeedDiscoveryThread = new DnsSeedDiscoveryThread(this);
             dnsSeedDiscoveryThread.start();
         }
@@ -186,6 +195,9 @@ public class PeerManagementService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        Intent dnsSeedDiscoveryCompleteIntent = new Intent(PeerManagementService.ACTION_SERVICE_DESTROYED);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(dnsSeedDiscoveryCompleteIntent);
 
         disconnectFromPeers();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);

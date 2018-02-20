@@ -10,6 +10,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Menu;
@@ -38,7 +39,7 @@ import java.util.List;
 /**
  * Created by Ross Badenhorst.
  */
-public class MainActivity extends BaseActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
+public class MainActivity extends BaseActivity implements View.OnClickListener, AdapterView.OnItemClickListener, DrawerHeaderView.OnServiceChangeListener {
 
     /**
      * The number of actual menu items in the drawer menu EXCLUDING header and footer items
@@ -54,6 +55,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private DrawerLayout drawerLayout;
     private ListView drawerList;
     private ActionBarDrawerToggle drawerToggle;
+
+    /**
+     * A header view in the drawer nav listview used to control the PeerService
+     */
+    private DrawerHeaderView headerView;
 
     /**
      * Peer list view, contains peers we are connected to.
@@ -80,6 +86,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      * List of status messages to display to the user.
      */
     private List<String> statusMessages = new ArrayList<>();
+
+    private boolean isPeerServiceRunning = false;
 
     /**
      * Listens for broadcasts from other parts of the app.
@@ -109,6 +117,18 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
             if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_DISCONNECTED)) {
                 refreshPeers(peerManagementService.getConnectedPeers());
+            }
+
+            if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_SERVICE_STARTED)) {
+                Lawg.i("asdf service started");
+                headerView.setStatus(true);
+                isPeerServiceRunning = true;
+            }
+
+            if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_SERVICE_DESTROYED)) {
+                Lawg.i("asdf service destroyed");
+                headerView.setStatus(false);
+                isPeerServiceRunning = false;
             }
         }
     };
@@ -168,7 +188,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerList = (ListView) findViewById(R.id.left_drawer);
 
-        DrawerHeaderView headerView = new DrawerHeaderView(this);
+        //todo set this to the correct values
+        headerView = new DrawerHeaderView(this, false, 0);
+        headerView.setOnServiceChangeListener(this);
         drawerList.addHeaderView(headerView.getView(), null, false);
 
         // Set the adapter for the list view
@@ -228,11 +250,16 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     private void showStartButton() {
 
+        Lawg.i("asdf show that shit");
+        statusMessages.clear();
+        statusAdapter.notifyDataSetChanged();
+
         activity_main_start_tv.setVisibility(View.VISIBLE);
         activity_main_logo_iv.clearAnimation();
         activity_main_logo_iv.setImageDrawable(getResources().getDrawable(R.drawable.shape_circle_primary));
         activity_main_logo_iv.setVisibility(View.VISIBLE);
         activity_main_status_lv.setVisibility(View.VISIBLE);
+        activity_main_log_lv.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -245,6 +272,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         activity_main_logo_iv.setImageDrawable(getResources().getDrawable(R.mipmap.logo));
         activity_main_logo_iv.setVisibility(View.VISIBLE);
         activity_main_status_lv.setVisibility(View.VISIBLE);
+        activity_main_log_lv.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -252,10 +280,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     private void hideStartAndLoadingButton() {
 
+        //todo remove asdf logs
+        Lawg.i("asdf hide that shit");
         activity_main_start_tv.setVisibility(View.INVISIBLE);
         activity_main_logo_iv.clearAnimation();
         activity_main_logo_iv.setVisibility(View.INVISIBLE);
         activity_main_status_lv.setVisibility(View.INVISIBLE);
+        activity_main_log_lv.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -270,12 +301,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         if (updatePeers.size() > 0) {
 
             hideStartAndLoadingButton();
-            activity_main_log_lv.setVisibility(View.VISIBLE);
         }
 
         peers.clear();
         peers.addAll(updatePeers);
         adapter.notifyDataSetChanged();
+
+        headerView.setConnectedPeers(updatePeers.size());
     }
 
     /**
@@ -349,6 +381,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     private void startPeerServiceDelayed() {
 
+        headerView.setStatus(true);
+        headerView.setSwitching(true);
+
+        animateStartButtonShrink();
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -371,8 +408,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     private void startPeerService() {
 
-        Intent serviceIntent = new Intent(MainActivity.this, PeerManagementService.class);
-        MainActivity.this.startService(serviceIntent);
+        headerView.setSwitching(false);
+        startService(new Intent(this, PeerManagementService.class));
+    }
+
+    private void stopPeerService() {
+
+        stopService(new Intent(this, PeerManagementService.class));
     }
 
     @Override
@@ -381,7 +423,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             case R.id.activity_main_logo_iv:
                 if (peers.size() <= 0) {
                     startPeerServiceDelayed();
-                    animateStartButtonShrink();
                 }
                 break;
         }
@@ -436,6 +477,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         IntentFilter filter = new IntentFilter();
         filter.addAction(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_STARTING);
         filter.addAction(PeerManagementService.ACTION_DNS_SEED_DISCOVERY_COMPLETE);
+        filter.addAction(PeerManagementService.ACTION_SERVICE_STARTED);
+        filter.addAction(PeerManagementService.ACTION_SERVICE_DESTROYED);
         filter.addAction(PeerBroadcaster.ACTION_PEER_CONNECTION_ATTEMPT);
         filter.addAction(PeerBroadcaster.ACTION_PEER_CONNECTED);
         filter.addAction(PeerBroadcaster.ACTION_PEER_DISCONNECTED);
@@ -443,6 +486,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         Intent intent = new Intent(this, PeerManagementService.class);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+
+        headerView.setStatus(isPeerServiceRunning);
+        if (isPeerServiceRunning) {
+
+            hideStartAndLoadingButton();
+        } else {
+
+            showStartButton();
+        }
     }
 
     /* Called whenever we call invalidateOptionsMenu() */
@@ -456,6 +508,22 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
 
+    }
+
+    @Override
+    public void onServiceChange(boolean on) {
+
+        openDrawer(false);
+
+        if (on) {
+
+            startPeerService();
+            animateStartButtonShrink();
+        } else {
+
+            stopPeerService();
+            showStartButton();
+        }
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -482,6 +550,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 break;
         }
 
-        drawerLayout.closeDrawer(drawerList);
+        openDrawer(false);
+    }
+
+    public void openDrawer(boolean open) {
+
+        if (open) {
+            drawerLayout.openDrawer(GravityCompat.START);
+        } else {
+            drawerLayout.closeDrawer(drawerList);
+        }
     }
 }

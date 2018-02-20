@@ -33,8 +33,18 @@ import java.util.List;
  */
 public class PeerCommunicatorThread extends BaseThread {
 
+    /**
+     * Keeps track of consecutive message read failures. If no magic bytes are found or
+     * the checksum fails more than MAX_FAILURE_COUNT for consecutive reads, this thread
+     * will be interrupted and the peer removed.
+     */
+    public static final int MAX_FAILURE_COUNT = 10;
+
     private Socket socket;
     private PeerBroadcaster broadcaster;
+
+    private boolean stayConnected = true;
+    private int failureCount = 0;
 
     /**
      * The peer that this thread is making comms with.
@@ -175,7 +185,7 @@ public class PeerCommunicatorThread extends BaseThread {
     private void handlePeerMessages(OutputStream out, InputStream in) throws IOException {
         writeMessage(new GetAddrMessage(), out); // Send out a sneaky getAddress message.
 
-        while (true) {
+        while (stayConnected) {
             BaseMessage message = readMessage(in);
 
             if (message instanceof PingMessage) {
@@ -240,14 +250,29 @@ public class PeerCommunicatorThread extends BaseThread {
             byte[] payload = readPayload(in, payloadSize);
 
             if (checkCheckSum(payload, checkSum)) {
+                failureCount = 0;
                 return constructMessage(header, payload);
             } else {
+
+                failureCount++;
+                checkFailure();
                 Lawg.i("CheckSum failed....");
                 return null;
             }
         } else {
+
+            failureCount++;
+            checkFailure();
             Lawg.i("no magic bytes found....");
             return null;
+        }
+    }
+
+    private void checkFailure() {
+
+        if (failureCount >= MAX_FAILURE_COUNT) {
+            Peer.delete(peer);
+            stayConnected = false;
         }
     }
 
