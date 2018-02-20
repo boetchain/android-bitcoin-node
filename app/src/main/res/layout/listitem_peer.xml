@@ -18,9 +18,8 @@
         android:id="@+id/listitem_peer_ip_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/black"
+        android:textColor="@color/colorPrimary"
         android:textSize="14sp"
-        android:textStyle="bold"
         tools:text="12.51.61:8330"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/listitem_peer_profile_iv" />

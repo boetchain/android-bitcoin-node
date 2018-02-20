@@ -113,7 +113,7 @@ public class PeerManagementService extends Service {
      * We only want one of these running at a time.
      */
     private void startDnsSeedDiscovery() {
-        if (dnsSeedDiscoveryThread != null && !dnsSeedDiscoveryThread.isRunning()) {
+        if (dnsSeedDiscoveryThread == null || !dnsSeedDiscoveryThread.isRunning()) {
             dnsSeedDiscoveryThread = new DnsSeedDiscoveryThread(this);
             dnsSeedDiscoveryThread.start();
         }
