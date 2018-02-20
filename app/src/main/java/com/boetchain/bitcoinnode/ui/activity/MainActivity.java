@@ -112,11 +112,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 setStatusUpdate(getString(R.string.activity_main_status_connect_to_peer).replace("{:value}", peerAddress));
             }
 
-            if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_CONNECTED)) {
+            if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_CONNECTED) && peerManagementService != null) {
                 refreshPeers(peerManagementService.getConnectedPeers());
             }
 
-            if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_DISCONNECTED)) {
+            if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_DISCONNECTED) && peerManagementService != null) {
                 refreshPeers(peerManagementService.getConnectedPeers());
             }
 
