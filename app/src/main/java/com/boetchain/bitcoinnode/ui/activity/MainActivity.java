@@ -157,16 +157,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-
-        if (peers.size() > 0) {
-
-            activity_main_start_tv.setVisibility(View.GONE);
-            activity_main_logo_iv.setImageDrawable(getResources().getDrawable(R.mipmap.logo));
-        } else {
-
-            activity_main_start_tv.setVisibility(View.VISIBLE);
-            activity_main_logo_iv.setImageDrawable(getResources().getDrawable(R.drawable.shape_circle_primary));
-        }
     }
 
     private void constructDrawerMenu() {
@@ -233,17 +223,54 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     /**
+     * Arranges the UI to show the start text and set the circle to the primary color
+     * background and show the status listview
+     */
+    private void showStartButton() {
+
+        activity_main_start_tv.setVisibility(View.VISIBLE);
+        activity_main_logo_iv.clearAnimation();
+        activity_main_logo_iv.setImageDrawable(getResources().getDrawable(R.drawable.shape_circle_primary));
+        activity_main_logo_iv.setVisibility(View.VISIBLE);
+        activity_main_status_lv.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Arranges the UI to hide the start text and set the circle background to
+     * the app logo and to show the status listview
+     */
+    private void showLoadingButton() {
+
+        activity_main_start_tv.setVisibility(View.INVISIBLE);
+        activity_main_logo_iv.setImageDrawable(getResources().getDrawable(R.mipmap.logo));
+        activity_main_logo_iv.setVisibility(View.VISIBLE);
+        activity_main_status_lv.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Arranges the UI to hide the start text, circle background and status listview
+     */
+    private void hideStartAndLoadingButton() {
+
+        activity_main_start_tv.setVisibility(View.INVISIBLE);
+        activity_main_logo_iv.clearAnimation();
+        activity_main_logo_iv.setVisibility(View.INVISIBLE);
+        activity_main_status_lv.setVisibility(View.INVISIBLE);
+    }
+
+    /**
      * Updates the peers in the list view.
      * If there are peers to display, we hide other elements on the screen
      * such as the logo etc.
      * @param updatePeers - list of peers to show the user.
      */
     private void refreshPeers(List<Peer> updatePeers) {
-        if (updatePeers.size() > 0) {
-            activity_main_log_lv.setVisibility(View.VISIBLE);
 
-            activity_main_status_lv.setVisibility(View.GONE);
-            activity_main_logo_iv.setVisibility(View.GONE);
+        Lawg.i("refreshPeers:" + updatePeers.size());
+        if (updatePeers.size() > 0) {
+
+            hideStartAndLoadingButton();
+            activity_main_log_lv.setVisibility(View.VISIBLE);
         }
 
         peers.clear();
@@ -259,19 +286,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     private void setStatusUpdate(String newStatus) {
 
-        if (peers.size() > 0) {
-            activity_main_log_lv.setVisibility(View.VISIBLE);
-
-            activity_main_status_lv.setVisibility(View.GONE);
-            activity_main_logo_iv.setVisibility(View.GONE);
-            activity_main_start_tv.setVisibility(View.GONE);
-        }
-
-
-        activity_main_log_lv.setVisibility(View.GONE);
-        activity_main_logo_iv.setVisibility(View.VISIBLE);
-        activity_main_status_lv.setVisibility(View.VISIBLE);
-
         statusMessages.add(0 , newStatus);
         statusAdapter.notifyDataSetChanged();
     }
@@ -279,7 +293,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     /**
      * Animation to make the red GO button 'shrink' to 0% scale
      */
-    private void animateShrink() {
+    private void animateStartButtonShrink() {
 
         Animation shrink = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.shrink);
         shrink.setAnimationListener(new Animation.AnimationListener() {
@@ -288,10 +302,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                activity_main_start_tv.setVisibility(View.GONE);
-                activity_main_logo_iv.setImageDrawable(getResources().getDrawable(R.mipmap.logo));
+
+                showLoadingButton();
                 activity_main_logo_iv.clearAnimation();
-                animateGrow();
+                animateStartButtonGrow();
             }
 
             @Override
@@ -303,7 +317,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     /**
      * Animation to make the logo 'grow' to 100% scale
      */
-    private void animateGrow() {
+    private void animateStartButtonGrow() {
 
         Animation grow = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.grow);
         grow.setAnimationListener(new Animation.AnimationListener() {
@@ -313,9 +327,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             @Override
             public void onAnimationEnd(Animation animation) {
 
-                startPeerSerivce();
                 activity_main_logo_iv.clearAnimation();
-                animatePulse();
+                animateStartButtonPulse();
             }
 
             @Override
@@ -328,14 +341,36 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     /**
      * Animation to make the logo pulsate
      */
-    private void animatePulse() {
+    private void animateStartButtonPulse() {
 
         Animation pulse = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.pulse);
         activity_main_logo_iv.startAnimation(pulse);
     }
 
-    private void startPeerSerivce() {
-        
+    private void startPeerServiceDelayed() {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(500);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            startPeerService();
+                        }
+                    });
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void startPeerService() {
+
         Intent serviceIntent = new Intent(MainActivity.this, PeerManagementService.class);
         MainActivity.this.startService(serviceIntent);
     }
@@ -345,7 +380,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         switch(view.getId()) {
             case R.id.activity_main_logo_iv:
                 if (peers.size() <= 0) {
-                    animateShrink();
+                    startPeerServiceDelayed();
+                    animateStartButtonShrink();
                 }
                 break;
         }

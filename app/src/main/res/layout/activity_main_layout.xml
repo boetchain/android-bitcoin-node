@@ -16,7 +16,6 @@
         android:id="@+id/activity_main_logo_iv"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:layout_below="@+id/activity_main_log_lv"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="51dp"
         android:src="@drawable/shape_circle_primary"
@@ -38,11 +37,14 @@
 
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:divider="@color/transparent"
         android:dividerHeight="0dp"
         android:visibility="gone"
         android:layout_below="@id/activity_main_logo_iv"
+        android:layout_marginTop="8dp"
         android:id="@+id/activity_main_status_lv"/>
+
+
 
 </RelativeLayout>

@@ -55,24 +55,42 @@ public class PeerManagementService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Lawg.i("onStartCommand");
-        new PeerBroadcaster(this, new Peer(App.monitoringPeerIP)).broadcastLogAll("Bitcoin Service Starting...", ChatLog.TYPE_NEUTRAL);
-        isRunning = true;
 
-        Peer.deleteAll(Peer.class);
+        if (!isRunning) {
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_DNS_SEED_DISCOVERY_COMPLETE));
-        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_CONNECTED));
-        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_DISCONNECTED));
+            isRunning = true;
 
-        peerPool = Peer.getPeerPool();
+            Lawg.i("Bitcoin Service Starting...");
+
+            Peer.deleteAll(Peer.class);
+
+            LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_DNS_SEED_DISCOVERY_COMPLETE));
+            LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_CONNECTED));
+            LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_DISCONNECTED));
+
+            findPeersAndConnect();
+        } else {
+
+            if (getConnectedPeers().size() <= 0) {
+                findPeersAndConnect();
+            }
+        }
+
+        return START_STICKY;
+    }
+
+    /**
+     * This will find peers to connect to either through the peer pool or by getting peers
+     * using the DNS discovery
+     */
+    private void findPeersAndConnect() {
+
         if (peerPool.size() == 0) {
             startDnsSeedDiscovery();
         } else {
             disconnectFromPeers();
             connectToPeers();
         }
-
-        return START_STICKY;
     }
 
     /**
@@ -92,7 +110,6 @@ public class PeerManagementService extends Service {
      * Starts the look up process to find initial peers or seeds to connect to.
      */
     private void startDnsSeedDiscovery() {
-        Lawg.i("startDnsSeedDiscovery");
         new DnsSeedDiscoveryThread(this).start();
     }
 
@@ -166,7 +183,7 @@ public class PeerManagementService extends Service {
 
         disconnectFromPeers();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
-
+//TODO only let one instance of DNS discovery and peer discovery to be active
         isRunning = false;
         new PeerBroadcaster(this, new Peer(App.monitoringPeerIP)).broadcastLogAll("Bitcoin Service Shutting down...", ChatLog.TYPE_NEUTRAL);
         Lawg.i("onDestroy");
