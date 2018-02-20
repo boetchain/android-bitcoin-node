@@ -519,17 +519,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         bindPeerService();
 
         headerView.setStatus(isPeerServiceRunning);
+
+        isPeerServiceRunning = UserPreferences.getBoolean(this, UserPreferences.PEER_MANAGEMENT_SERVICE_ON, false);
+
         if (isPeerServiceRunning) {
 
-            //We want to show the user that the peers are being loaded
-            if (peers.size() <= 0) {
-                showLoadingButton();
-                animateStartButtonGrow();
-            } else {
-                hideStartAndLoadingButton();
-            }
-
+            restartPeerService();
             bindPeerService();
+
+            showLoadingOnResume();
         } else {
 
             showStartButton();
@@ -606,5 +604,46 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         } else {
             drawerLayout.closeDrawer(drawerList);
         }
+    }
+
+    /**
+     * When the activity resumes and there are no peers, we want to show that the
+     * peers are being loaded.
+     *
+     * We run it on a delayed thread to give the UI time to update if the peers
+     * refresh very quickly
+     */
+    private void showLoadingOnResume() {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        if (isPeerServiceRunning) {
+
+                            //We want to show the user that the peers are being loaded
+                            if (peers.size() <= 0) {
+
+                                showLoadingButton();
+                                animateStartButtonGrow();
+
+                            } else {
+
+                                hideStartAndLoadingButton();
+                            }
+                        }
+                    }
+                });
+            }
+        }).start();
     }
 }
