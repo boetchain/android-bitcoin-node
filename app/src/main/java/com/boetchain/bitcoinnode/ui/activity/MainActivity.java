@@ -556,8 +556,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     public void onServiceChange(boolean on) {
 
-        openDrawer(false);
-
         if (on) {
 
             startPeerService();
