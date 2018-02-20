@@ -7,27 +7,47 @@
     android:padding="12dp"
     >
 
-    <TextView
-        android:id="@+id/listitem_peer_timestamp_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/text_light_grey"
-        android:textSize="16dp"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        tools:text="127320114"
-        />
+    <ImageView
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginRight="15dp"
+        android:src="@mipmap/profile"
+        android:id="@+id/listitem_peer_profile_iv"/>
 
     <TextView
         android:id="@+id/listitem_peer_ip_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/black"
-        android:textSize="22dp"
+        android:textSize="14sp"
+        android:textStyle="bold"
         tools:text="12.51.61:8330"
-        android:layout_toLeftOf="@id/listitem_peer_timestamp_tv"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/listitem_peer_profile_iv" />
+
+    <TextView
+        android:id="@+id/listitem_peer_status_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_light_grey"
+        android:layout_marginTop="5dp"
+        android:textSize="10sp"
+        android:text="connected"
+        android:layout_below="@id/listitem_peer_ip_tv"
+        android:layout_toRightOf="@+id/listitem_peer_profile_iv" />
+
+
+    <TextView
+        android:id="@+id/listitem_peer_timestamp_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_light_grey"
+        android:textSize="10sp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        tools:text="10:46"
         />
+
 
 
 </RelativeLayout>
