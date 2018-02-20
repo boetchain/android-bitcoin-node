@@ -207,8 +207,6 @@ public class PeerManagementService extends Service {
 
         new PeerBroadcaster(this, new Peer(App.monitoringPeerIP)).broadcastLogAll("Bitcoin Service Shutting down...", ChatLog.TYPE_NEUTRAL);
 
-        Peer.deleteAll(Peer.class);
-
         killPeerCommunicatorThreads();
 
         stopSelf();
