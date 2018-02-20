@@ -189,14 +189,19 @@ public class PeerManagementService extends Service {
 
         disconnectFromPeers();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
-//TODO only let one instance of DNS discovery and peer discovery to be active
-        isRunning = false;
+
+        if (dnsSeedDiscoveryThread != null) {
+            dnsSeedDiscoveryThread.interrupt();
+        }
+
         new PeerBroadcaster(this, new Peer(App.monitoringPeerIP)).broadcastLogAll("Bitcoin Service Shutting down...", ChatLog.TYPE_NEUTRAL);
         Lawg.i("onDestroy");
 
         Peer.deleteAll(Peer.class);
 
         killPeerCommunicatorThreads();
+
+        isRunning = false;
     }
 
     /**
