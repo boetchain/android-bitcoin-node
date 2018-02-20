@@ -51,12 +51,12 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
      * Which country the peer is in.
      * Calculated from ip.
      */
-    public String country;
+    public String country = "";
     /**
      * Which city the peer is in.
      * Calculated from ip.
      */
-    public String city;
+    public String city = "";
     /**
      * What the country code the peer is in.
      * Calculated from ip.
