@@ -54,8 +54,9 @@ public class PeerAdapter extends BaseAdapter {
             view = View.inflate(context, R.layout.listitem_peer, null);
             view.setTag(holder);
 
-            holder.ipTextView = (TextView) view.findViewById(R.id.listitem_peer_ip_tv);
-            holder.timestampTextView = (TextView) view.findViewById(R.id.listitem_peer_timestamp_tv);
+            holder.ipTextView = view.findViewById(R.id.listitem_peer_ip_tv);
+            holder.timestampTextView = view.findViewById(R.id.listitem_peer_timestamp_tv);
+            holder.listitem_peer_status_tv = view.findViewById(R.id.listitem_peer_status_tv);
 
         } else {
 
@@ -65,6 +66,7 @@ public class PeerAdapter extends BaseAdapter {
         holder.ipTextView.setText(peer.address);
         int gmtOffSet = 0;
         holder.timestampTextView.setText(DateUtils.getRelativeTimeSpanString(peer.timestamp + gmtOffSet, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS, 0));
+        holder.listitem_peer_status_tv.setText(peer.country);
 
         return view;
     }
@@ -73,5 +75,6 @@ public class PeerAdapter extends BaseAdapter {
 
         public TextView ipTextView;
         public TextView timestampTextView;
+        public TextView listitem_peer_status_tv;
     }
 }
