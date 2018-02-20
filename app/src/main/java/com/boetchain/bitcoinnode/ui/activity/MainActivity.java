@@ -23,8 +23,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.boetchain.bitcoinnode.App;
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
+import com.boetchain.bitcoinnode.network.request.GETGeolocationFromIpRequest;
+import com.boetchain.bitcoinnode.network.response.GETGeolocationFromIpResponse;
 import com.boetchain.bitcoinnode.ui.adapter.PeerAdapter;
 import com.boetchain.bitcoinnode.ui.adapter.StatusAdapter;
 import com.boetchain.bitcoinnode.ui.view.DrawerHeaderView;
@@ -276,6 +281,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         peers.clear();
         peers.addAll(updatePeers);
         adapter.notifyDataSetChanged();
+
+        if (updatePeers.size() == 0) {
+            return;
+        }
+
+        GETGeolocationFromIpRequest getGeolocationFromIpRequest = new GETGeolocationFromIpRequest(this, updatePeers.get(0), new Response.Listener<GETGeolocationFromIpResponse>() {
+            @Override
+            public void onResponse(GETGeolocationFromIpResponse response) {
+                Lawg.i("onResponse");
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Lawg.i("onErrorResponse");
+            }
+        });
+        App.getRequestQueue(this).add(getGeolocationFromIpRequest);
     }
 
     /**
