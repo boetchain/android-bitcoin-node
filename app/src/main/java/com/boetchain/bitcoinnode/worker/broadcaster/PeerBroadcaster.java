@@ -25,6 +25,10 @@ public class PeerBroadcaster {
      */
     public static final String ACTION_PEER_CONNECTED = "ACTION_PEER_CONNECTED";
     /**
+     * Something about a single peer has changed or is updated.
+     */
+    public static final String ACTION_PEER_UPDATED = "ACTION_PEER_UPDATED";
+    /**
      * When we have disconnected from a peer.
      */
     public static final String ACTION_PEER_DISCONNECTED = "ACTION_PEER_DISCONNECTED";

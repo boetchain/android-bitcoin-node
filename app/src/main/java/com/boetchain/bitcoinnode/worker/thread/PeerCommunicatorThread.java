@@ -131,6 +131,8 @@ public class PeerCommunicatorThread extends BaseThread {
                         peer.region = response.region;
                         peer.regionName = response.regionName;
                         peer.save();
+
+                        broadcaster.broadcast(PeerBroadcaster.ACTION_PEER_UPDATED);
                     }
                 }
             }, new Response.ErrorListener() {

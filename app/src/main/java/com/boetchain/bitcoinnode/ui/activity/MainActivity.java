@@ -24,13 +24,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.boetchain.bitcoinnode.App;
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
-import com.boetchain.bitcoinnode.network.request.GETGeolocationFromIpRequest;
-import com.boetchain.bitcoinnode.network.response.GETGeolocationFromIpResponse;
 import com.boetchain.bitcoinnode.ui.adapter.PeerAdapter;
 import com.boetchain.bitcoinnode.ui.adapter.StatusAdapter;
 import com.boetchain.bitcoinnode.ui.view.DrawerHeaderView;
@@ -133,6 +128,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             if (intentAction.equalsIgnoreCase(PeerManagementService.ACTION_SERVICE_DESTROYED)) {
                 headerView.setStatus(false);
                 isPeerServiceRunning = false;
+            }
+
+            if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_UPDATED)) {
+                refreshPeer((Peer) intent.getParcelableExtra(PeerBroadcaster.KEY_PEER));
             }
         }
     };
@@ -294,6 +293,25 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         activity_main_logo_iv.setVisibility(View.INVISIBLE);
         activity_main_status_lv.setVisibility(View.INVISIBLE);
         activity_main_log_lv.setVisibility(View.VISIBLE);
+    }
+
+
+    /**
+     * Refreshes a single peer in the list.
+     * @param refreshedPeer
+     */
+    private void refreshPeer(Peer refreshedPeer) {
+        if (peers  == null || adapter == null) {
+            return;
+        }
+
+        for (int i = 0; i < peers.size(); i++) {
+            if (peers.get(i).equals(refreshedPeer)) {
+                peers.set(i, refreshedPeer);
+            }
+        }
+
+        adapter.notifyDataSetChanged();
     }
 
     /**
@@ -522,6 +540,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         filter.addAction(PeerManagementService.ACTION_SERVICE_DESTROYED);
         filter.addAction(PeerBroadcaster.ACTION_PEER_CONNECTION_ATTEMPT);
         filter.addAction(PeerBroadcaster.ACTION_PEER_CONNECTED);
+        filter.addAction(PeerBroadcaster.ACTION_PEER_UPDATED);
         filter.addAction(PeerBroadcaster.ACTION_PEER_DISCONNECTED);
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, filter);
 
