@@ -29,9 +29,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/text_light_grey"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="3dp"
         android:textSize="10sp"
-        android:text="connected"
+        android:text="@string/listitem_peer_status"
         android:layout_below="@id/listitem_peer_ip_tv"
         android:layout_toRightOf="@+id/listitem_peer_profile_iv" />
 
@@ -43,7 +43,7 @@
         android:textColor="@color/text_light_grey"
         android:textSize="10sp"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
         tools:text="10:46"
         />
 

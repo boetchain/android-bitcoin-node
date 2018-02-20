@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import com.boetchain.bitcoinnode.R;
 import com.orm.SugarRecord;
 
 import java.util.ArrayList;
@@ -46,6 +47,46 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
      * If we believe we have a connection to this peer
      */
     public boolean connected;
+    /**
+     * Which country the peer is in.
+     * Calculated from ip.
+     */
+    public String country = "";
+    /**
+     * Which city the peer is in.
+     * Calculated from ip.
+     */
+    public String city = "";
+    /**
+     * What the country code the peer is in.
+     * Calculated from ip.
+     */
+    public String countryCode;
+    /**
+     * The latitude of the peer.
+     * Calculated from ip.
+     */
+    public double lat;
+    /**
+     * The longitude of the peer.
+     * Calculated from ip.
+     */
+    public double lng;
+    /**
+     * The ISP the peer uses.
+     * Calculated from ip.
+     */
+    public String isp;
+    /**
+     * State or province "code".
+     * Calculated from ip.
+     */
+    public String region;
+    /**
+     * Sate or province name.
+     * Calculated from ip.
+     */
+    public String regionName;
 
     public Peer() {
     }
@@ -156,12 +197,26 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
         return false;
     }
 
+    @Override
+    public int compareTo(@NonNull Peer peer) {
+
+        return (int) (peer.timestamp - this.timestamp);
+    }
+
     protected Peer(Parcel in) {
         address = in.readString();
         port = in.readInt();
         services = in.readLong();
         timestamp = in.readLong();
         connected = in.readByte() != 0x00;
+        country = in.readString();
+        city = in.readString();
+        countryCode = in.readString();
+        lat = in.readDouble();
+        lng = in.readDouble();
+        isp = in.readString();
+        region = in.readString();
+        regionName = in.readString();
     }
 
     @Override
@@ -176,6 +231,14 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
         dest.writeLong(services);
         dest.writeLong(timestamp);
         dest.writeByte((byte) (connected ? 0x01 : 0x00));
+        dest.writeString(country);
+        dest.writeString(city);
+        dest.writeString(countryCode);
+        dest.writeDouble(lat);
+        dest.writeDouble(lng);
+        dest.writeString(isp);
+        dest.writeString(region);
+        dest.writeString(regionName);
     }
 
     @SuppressWarnings("unused")
@@ -190,10 +253,4 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
             return new Peer[size];
         }
     };
-
-    @Override
-    public int compareTo(@NonNull Peer peer) {
-
-        return (int) (peer.timestamp - this.timestamp);
-    }
 }
