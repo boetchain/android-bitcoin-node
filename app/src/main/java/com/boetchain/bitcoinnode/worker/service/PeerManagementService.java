@@ -66,8 +66,6 @@ public class PeerManagementService extends Service {
 
             Lawg.i("Bitcoin Service Starting...");
 
-            Peer.deleteAll(Peer.class);
-
             LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_DNS_SEED_DISCOVERY_COMPLETE));
             LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_SERVICE_STARTED));
             LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_SERVICE_DESTROYED));
@@ -77,7 +75,7 @@ public class PeerManagementService extends Service {
             findPeersAndConnect();
         } else {
 
-            if (getConnectedPeers().size() <= 0) {
+            if (getConnectedPeers().size() < MAX_CONNECTIONS) {
                 findPeersAndConnect();
             }
         }
@@ -92,7 +90,8 @@ public class PeerManagementService extends Service {
      * using the DNS discovery
      */
     private void findPeersAndConnect() {
-        
+
+        peerPool = Peer.getPeerPool();
         if (peerPool.size() == 0) {
             startDnsSeedDiscovery();
         } else {
