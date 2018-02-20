@@ -129,6 +129,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 headerView.setStatus(false);
                 isPeerServiceRunning = false;
             }
+
+            if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_UPDATED)) {
+                refreshPeer((Peer) intent.getParcelableExtra(PeerBroadcaster.KEY_PEER));
+            }
         }
     };
 
@@ -291,6 +295,25 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         activity_main_log_lv.setVisibility(View.VISIBLE);
     }
 
+
+    /**
+     * Refreshes a single peer in the list.
+     * @param refreshedPeer
+     */
+    private void refreshPeer(Peer refreshedPeer) {
+        if (peers  == null || adapter == null) {
+            return;
+        }
+
+        for (int i = 0; i < peers.size(); i++) {
+            if (peers.get(i).equals(refreshedPeer)) {
+                peers.set(i, refreshedPeer);
+            }
+        }
+
+        adapter.notifyDataSetChanged();
+    }
+
     /**
      * Updates the peers in the list view.
      * If there are peers to display, we hide other elements on the screen
@@ -310,6 +333,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         adapter.notifyDataSetChanged();
 
         headerView.setConnectedPeers(updatePeers.size());
+
+        if (updatePeers.size() == 0) {
+            return;
+        }
     }
 
     /**
@@ -513,6 +540,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         filter.addAction(PeerManagementService.ACTION_SERVICE_DESTROYED);
         filter.addAction(PeerBroadcaster.ACTION_PEER_CONNECTION_ATTEMPT);
         filter.addAction(PeerBroadcaster.ACTION_PEER_CONNECTED);
+        filter.addAction(PeerBroadcaster.ACTION_PEER_UPDATED);
         filter.addAction(PeerBroadcaster.ACTION_PEER_DISCONNECTED);
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, filter);
 

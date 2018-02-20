@@ -27,4 +27,6 @@
     <string name="activity_about_detail_contributor_ross_tv">github.com/rossbadenhorst</string>
     <string name="activity_about_header_thanks_tv">Thanks</string>
     <string name="activity_about_paragraph_tv_thanks_tv">Alot of this project is based on code from the projects below, with out them none of this would be possible:\n\nBitcoin Core\nBitcoinj\nABcore</string>
+
+    <string name="listitem_peer_status">{:country}, {:city}</string>
 </resources>
