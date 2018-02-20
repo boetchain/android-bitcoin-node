@@ -14,6 +14,7 @@ import com.boetchain.bitcoinnode.App;
 import com.boetchain.bitcoinnode.model.ChatLog;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.util.Lawg;
+import com.boetchain.bitcoinnode.util.UserPreferences;
 import com.boetchain.bitcoinnode.worker.broadcaster.PeerBroadcaster;
 import com.boetchain.bitcoinnode.worker.thread.DnsSeedDiscoveryThread;
 import com.boetchain.bitcoinnode.worker.thread.PeerCommunicatorThread;
@@ -28,6 +29,8 @@ public class PeerManagementService extends Service {
 
     public static final String ACTION_DNS_SEED_DISCOVERY_STARTING   = "ACTION_DNS_SEED_DISCOVERY_STARTING";
     public static final String ACTION_DNS_SEED_DISCOVERY_COMPLETE   = "ACTION_DNS_SEED_DISCOVERY_COMPLETE";
+    public static final String ACTION_SERVICE_STARTED               = "ACTION_SERVICE_STARTED";
+    public static final String ACTION_SERVICE_DESTROYED             = "ACTION_SERVICE_DESTROYED";
 
     /**
      * Max number of connections we want to maintain with peers
@@ -67,6 +70,8 @@ public class PeerManagementService extends Service {
             Peer.deleteAll(Peer.class);
 
             LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_DNS_SEED_DISCOVERY_COMPLETE));
+            LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_SERVICE_STARTED));
+            LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_SERVICE_DESTROYED));
             LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_CONNECTED));
             LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_DISCONNECTED));
 
@@ -77,6 +82,8 @@ public class PeerManagementService extends Service {
                 findPeersAndConnect();
             }
         }
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(PeerManagementService.ACTION_SERVICE_STARTED));
 
         return START_STICKY;
     }
@@ -113,6 +120,7 @@ public class PeerManagementService extends Service {
      * We only want one of these running at a time.
      */
     private void startDnsSeedDiscovery() {
+
         if (dnsSeedDiscoveryThread == null || !dnsSeedDiscoveryThread.isRunning()) {
             dnsSeedDiscoveryThread = new DnsSeedDiscoveryThread(this);
             dnsSeedDiscoveryThread.start();
@@ -183,9 +191,16 @@ public class PeerManagementService extends Service {
         }
     }
 
+
+
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        Lawg.i("onDestroy");
+
+
+
+        Intent dnsSeedDiscoveryCompleteIntent = new Intent(PeerManagementService.ACTION_SERVICE_DESTROYED);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(dnsSeedDiscoveryCompleteIntent);
 
         disconnectFromPeers();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
@@ -195,13 +210,15 @@ public class PeerManagementService extends Service {
         }
 
         new PeerBroadcaster(this, new Peer(App.monitoringPeerIP)).broadcastLogAll("Bitcoin Service Shutting down...", ChatLog.TYPE_NEUTRAL);
-        Lawg.i("onDestroy");
 
         Peer.deleteAll(Peer.class);
 
         killPeerCommunicatorThreads();
 
+        stopSelf();
         isRunning = false;
+
+        super.onDestroy();
     }
 
     /**
