@@ -66,12 +66,12 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
      * The latitude of the peer.
      * Calculated from ip.
      */
-    public long lat;
+    public double lat;
     /**
      * The longitude of the peer.
      * Calculated from ip.
      */
-    public long lng;
+    public double lng;
     /**
      * The ISP the peer uses.
      * Calculated from ip.

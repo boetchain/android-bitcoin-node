@@ -5,13 +5,13 @@ package com.boetchain.bitcoinnode.network.response;
  */
 public class GETGeolocationFromIpResponse extends BaseResponse {
 
-    public String success;
+    public String status;
     public String city = "";
     public String country = "";
     public String countryCode = "";
     public String isp = "";
-    public long lat;
-    public long lon;
-    public String region;
-    public String regionName;
+    public double lat = 0;
+    public double lon = 0;
+    public String region = "";
+    public String regionName = "";
 }

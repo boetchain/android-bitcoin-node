@@ -16,8 +16,17 @@ import com.boetchain.bitcoinnode.ui.activity.PeerChatActivity;
 
 public class PeerBroadcaster {
 
+    /**
+     * When we try and connect to a peer.
+     */
     public static final String ACTION_PEER_CONNECTION_ATTEMPT = "ACTION_PEER_CONNECTION_ATTEMPT";
+    /**
+     * When the connection is successfull and we can now make comms with the peer.
+     */
     public static final String ACTION_PEER_CONNECTED = "ACTION_PEER_CONNECTED";
+    /**
+     * When we have disconnected from a peer.
+     */
     public static final String ACTION_PEER_DISCONNECTED = "ACTION_PEER_DISCONNECTED";
 
     public static final String KEY_PEER = "KEY_PEER";

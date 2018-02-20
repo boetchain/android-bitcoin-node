@@ -314,19 +314,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         if (updatePeers.size() == 0) {
             return;
         }
-
-        GETGeolocationFromIpRequest getGeolocationFromIpRequest = new GETGeolocationFromIpRequest(this, updatePeers.get(0), new Response.Listener<GETGeolocationFromIpResponse>() {
-            @Override
-            public void onResponse(GETGeolocationFromIpResponse response) {
-                Lawg.i("onResponse");
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Lawg.i("onErrorResponse");
-            }
-        });
-        App.getRequestQueue(this).add(getGeolocationFromIpRequest);
     }
 
     /**

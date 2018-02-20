@@ -12,16 +12,22 @@ import com.boetchain.bitcoinnode.network.response.GETGeolocationFromIpResponse;
 public class GETGeolocationFromIpRequest extends BaseRequest<GETGeolocationFromIpResponse> {
 
     /**
+     * ip-api.com's key for success.
+     * Set in their json response.
+     */
+    public static final String STATUS_SUCCESS = "success";
+
+    /**
      * The peer we want to geolocate.
      */
     private Peer peer;
 
     public GETGeolocationFromIpRequest(Context context, Peer peer, Response.Listener<GETGeolocationFromIpResponse> listener, Response.ErrorListener errorListener) {
-        super(context, Method.GET, getFullUrl(), GETGeolocationFromIpResponse.class, listener, errorListener);
+        super(context, Method.GET, getFullUrl(peer), GETGeolocationFromIpResponse.class, listener, errorListener);
         this.peer = peer;
     }
 
-    private static String getFullUrl() {
-        return "http://ip-api.com/json/203.173.185.138";
+    private static String getFullUrl(Peer peer) {
+        return "http://ip-api.com/json/" + peer.address;
     }
 }

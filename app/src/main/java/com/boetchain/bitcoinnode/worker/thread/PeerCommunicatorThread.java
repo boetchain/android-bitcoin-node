@@ -1,7 +1,11 @@
 package com.boetchain.bitcoinnode.worker.thread;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.boetchain.bitcoinnode.App;
 import com.boetchain.bitcoinnode.model.ChatLog;
 import com.boetchain.bitcoinnode.model.Message.AddrMessage;
 import com.boetchain.bitcoinnode.model.Message.AlertMessage;
@@ -15,6 +19,8 @@ import com.boetchain.bitcoinnode.model.Message.SendHeadersMessage;
 import com.boetchain.bitcoinnode.model.Message.VerAckMessage;
 import com.boetchain.bitcoinnode.model.Message.VersionMessage;
 import com.boetchain.bitcoinnode.model.Peer;
+import com.boetchain.bitcoinnode.network.request.GETGeolocationFromIpRequest;
+import com.boetchain.bitcoinnode.network.response.GETGeolocationFromIpResponse;
 import com.boetchain.bitcoinnode.util.Lawg;
 import com.boetchain.bitcoinnode.util.Util;
 import com.boetchain.bitcoinnode.worker.broadcaster.PeerBroadcaster;
@@ -71,7 +77,6 @@ public class PeerCommunicatorThread extends BaseThread {
                 peer.connected = true;
                 peer.save();
 
-
                 onPeerConencted();
                 handlePeerMessages(socket.getOutputStream(), socket.getInputStream());
             } else {
@@ -104,6 +109,38 @@ public class PeerCommunicatorThread extends BaseThread {
      */
     private void onPeerConencted() {
         broadcaster.broadcast(PeerBroadcaster.ACTION_PEER_CONNECTED);
+        geolocatePeer();
+    }
+
+    /**
+     * Gets where the peer is in the world with his IP.
+     * Not really used for anything else other then fancy UI.
+     */
+    private void geolocatePeer() {
+        if (peer.countryCode == null || peer.countryCode.isEmpty()) {
+            GETGeolocationFromIpRequest getGeolocationFromIpRequest = new GETGeolocationFromIpRequest(context, peer, new Response.Listener<GETGeolocationFromIpResponse>() {
+                @Override
+                public void onResponse(GETGeolocationFromIpResponse response) {
+                    if (response != null & response.status.equalsIgnoreCase(GETGeolocationFromIpRequest.STATUS_SUCCESS)) {
+                        peer.country = response.country;
+                        peer.city = response.city;
+                        peer.countryCode = response.countryCode;
+                        peer.lat = response.lat;
+                        peer.lng = response.lon;
+                        peer.isp = response.isp;
+                        peer.region = response.region;
+                        peer.regionName = response.regionName;
+                        peer.save();
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e(App.TAG, "onErrorResponse...");
+                }
+            });
+            requestQueue.add(getGeolocationFromIpRequest);
+        }
     }
 
     /**
