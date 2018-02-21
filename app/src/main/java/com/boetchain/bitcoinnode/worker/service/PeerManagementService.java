@@ -61,6 +61,8 @@ public class PeerManagementService extends Service {
 
     private List<PeerCommunicatorThread> peerCommunicatorThreads = new ArrayList();
 
+    private List<Peer> removePeerQueue = new ArrayList();
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
