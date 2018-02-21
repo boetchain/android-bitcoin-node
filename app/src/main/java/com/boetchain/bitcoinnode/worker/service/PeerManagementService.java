@@ -9,6 +9,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.format.DateUtils;
 
 import com.boetchain.bitcoinnode.App;
 import com.boetchain.bitcoinnode.model.ChatLog;
@@ -62,14 +63,17 @@ public class PeerManagementService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Lawg.i("onStartCommand");
+
+        Lawg.i("onStartCommand: " +
+               DateUtils.getRelativeTimeSpanString(startedRunningAt,
+		                                   System.currentTimeMillis(),
+		                                   DateUtils.SECOND_IN_MILLIS,
+		                                   0));
 
         //We want to limit how many successive calls to on start command there are
-        if (startedRunningAt < System.currentTimeMillis() + START_DELAY) {
+        if (startedRunningAt < System.currentTimeMillis() - START_DELAY) {
 
-	        startedRunningAt = System.currentTimeMillis();
-
-	        if (startedRunningAt > 0) {
+	        if (startedRunningAt <= 0) {
 
 		        Lawg.i("Bitcoin Service Starting...");
 
@@ -80,14 +84,11 @@ public class PeerManagementService extends Service {
 		        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_DISCONNECTED));
 
 		        findPeersAndConnect();
-	        } else {
-
-		        if (getConnectedPeers().size() < MAX_CONNECTIONS) {
-			        findPeersAndConnect();
-		        }
 	        }
 
 	        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(PeerManagementService.ACTION_SERVICE_STARTED));
+
+	        startedRunningAt = System.currentTimeMillis();
         }
 
         return START_STICKY;
@@ -275,8 +276,6 @@ public class PeerManagementService extends Service {
     @Override
     public void onDestroy() {
         Lawg.i("onDestroy");
-
-
 
         Intent dnsSeedDiscoveryCompleteIntent = new Intent(PeerManagementService.ACTION_SERVICE_DESTROYED);
         LocalBroadcastManager.getInstance(this).sendBroadcast(dnsSeedDiscoveryCompleteIntent);
