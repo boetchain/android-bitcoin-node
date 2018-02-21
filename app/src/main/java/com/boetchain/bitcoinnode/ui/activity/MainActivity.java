@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
+import com.boetchain.bitcoinnode.ui.adapter.NavigationDrawAdapter;
 import com.boetchain.bitcoinnode.ui.adapter.PeerAdapter;
 import com.boetchain.bitcoinnode.ui.adapter.StatusAdapter;
 import com.boetchain.bitcoinnode.ui.view.DrawerHeaderView;
@@ -203,8 +204,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         drawerList.addHeaderView(headerView.getView(), null, false);
 
         // Set the adapter for the list view
-        drawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, drawerItems));
+        drawerList.setAdapter(new NavigationDrawAdapter(this, drawerItems));
         // Set the list's click listener
         drawerList.setOnItemClickListener(new DrawerItemClickListener());
 
