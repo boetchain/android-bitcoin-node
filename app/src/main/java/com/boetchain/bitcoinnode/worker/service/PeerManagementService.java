@@ -276,6 +276,8 @@ public class PeerManagementService extends Service {
     public void onDestroy() {
         Lawg.i("onDestroy");
 
+
+
         Intent dnsSeedDiscoveryCompleteIntent = new Intent(PeerManagementService.ACTION_SERVICE_DESTROYED);
         LocalBroadcastManager.getInstance(this).sendBroadcast(dnsSeedDiscoveryCompleteIntent);
 
