@@ -545,8 +545,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         filter.addAction(PeerBroadcaster.ACTION_PEER_UPDATED);
         filter.addAction(PeerBroadcaster.ACTION_PEER_DISCONNECTED);
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, filter);
-
-        bindPeerService();
+	    
+        if (isPeerServiceRunning) {
+        	bindPeerService();
+        }
 
         headerView.setStatus(isPeerServiceRunning);
 
@@ -585,8 +587,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     @Override
     public void onServiceChange(boolean on) {
-
-        openDrawer(false);
 
         if (on) {
 

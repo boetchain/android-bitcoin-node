@@ -24,7 +24,7 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
      * The max amount of peers we want to keep in our poot.
      * We normally connect to 8 peers at a time and each one gives us about 1000 addresses at a time.
      */
-    public static final int MAX_POOL_SIZE = 10;
+    public static final int MAX_POOL_SIZE = 40;
 
     /**
      * The address of the peer
