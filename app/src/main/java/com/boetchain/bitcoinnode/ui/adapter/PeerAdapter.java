@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.boetchain.bitcoinnode.App;
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
+import com.boetchain.bitcoinnode.util.Lawg;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -91,6 +92,7 @@ public class PeerAdapter extends BaseAdapter {
 		            context.getResources()
                                .getIdentifier(peer.countryCode.toLowerCase(),
                                               "drawable", context.getPackageName());
+	        Lawg.i("res name: " + "R.drawable." + peer.countryCode.toLowerCase() + " - " + resId);
             if (resId != 0) {
 
 	            Picasso.with(context).load(resId)
