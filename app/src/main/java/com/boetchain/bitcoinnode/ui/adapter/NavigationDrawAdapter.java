@@ -53,13 +53,19 @@ public class NavigationDrawAdapter extends BaseAdapter {
 
         }
 
+        holder.drawer_list_item_iv.setImageResource(getMenuItemImage(menuItem));
         holder.drawer_list_item_tv.setText(menuItem);
 
         return view;
     }
 
-    private int getMenuItemImage() {
-        return 0;
+    private int getMenuItemImage(String menuItem) {
+
+        if (menuItem.equalsIgnoreCase(context.getString(R.string.activity_main_drawer_item_map))) {
+            return R.mipmap.planetearth;
+        }
+
+        return R.mipmap.shaka;
     }
 
     public static class ViewHolder {

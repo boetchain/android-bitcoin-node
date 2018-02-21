@@ -9,7 +9,7 @@
     <ImageView
         android:layout_width="25dp"
         android:layout_height="25dp"
-        android:src="@mipmap/profile"
+        android:src="@mipmap/shaka"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:id="@+id/drawer_list_item_iv"/>
