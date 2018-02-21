@@ -36,14 +36,21 @@ public class PeerManagementService extends Service {
      */
     public static final int MAX_CONNECTIONS = 4;
 
+	/**
+	 * The amount of time that needs to pass before this service will act on another start command.
+	 */
+	public static final int START_DELAY = 1000 * 3;
+
     /**
      * All the peers we currently have in the pool.
      */
     private List<Peer> peerPool = new ArrayList<>();
     /**
-     * Used to see if the service is active or now.
+     * A timestamp that represent when this service was started last to prevent onStartCommand being
+     * called too many times.
+     * NOTE: If 0, this service is not running
      */
-    private boolean isRunning;
+    private long startedRunningAt;
     /**
      * Binder given to clients
      */
@@ -57,27 +64,31 @@ public class PeerManagementService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Lawg.i("onStartCommand");
 
-        if (!isRunning) {
+        //We want to limit how many successive calls to on start command there are
+        if (startedRunningAt < System.currentTimeMillis() + START_DELAY) {
 
-            isRunning = true;
+	        startedRunningAt = System.currentTimeMillis();
 
-            Lawg.i("Bitcoin Service Starting...");
+	        if (startedRunningAt > 0) {
 
-            LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_DNS_SEED_DISCOVERY_COMPLETE));
-            LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_SERVICE_STARTED));
-            LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_SERVICE_DESTROYED));
-            LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_CONNECTED));
-            LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_DISCONNECTED));
+		        Lawg.i("Bitcoin Service Starting...");
 
-            findPeersAndConnect();
-        } else {
+		        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_DNS_SEED_DISCOVERY_COMPLETE));
+		        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_SERVICE_STARTED));
+		        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(ACTION_SERVICE_DESTROYED));
+		        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_CONNECTED));
+		        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_DISCONNECTED));
 
-            if (getConnectedPeers().size() < MAX_CONNECTIONS) {
-                findPeersAndConnect();
-            }
+		        findPeersAndConnect();
+	        } else {
+
+		        if (getConnectedPeers().size() < MAX_CONNECTIONS) {
+			        findPeersAndConnect();
+		        }
+	        }
+
+	        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(PeerManagementService.ACTION_SERVICE_STARTED));
         }
-
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(PeerManagementService.ACTION_SERVICE_STARTED));
 
         return START_STICKY;
     }
@@ -124,7 +135,7 @@ public class PeerManagementService extends Service {
      * Just to be sure when the app starts we make all the peers disconnected.
      */
     private void disconnectFromPeers() {
-        Lawg.i("DISCONNECT FROM PEERS");
+
         for (Peer peer : peerPool) {
             if (peer.connected) {
                 peer.connected = false;
@@ -237,7 +248,7 @@ public class PeerManagementService extends Service {
         killPeerCommunicatorThreads();
 
         stopSelf();
-        isRunning = false;
+	    startedRunningAt = 0;
 
         super.onDestroy();
     }
@@ -247,7 +258,7 @@ public class PeerManagementService extends Service {
      * @return true if yes, false if not.
      */
     public boolean isRunning() {
-        return this.isRunning;
+        return startedRunningAt > 0;
     }
 
     @Nullable
@@ -265,6 +276,7 @@ public class PeerManagementService extends Service {
         public void onReceive(Context context, Intent intent) {
 
             if (intent.getAction().equalsIgnoreCase(ACTION_DNS_SEED_DISCOVERY_COMPLETE)) {
+            	peerPool = Peer.getPeerPool();
                 connectToNextPeer();
             }
 
@@ -305,7 +317,7 @@ public class PeerManagementService extends Service {
                 }
 
                 Lawg.i("Peer disconnected: " + disconnectedPeer.address);
-                //todo remove from connected thread list
+
                 connectToNextPeer();
             }
         }

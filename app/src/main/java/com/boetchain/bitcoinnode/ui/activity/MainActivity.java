@@ -544,6 +544,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         filter.addAction(PeerBroadcaster.ACTION_PEER_DISCONNECTED);
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, filter);
 
+        //todo fix leaked service issue
         bindPeerService();
 
         headerView.setStatus(isPeerServiceRunning);
