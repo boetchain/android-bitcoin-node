@@ -11,7 +11,7 @@
 
     <string name="drawer_header_status_on">ON</string>
     <string name="drawer_header_status_off">OFF</string>
-    <string name="drawer_header_status">Stats: {:value}</string>
+    <string name="drawer_header_status">Status: {:value}</string>
     <string name="drawer_header_connected_peers">Connected Peers: {:value}</string>
 
     <string name="error_cant_find_peers">Can\'t find peers</string>
