@@ -59,12 +59,11 @@ public class DrawerHeaderView {
         String status;
 
         if (on) {
-
             status = mainActivity.getString(R.string.drawer_header_status_on);
-
+            drawer_header_view_connected_peers_tv.setVisibility(View.VISIBLE);
         } else {
-
             status = mainActivity.getString(R.string.drawer_header_status_off);
+            drawer_header_view_connected_peers_tv.setVisibility(View.GONE);
         }
 
         String str = mainActivity.getString(R.string.drawer_header_status);

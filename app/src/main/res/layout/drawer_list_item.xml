@@ -1,10 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/drawer_list_item_tv"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="asdf"
-    android:textColor="@color/black"
-    android:padding="12dp"
-    />
+    android:padding="10dp" >
+    
+    <ImageView
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@mipmap/shaka"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:id="@+id/drawer_list_item_iv"/>
+    
+    <TextView
+        android:id="@+id/drawer_list_item_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/drawer_list_item_iv"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:textSize="12sp"
+        tools:text="Menu Item"
+        android:textColor="@color/text_light_grey"
+        />
+</RelativeLayout>

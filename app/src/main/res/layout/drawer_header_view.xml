@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/drawer_header_view_logo_iv"
-        android:textColor="@color/black"
+        android:textColor="@color/colorPrimary"
         android:textSize="16dp"
         tools:text="Status: ON"
         />
@@ -49,7 +49,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/divider_grey"
+        android:background="@color/colorPrimary"
         android:layout_below="@id/drawer_header_view_logo_iv"
         android:layout_marginTop="12dp"
         />
