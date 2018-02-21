@@ -85,10 +85,26 @@ public class PeerAdapter extends BaseAdapter {
     private void setPeerProfile(ViewHolder holder, Peer peer) {
         if (peer.countryCode != null && !peer.countryCode.isEmpty()) {
             Log.i(App.TAG, "http://www.countryflags.io/" + peer.countryCode + "/flat/64.png");
-            Picasso.with(context).load("http://www.countryflags.io/" + peer.countryCode + "/flat/64.png")
-                    .error(R.mipmap.profile)
-                    .placeholder(R.mipmap.profile)
-                    .into(holder.listitem_peer_profile_iv);
+
+
+            int resId =
+		            context.getResources()
+                               .getIdentifier(peer.countryCode.toLowerCase(),
+                                              "drawable", context.getPackageName());
+            if (resId != 0) {
+
+	            Picasso.with(context).load(resId)
+	                   .error(R.mipmap.profile)
+	                   .placeholder(R.mipmap.profile)
+	                   .into(holder.listitem_peer_profile_iv);
+
+            } else {
+
+	            Picasso.with(context).load("http://www.countryflags.io/" + peer.countryCode + "/flat/64.png")
+	                   .error(R.mipmap.profile)
+	                   .placeholder(R.mipmap.profile)
+	                   .into(holder.listitem_peer_profile_iv);
+            }
         }
     }
 
