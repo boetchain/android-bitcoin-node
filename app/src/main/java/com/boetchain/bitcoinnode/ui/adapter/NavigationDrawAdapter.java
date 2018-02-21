@@ -62,10 +62,12 @@ public class NavigationDrawAdapter extends BaseAdapter {
     private int getMenuItemImage(String menuItem) {
 
         if (menuItem.equalsIgnoreCase(context.getString(R.string.activity_main_drawer_item_map))) {
-            return R.mipmap.planetearth;
+	        return R.drawable.ic_drawer_menu_map;
+        } else if (menuItem.equalsIgnoreCase(context.getString(R.string.activity_main_drawer_item_about))) {
+	        return R.drawable.ic_drawer_menu_about;
         }
 
-        return R.mipmap.shaka;
+        return R.drawable.ic_drawer_menu_about;
     }
 
     public static class ViewHolder {

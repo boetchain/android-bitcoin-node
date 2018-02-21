@@ -9,10 +9,12 @@
     <ImageView
         android:layout_width="25dp"
         android:layout_height="25dp"
-        android:src="@mipmap/shaka"
+        android:src="@drawable/ic_drawer_menu_about"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:id="@+id/drawer_list_item_iv"/>
+        android:id="@+id/drawer_list_item_iv"
+        android:tint="@color/text_light_grey"
+        />
     
     <TextView
         android:id="@+id/drawer_list_item_tv"
