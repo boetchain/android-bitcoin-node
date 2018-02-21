@@ -201,6 +201,45 @@ public class PeerManagementService extends Service {
         return peers;
     }
 
+	/**
+	 * Called when a peer is connected or disconnected and needs to be removed from the peer pool
+	 *
+	 * @param peer
+	 */
+	private void removePeerFromPool(Peer peer) {
+
+	    for (Peer storedPeer : peerPool) {
+
+		    if (storedPeer.address.equals(peer.address)) {
+
+			    Lawg.i("remove peer: " + peer.address);
+			    peerPool.remove(storedPeer);
+
+			    break;
+		    }
+	    }
+    }
+
+	/**
+	 * Removes a PeerCommunicatorThread from the peerCommunicatorThreads array.
+	 * Usually called when a peer disconnects and is removed from the DB but
+	 * hasn't yet been removed from the thread array or the peerPool
+	 * @param peer
+	 */
+	private void removeCommunicatorThreadFromArray(Peer peer) {
+
+	    for (PeerCommunicatorThread thread : peerCommunicatorThreads) {
+
+		    if (thread.getPeer().address.equals(peer.address)) {
+
+			    Lawg.i("remove thread: " + thread.getPeer().address);
+			    peerCommunicatorThreads.remove(thread);
+
+			    break;
+		    }
+	    }
+    }
+
     /**
      * Finds a peer to connect to.
      * Gets all the peers that we don't have a connection with,
@@ -212,8 +251,11 @@ public class PeerManagementService extends Service {
     private Peer findPeerToConnectTo() {
 
         for (int i = 0; i < peerPool.size(); i++) {
+
             Peer peer  = peerPool.get(i);
+
             if (!peer.connected) {
+
                 return peer;
             }
         }
@@ -224,6 +266,7 @@ public class PeerManagementService extends Service {
     private void killPeerCommunicatorThreads() {
 
         for (int i = 0; i < peerCommunicatorThreads.size(); i++) {
+
             peerCommunicatorThreads.get(i).setStayConnected(false);
             peerCommunicatorThreads.get(i).interrupt();
         }
@@ -240,6 +283,7 @@ public class PeerManagementService extends Service {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
 
         if (dnsSeedDiscoveryThread != null) {
+
             dnsSeedDiscoveryThread.interrupt();
         }
 
@@ -281,43 +325,21 @@ public class PeerManagementService extends Service {
             }
 
             if (intent.getAction().equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_CONNECTED)) {
-                Lawg.i("Peer connected: ");
 
                 Peer connectedPeer = intent.getParcelableExtra(PeerBroadcaster.KEY_PEER);
+	            Lawg.i("Peer connected: " + connectedPeer.address);
 
-                for (Peer peer : peerPool) {
-                    if (peer.address.equals(connectedPeer.address)) {
-                        peerPool.remove(peer);
-                        Lawg.i("remove connected peer: " + connectedPeer.address);
-                        break;
-                    }
-                }
-
+                removePeerFromPool(connectedPeer);
                 connectToNextPeer();
             }
 
             if (intent.getAction().equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_DISCONNECTED)) {
 
                 Peer disconnectedPeer = intent.getParcelableExtra(PeerBroadcaster.KEY_PEER);
+	            Lawg.i("Peer disconnected: " + disconnectedPeer.address);
 
-                for (PeerCommunicatorThread thread : peerCommunicatorThreads) {
-                    if (thread.getPeer().address.equals(disconnectedPeer.address)) {
-                        Lawg.i("remove thread: " + thread.getPeer().address);
-                        peerCommunicatorThreads.remove(thread);
-                        break;
-                    }
-                }
-
-                for (Peer peer : peerPool) {
-                    if (peer.address.equals(disconnectedPeer.address)) {
-                        peerPool.remove(peer);
-                        Lawg.i("remove disconnected peer: " + disconnectedPeer.address);
-                        break;
-                    }
-                }
-
-                Lawg.i("Peer disconnected: " + disconnectedPeer.address);
-
+                removeCommunicatorThreadFromArray(disconnectedPeer);
+	            removePeerFromPool(disconnectedPeer);
                 connectToNextPeer();
             }
         }
