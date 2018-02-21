@@ -2,13 +2,17 @@ package com.boetchain.bitcoinnode.ui.adapter;
 
 import android.content.Context;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.boetchain.bitcoinnode.App;
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -54,6 +58,7 @@ public class PeerAdapter extends BaseAdapter {
             view = View.inflate(context, R.layout.listitem_peer, null);
             view.setTag(holder);
 
+            holder.listitem_peer_profile_iv = view.findViewById(R.id.listitem_peer_profile_iv);
             holder.ipTextView = view.findViewById(R.id.listitem_peer_ip_tv);
             holder.timestampTextView = view.findViewById(R.id.listitem_peer_timestamp_tv);
             holder.listitem_peer_status_tv = view.findViewById(R.id.listitem_peer_status_tv);
@@ -66,9 +71,25 @@ public class PeerAdapter extends BaseAdapter {
         holder.ipTextView.setText(peer.address);
         int gmtOffSet = 0;
         holder.timestampTextView.setText(DateUtils.getRelativeTimeSpanString(peer.timestamp + gmtOffSet, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS, 0));
+        setPeerProfile(holder, peer);
         setPeerStatus(holder, peer);
 
         return view;
+    }
+
+    /**
+     * Sets the peers profile pic to a country flag, if we have geolocated the peer.
+     * @param holder - view holder.
+     * @param peer - peer to display a profile pic of.
+     */
+    private void setPeerProfile(ViewHolder holder, Peer peer) {
+        if (peer.countryCode != null && !peer.countryCode.isEmpty()) {
+            Log.i(App.TAG, "http://www.countryflags.io/" + peer.countryCode + "/flat/64.png");
+            Picasso.with(context).load("http://www.countryflags.io/" + peer.countryCode + "/flat/64.png")
+                    .error(R.mipmap.profile)
+                    .placeholder(R.mipmap.profile)
+                    .into(holder.listitem_peer_profile_iv);
+        }
     }
 
     /**
@@ -91,6 +112,7 @@ public class PeerAdapter extends BaseAdapter {
 
     public static class ViewHolder {
 
+        public ImageView listitem_peer_profile_iv;
         public TextView ipTextView;
         public TextView timestampTextView;
         public TextView listitem_peer_status_tv;

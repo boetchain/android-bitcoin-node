@@ -14,5 +14,9 @@
     <string name="command_send_headers_message_1">Give me your headers chop stick.</string>
     <string name="command_ver_ack_message_1">Kiff, got your version.</string>
     <string name="command_version_message_1">Here\'s my version.</string>
+    <string name="command_inv_message_1">Awe son, check this info I got for you</string>
+    <string name="command_inv_message_2">I got the 411 for you right here bru.</string>
+    <string name="command_inv_message_3">This is what\'s crackalacking in the network...</string>
+    <string name="command_inv_message_4">Just spreading the word from my peeps.</string>
 
 </resources>

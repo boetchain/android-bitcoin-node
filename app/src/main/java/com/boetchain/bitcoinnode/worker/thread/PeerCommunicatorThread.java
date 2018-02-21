@@ -11,6 +11,7 @@ import com.boetchain.bitcoinnode.model.Message.AddrMessage;
 import com.boetchain.bitcoinnode.model.Message.AlertMessage;
 import com.boetchain.bitcoinnode.model.Message.BaseMessage;
 import com.boetchain.bitcoinnode.model.Message.GetAddrMessage;
+import com.boetchain.bitcoinnode.model.Message.InvMessage;
 import com.boetchain.bitcoinnode.model.Message.PingMessage;
 import com.boetchain.bitcoinnode.model.Message.PongMessage;
 import com.boetchain.bitcoinnode.model.Message.RejectMessage;
@@ -494,6 +495,8 @@ public class PeerCommunicatorThread extends BaseThread {
         } else if (commandName.toLowerCase().contains(PingMessage.COMMAND_NAME)) {
 
             message = new PingMessage(header, payload);
+        } else if (commandName.toLowerCase().contains(InvMessage.COMMAND_NAME)) {
+            message = new InvMessage(header, payload);
         }
 
         if (message != null) {

@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.Peer;
+import com.boetchain.bitcoinnode.ui.adapter.NavigationDrawAdapter;
 import com.boetchain.bitcoinnode.ui.adapter.PeerAdapter;
 import com.boetchain.bitcoinnode.ui.adapter.StatusAdapter;
 import com.boetchain.bitcoinnode.ui.view.DrawerHeaderView;
@@ -45,12 +46,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     /**
      * The number of actual menu items in the drawer menu EXCLUDING header and footer items
      */
-    public static int DRAWER_MENU_SIZE = 1;
+    public static int DRAWER_MENU_SIZE = 2;
 
     /**
      * These are the indexes of menu items in the drawer nav
      */
-    public static final int DRAWER_POS_ABOUT = 0;
+    public static final int DRAWER_POS_MAP = 0;
+    public static final int DRAWER_POS_ABOUT = 1;
 
     private String[] drawerItems;
     private DrawerLayout drawerLayout;
@@ -191,6 +193,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     private void constructDrawerMenu() {
         drawerItems = new String[DRAWER_MENU_SIZE];
+        drawerItems[DRAWER_POS_MAP] = getString(R.string.activity_main_drawer_item_map);
         drawerItems[DRAWER_POS_ABOUT] = getString(R.string.activity_main_drawer_item_about);
     }
 
@@ -203,8 +206,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         drawerList.addHeaderView(headerView.getView(), null, false);
 
         // Set the adapter for the list view
-        drawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, drawerItems));
+        drawerList.setAdapter(new NavigationDrawAdapter(this, drawerItems));
         // Set the list's click listener
         drawerList.setOnItemClickListener(new DrawerItemClickListener());
 
