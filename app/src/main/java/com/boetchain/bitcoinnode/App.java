@@ -6,6 +6,7 @@ import android.util.Log;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.Volley;
+import com.crashlytics.android.Crashlytics;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -17,12 +18,16 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import io.fabric.sdk.android.Fabric;
+
 /**
  * Created by rossbadenhorst on 2018/01/31.
  */
 
 public class App extends com.orm.SugarApp {
     public static final String TAG = "bitcoinnode";
+
+    public static boolean PROD_MODE = false;
 
     /**
      * True if the app is currently open and in the foreground.
@@ -39,7 +44,16 @@ public class App extends com.orm.SugarApp {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.e(TAG, "Starting...");
+
+	    Log.e(TAG, "Starting...");
+
+	    if (BuildConfig.DEBUG) {
+		    PROD_MODE = false;
+	    } else {
+		    PROD_MODE = true;
+		    Fabric.with(this, new Crashlytics());
+	    }
+
     }
 
     /**
