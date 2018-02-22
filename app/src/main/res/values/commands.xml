@@ -16,8 +16,10 @@
     <string name="command_version_message_1">Here\'s my version.</string>
     <string name="command_inv_message_1">Awe son, check this info I got for you</string>
     <string name="command_inv_message_2">I got the 411 for you right here bru.</string>
-    <string name="command_inv_message_3">This is what\'s crackalacking in the network...</string>
+    <string name="command_inv_message_3">This is what\'s crackalacking in the network.</string>
     <string name="command_inv_message_4">Just spreading the word from my peeps.</string>
-    <string name="command_feefilter_message_1">Ag man! transactions now cost atleast {:value} satoshis per kilobyte</string>
+    <string name="command_inv_message_5">Ja nee, check this out.</string>
+    <string name="command_inv_message_6">Jislaaik oaks are talking alot, here\'s more info.</string>
+    <string name="command_feefilter_message_1">I am gatvol of cheap transactions, only send me ones more then {:value} satoshis per kilobyte</string>
 
 </resources>
