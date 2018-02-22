@@ -6,6 +6,7 @@ import android.util.Log;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.boetchain.bitcoinnode.App;
+import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.ChatLog;
 import com.boetchain.bitcoinnode.model.Message.AddrMessage;
 import com.boetchain.bitcoinnode.model.Message.AlertMessage;
@@ -109,7 +110,7 @@ public class PeerCommunicatorThread extends BaseThread {
      */
     private void onPeerConnectionAttempt() {
         peer.timestamp = System.currentTimeMillis();
-        peer.appendChatHistory(new ChatLog("connect: " + peer.address, ChatLog.TYPE_NEUTRAL));
+        peer.appendChatHistory(new ChatLog(context.getString(R.string.activity_chat_message_neutral_connecting), ChatLog.TYPE_NEUTRAL));
         broadcaster.broadcast(PeerBroadcaster.ACTION_PEER_CONNECTION_ATTEMPT);
     }
 
@@ -121,7 +122,7 @@ public class PeerCommunicatorThread extends BaseThread {
 
         peer.timestamp = System.currentTimeMillis();
         peer.connected = true;
-        peer.appendChatHistory(new ChatLog("Connection established", ChatLog.TYPE_NEUTRAL));
+        peer.appendChatHistory(new ChatLog(context.getString(R.string.activity_chat_message_neutral_connected), ChatLog.TYPE_NEUTRAL));
         peer.save();
         broadcaster.broadcast(PeerBroadcaster.ACTION_PEER_CONNECTED);
         geolocatePeer();
@@ -173,7 +174,7 @@ public class PeerCommunicatorThread extends BaseThread {
         }
 
         peer.timestamp = System.currentTimeMillis();
-        peer.appendChatHistory(new ChatLog("Failed to establish connection", ChatLog.TYPE_NEUTRAL));
+        peer.appendChatHistory(new ChatLog(context.getString(R.string.activity_chat_message_neutral_connection_failed), ChatLog.TYPE_NEUTRAL));
         broadcaster.broadcast(PeerBroadcaster.ACTION_PEER_DISCONNECTED);
         peer.delete(); // Fuck this peer, lets try not talk to him
     }

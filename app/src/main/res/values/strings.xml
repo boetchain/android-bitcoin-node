@@ -15,8 +15,14 @@
     <string name="drawer_header_status">Status: {:value}</string>
     <string name="drawer_header_connected_peers">Connected Peers: {:value}</string>
 
+    <string name="listitem_peer_status">{:country}, {:city}</string>
+
     <string name="error_cant_find_peers">Can\'t find peers</string>
     <string name="error_peer_not_found">Peer not found</string>
+
+    <string name="activity_chat_message_neutral_connecting">Connecting</string>
+    <string name="activity_chat_message_neutral_connected">Connected</string>
+    <string name="activity_chat_message_neutral_connection_failed">Connection error</string>
 
     <string name="activity_about_version_tv">Version: {:version}</string>
     <string name="activity_about_header_about_tv">About</string>
@@ -29,5 +35,5 @@
     <string name="activity_about_header_thanks_tv">Thanks</string>
     <string name="activity_about_paragraph_tv_thanks_tv">Alot of this project is based on code from the projects below, with out them none of this would be possible:\n\nBitcoin Core\nBitcoinj\nABcore</string>
 
-    <string name="listitem_peer_status">{:country}, {:city}</string>
+
 </resources>
