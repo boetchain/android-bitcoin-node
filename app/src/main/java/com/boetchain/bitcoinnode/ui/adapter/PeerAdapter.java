@@ -88,7 +88,7 @@ public class PeerAdapter extends BaseAdapter {
     private void setPeerLastMessage(ViewHolder holder, Peer peer) {
 
         if (peer.getChatHistory().size() > 0) {
-            holder.listitem_peer_last_msg_tv.setText(peer.getChatHistory().get(peer.getChatHistory().size() - 1).command);
+            holder.listitem_peer_last_msg_tv.setText(peer.getChatHistory().get(peer.getChatHistory().size() - 1).text);
             holder.listitem_peer_last_msg_tv.setVisibility(View.VISIBLE);
         } else {
             holder.listitem_peer_last_msg_tv.setVisibility(View.GONE);
