@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/shape_chat_log_out"
         android:padding="8dp"
+        android:layout_marginLeft="25dp"
         android:layout_alignParentEnd="true"
         >
 

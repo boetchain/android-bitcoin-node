@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/shape_chat_log_in"
         android:padding="8dp"
+        android:layout_marginRight="25dp"
         android:layout_alignParentStart="true"
         >
 
@@ -17,7 +18,7 @@
             android:id="@+id/listitem_chat_log_in_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="Here is a message about all this bru"
+            tools:text="Here is a message about all this bru. This message can be long long long long message, with lots and lots and lots of text. It is always better to be prepared for long text, then just to assume things will be short and sweet."
             android:gravity="start"
             android:textColor="@color/white"
             android:layout_below="@id/listitem_chat_log_in_command_tv"
