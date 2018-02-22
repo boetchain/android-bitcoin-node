@@ -33,7 +33,9 @@
     <string name="activity_about_name_contributor_ross_tv">Ross Badenhorst</string>
     <string name="activity_about_detail_contributor_ross_tv">github.com/rossbadenhorst</string>
     <string name="activity_about_header_thanks_tv">Thanks</string>
-    <string name="activity_about_paragraph_tv_thanks_tv">Alot of this project is based on code from the projects below, with out them none of this would be possible:\n\nBitcoin Core\nBitcoinj\nABcore</string>
+    <string name="activity_about_paragraph_tv_thanks_tv">A lot of this project is based on code from the projects below, with out them none of this would be possible:\n\nBitcoin Core\nBitcoinj\nABcore</string>
 
+    <string name="notification_sticky_peer_service_title">BoetChain Node Running</string>
+    <string name="notification_sticky_peer_service_tag">The Node is lank running boet.</string>
 
 </resources>
