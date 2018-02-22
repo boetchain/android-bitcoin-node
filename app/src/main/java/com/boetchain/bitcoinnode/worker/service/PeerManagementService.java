@@ -27,21 +27,30 @@ import java.util.List;
  */
 public class PeerManagementService extends Service {
 
-    public static final String ACTION_DNS_SEED_DISCOVERY_STARTING   = "ACTION_DNS_SEED_DISCOVERY_STARTING";
-    public static final String ACTION_DNS_SEED_DISCOVERY_COMPLETE   = "ACTION_DNS_SEED_DISCOVERY_COMPLETE";
-    public static final String ACTION_SERVICE_STARTED               = "ACTION_SERVICE_STARTED";
-    public static final String ACTION_SERVICE_DESTROYED             = "ACTION_SERVICE_DESTROYED";
-
     /**
-     * Max number of connections we want to maintain with peers
+     * We have started the DNS seed lookup.
+     */
+    public static final String ACTION_DNS_SEED_DISCOVERY_STARTING   = "ACTION_DNS_SEED_DISCOVERY_STARTING";
+    /**
+     * We have complated the DNS seed lookup.
+     */
+    public static final String ACTION_DNS_SEED_DISCOVERY_COMPLETE   = "ACTION_DNS_SEED_DISCOVERY_COMPLETE";
+    /**
+     * The PeerManagementService has been started.
+     */
+    public static final String ACTION_SERVICE_STARTED               = "ACTION_SERVICE_STARTED";
+    /**
+     * The PeerManagementService has been destroyed.
+     */
+    public static final String ACTION_SERVICE_DESTROYED             = "ACTION_SERVICE_DESTROYED";
+    /**
+     * Max number of connections we want to maintain with peers.
      */
     public static final int MAX_CONNECTIONS = 4;
-
 	/**
 	 * The amount of time that needs to pass before this service will act on another start command.
 	 */
 	public static final int START_DELAY = 1000 * 3;
-
     /**
      * All the peers we currently have in the pool.
      */
@@ -56,12 +65,14 @@ public class PeerManagementService extends Service {
      * Binder given to clients
      */
     private final IBinder binder = new LocalBinder();
-
+    /**
+     * Thread used to boot strap finding peers.
+     */
     private DnsSeedDiscoveryThread dnsSeedDiscoveryThread;
-
+    /**
+     * List of threads that are communicating with the peers.
+     */
     private List<PeerCommunicatorThread> peerCommunicatorThreads = new ArrayList();
-
-    private List<Peer> removePeerQueue = new ArrayList();
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -266,6 +277,11 @@ public class PeerManagementService extends Service {
         return null;
     }
 
+    /**
+     * Shit cans the threads that are maintaining coms with out peers.
+     * Used to shutdown the peer management service and prevent the
+     * threads runing loose like a bunch of wild horses.
+     */
     private void killPeerCommunicatorThreads() {
 
         for (int i = 0; i < peerCommunicatorThreads.size(); i++) {
@@ -289,8 +305,6 @@ public class PeerManagementService extends Service {
 
             dnsSeedDiscoveryThread.interrupt();
         }
-
-        new PeerBroadcaster(this, new Peer(App.monitoringPeerIP)).broadcastLogAll("Bitcoin Service Shutting down...", ChatLog.TYPE_NEUTRAL);
 
         killPeerCommunicatorThreads();
 
@@ -349,7 +363,7 @@ public class PeerManagementService extends Service {
     };
 
     /**
-     *
+     * Allows clients (typically the UI) to interact the the service.
      */
     public class LocalBinder extends Binder {
         public PeerManagementService getService() {
