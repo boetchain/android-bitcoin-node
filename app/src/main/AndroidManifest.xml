@@ -20,14 +20,15 @@
         <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="com.boetchain.bitcoinnode.model" />
 
         <!-- ACTIVITIES -->
-        <activity android:name="com.boetchain.bitcoinnode.ui.activity.MainActivity">
+        <activity android:name="com.boetchain.bitcoinnode.ui.activity.MainActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.boetchain.bitcoinnode.ui.activity.AboutActivity" />=
+        <activity android:name="com.boetchain.bitcoinnode.ui.activity.AboutActivity" />
 
         <activity android:name="com.boetchain.bitcoinnode.ui.activity.PeerChatActivity">
             <intent-filter>

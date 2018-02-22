@@ -11,10 +11,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateUtils;
 
-import com.boetchain.bitcoinnode.App;
-import com.boetchain.bitcoinnode.model.ChatLog;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.util.Lawg;
+import com.boetchain.bitcoinnode.util.Notify;
 import com.boetchain.bitcoinnode.worker.broadcaster.PeerBroadcaster;
 import com.boetchain.bitcoinnode.worker.thread.DnsSeedDiscoveryThread;
 import com.boetchain.bitcoinnode.worker.thread.PeerCommunicatorThread;
@@ -85,6 +84,8 @@ public class PeerManagementService extends Service {
 
         //We want to limit how many successive calls to on start command there are
         if (startedRunningAt < System.currentTimeMillis() - START_DELAY) {
+
+        	Notify.notificationStickyPeerService(this);
 
 	        if (startedRunningAt <= 0) {
 
@@ -294,6 +295,8 @@ public class PeerManagementService extends Service {
     @Override
     public void onDestroy() {
         Lawg.i("onDestroy");
+
+	    Notify.notificationStickyPeerServiceCancel(this);
 
         Intent dnsSeedDiscoveryCompleteIntent = new Intent(PeerManagementService.ACTION_SERVICE_DESTROYED);
         LocalBroadcastManager.getInstance(this).sendBroadcast(dnsSeedDiscoveryCompleteIntent);
