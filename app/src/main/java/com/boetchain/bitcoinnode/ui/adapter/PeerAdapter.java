@@ -62,6 +62,7 @@ public class PeerAdapter extends BaseAdapter {
             holder.listitem_peer_profile_iv = view.findViewById(R.id.listitem_peer_profile_iv);
             holder.ipTextView = view.findViewById(R.id.listitem_peer_ip_tv);
             holder.timestampTextView = view.findViewById(R.id.listitem_peer_timestamp_tv);
+            holder.listitem_peer_last_msg_tv = view.findViewById(R.id.listitem_peer_last_msg_tv);
             holder.listitem_peer_status_tv = view.findViewById(R.id.listitem_peer_status_tv);
 
         } else {
@@ -72,10 +73,27 @@ public class PeerAdapter extends BaseAdapter {
         holder.ipTextView.setText(peer.address);
         int gmtOffSet = 0;
         holder.timestampTextView.setText(DateUtils.getRelativeTimeSpanString(peer.timestamp + gmtOffSet, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS, 0));
+        setPeerLastMessage(holder, peer);
         setPeerProfile(holder, peer);
         setPeerStatus(holder, peer);
 
         return view;
+    }
+
+    /**
+     * Sets the peers profile pic to a country flag, if we have geolocated the peer.
+     * @param holder - view holder.
+     * @param peer - peer to display a profile pic of.
+     */
+    private void setPeerLastMessage(ViewHolder holder, Peer peer) {
+
+        if (peer.getChatHistory().size() > 0) {
+            holder.listitem_peer_last_msg_tv.setText(peer.getChatHistory().get(peer.getChatHistory().size() - 1).text);
+            holder.listitem_peer_last_msg_tv.setVisibility(View.VISIBLE);
+        } else {
+            holder.listitem_peer_last_msg_tv.setVisibility(View.GONE);
+        }
+
     }
 
     /**
@@ -133,6 +151,7 @@ public class PeerAdapter extends BaseAdapter {
         public ImageView listitem_peer_profile_iv;
         public TextView ipTextView;
         public TextView timestampTextView;
+        public TextView listitem_peer_last_msg_tv;
         public TextView listitem_peer_status_tv;
     }
 }

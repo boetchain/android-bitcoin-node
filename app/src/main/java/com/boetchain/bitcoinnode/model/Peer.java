@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.boetchain.bitcoinnode.R;
 import com.orm.SugarRecord;
+import com.orm.dsl.Ignore;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,11 +22,16 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
      */
     public static final int DEFAULT_PORT = 8333;
     /**
-     * The max amount of peers we want to keep in our poot.
+     * The max amount of peers we want to keep in our pool.
      * We normally connect to 8 peers at a time and each one gives us about 1000 addresses at a time.
      */
     public static final int MAX_POOL_SIZE = 40;
-
+    /**
+     * The max amount of historical chat message we want to store against each peer.
+     * We limit this, because it serves no other function besides some fancy UI.
+     *
+     */
+    public static final int MAX_CHAT_HISTORY_SIZE = 50;
     /**
      * The address of the peer
      */
@@ -88,11 +94,23 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
      */
     public String regionName;
 
+    /**
+     * Stores a historical list of chats between ourself and this peer.
+     * We limit this to the MAX_CHAT_HISTORY_SIZE.
+     *
+     * We ignore this, because we dont want to waste time persisting
+     * messages or history to the DB.
+     */
+    @Ignore
+    private ArrayList<ChatLog> chatHistory;
+
     public Peer() {
+        chatHistory = new ArrayList<>();
     }
 
     public Peer(String address) {
         this.address = address;
+        chatHistory = new ArrayList<>(MAX_CHAT_HISTORY_SIZE);
     }
 
     public Peer(String address, int port, long services) {
@@ -100,6 +118,7 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
         this.port = port;
         this.services = services;
         this.connected = false;
+        chatHistory = new ArrayList<>(MAX_CHAT_HISTORY_SIZE);
     }
 
     public Peer(String address, int port, long services, long timestamp) {
@@ -108,6 +127,7 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
         this.services = services;
         this.timestamp = timestamp;
         this.connected = false;
+        chatHistory = new ArrayList<>(MAX_CHAT_HISTORY_SIZE);
     }
 
     /**
@@ -119,23 +139,6 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
         Collections.sort(pool);
 
         return pool;
-    }
-
-    /**
-     * Gets all the peers we are currently trying to maintain connections with.
-     * @return only the connected peers.
-     */
-    public static ArrayList<Peer> getConnectedPeers() {
-        List<Peer> peerPool  = Peer.listAll(Peer.class);
-        ArrayList<Peer> connectedPeers = new ArrayList<>();
-
-        for (Peer peer : peerPool) {
-            if (peer.connected) {
-                connectedPeers.add(peer);
-            }
-        }
-
-        return connectedPeers;
     }
 
     /**
@@ -167,16 +170,28 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
     }
 
     /**
-     * Gets the peer pool and trims it if we have more peers
-     * then the max amount.
+     * Adds a chatlog to the history.
+     * Shit cans old chat messages, if need be.
+     * @param chatLog - new chat to store.
      */
-    public static void forgetOldPeers() {
-        List<Peer> pool = getPeerPool();
+    public void appendChatHistory(ChatLog chatLog) {
+        chatHistory.add(chatLog);
 
-        if (pool.size() > MAX_POOL_SIZE) {
-            List<Peer> peersToDelete = pool.subList(MAX_POOL_SIZE, pool.size());
-            Peer.deleteInTx(peersToDelete);
+        // trim the message history if need be
+        Collections.sort(chatHistory);
+        if (chatHistory.size() > MAX_CHAT_HISTORY_SIZE) {
+            chatHistory.remove(0);
         }
+    }
+
+    /**
+     * Gets the chat history for a peer.
+     * By now the list should be sorted and in order
+     * so we can simply pump it to the UI.
+     * @return - chat histor for a peer.
+     */
+    public ArrayList<ChatLog> getChatHistory() {
+        return this.chatHistory;
     }
 
     @Override
@@ -217,6 +232,12 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
         isp = in.readString();
         region = in.readString();
         regionName = in.readString();
+        if (in.readByte() == 0x01) {
+            chatHistory = new ArrayList<ChatLog>();
+            in.readList(chatHistory, ChatLog.class.getClassLoader());
+        } else {
+            chatHistory = null;
+        }
     }
 
     @Override
@@ -239,6 +260,12 @@ public class Peer extends SugarRecord implements Comparable<Peer>, Parcelable {
         dest.writeString(isp);
         dest.writeString(region);
         dest.writeString(regionName);
+        if (chatHistory == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(chatHistory);
+        }
     }
 
     @SuppressWarnings("unused")

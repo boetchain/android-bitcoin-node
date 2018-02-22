@@ -491,7 +491,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
         Intent intent = new Intent(this, PeerChatActivity.class);
-        intent.putExtra(PeerChatActivity.EXTRA_PEER, peers.get(i));
+        intent.putExtra(PeerBroadcaster.KEY_PEER, peers.get(i));
         startActivity(intent);
     }
 

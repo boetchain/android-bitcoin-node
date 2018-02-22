@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/colorPrimary"
         android:textSize="14sp"
+        android:maxLines="1"
         tools:text="12.51.61:8330"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/listitem_peer_profile_iv" />
@@ -35,18 +36,32 @@
         android:layout_below="@id/listitem_peer_ip_tv"
         android:layout_toRightOf="@+id/listitem_peer_profile_iv" />
 
-
-    <TextView
-        android:id="@+id/listitem_peer_timestamp_tv"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:textColor="@color/text_light_grey"
-        android:textSize="10sp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        tools:text="10:46"
-        />
+        android:orientation="vertical">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:gravity="right"
+            android:maxLines="1"
+            android:ellipsize="end"
+            tools:text="long long long long loooooooon message"
+            android:id="@+id/listitem_peer_last_msg_tv"/>
 
+        <TextView
+            android:id="@+id/listitem_peer_timestamp_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_light_grey"
+            android:textSize="10sp"
+            android:gravity="right"
+            tools:text="2 seconds ago"
+            />
 
+    </LinearLayout>
 </RelativeLayout>
