@@ -11,6 +11,7 @@ import com.boetchain.bitcoinnode.model.ChatLog;
 import com.boetchain.bitcoinnode.model.Message.AddrMessage;
 import com.boetchain.bitcoinnode.model.Message.AlertMessage;
 import com.boetchain.bitcoinnode.model.Message.BaseMessage;
+import com.boetchain.bitcoinnode.model.Message.FeeFilterMessage;
 import com.boetchain.bitcoinnode.model.Message.GetAddrMessage;
 import com.boetchain.bitcoinnode.model.Message.InvMessage;
 import com.boetchain.bitcoinnode.model.Message.PingMessage;
@@ -512,6 +513,8 @@ public class PeerCommunicatorThread extends BaseThread {
             message = new PingMessage(header, payload);
         } else if (commandName.toLowerCase().contains(InvMessage.COMMAND_NAME)) {
             message = new InvMessage(header, payload);
+        } else if (commandName.toLowerCase().contains(FeeFilterMessage.COMMAND_NAME)) {
+            message = new FeeFilterMessage(header, payload);
         }
 
         if (message != null) {

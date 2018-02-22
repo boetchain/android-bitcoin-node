@@ -7,26 +7,25 @@ import com.boetchain.bitcoinnode.R;
 /**
  * Created by Ross Badenhorst.
  */
-public class PongMessage extends BaseMessage {
+public class FeeFilterMessage extends BaseMessage {
 
-    public static final String COMMAND_NAME = "pong";
+    public static final String COMMAND_NAME = "feefilter";
     /**
-     * Random number send with every ping.
-     * If you send out a ping, you can see if you are pinging yourself - if you get a incoming ping
-     * with the same random number you sent...
-     *
-     * Happens if your behind some funny proxy or something...
+     * The minimum fee in satoshis per 1000 bytes.
+     * Upon receipt of a "feefilter" message, the node will be permitted, but not required,
+     * to filter transaction invs for transactions that fall below the feerate provided in
+     * the feefilter message interpreted as satoshis per kilobyte
      */
-    public long nonce;
+    public long feerate;
 
-    public PongMessage() {
+    public FeeFilterMessage() {
         super();
 
         writePayload();
         writeHeader();
     }
 
-    public PongMessage(byte[] header, byte[] payload) {
+    public FeeFilterMessage(byte[] header, byte[] payload) {
         super(header, payload);
     }
 
@@ -37,17 +36,16 @@ public class PongMessage extends BaseMessage {
 
     @Override
     public String getHumanReadableCommand(Context context) {
-        return context.getString(R.string.command_pong_message_1);
+        return context.getString(R.string.command_feefilter_message_1).replace("{:value}", "" + feerate);
     }
 
     @Override
     protected void readPayload() {
-        nonce = readUint64().longValue();
+        feerate = readUint64().longValue();
     }
 
     @Override
     protected void writePayload() {
-        writeUint64(this.nonce);
 
         payload = new byte[outputPayload.size()];
         for (int i = 0; i < payload.length && i < outputPayload.size(); i++) {

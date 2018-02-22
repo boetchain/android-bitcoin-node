@@ -18,5 +18,6 @@
     <string name="command_inv_message_2">I got the 411 for you right here bru.</string>
     <string name="command_inv_message_3">This is what\'s crackalacking in the network...</string>
     <string name="command_inv_message_4">Just spreading the word from my peeps.</string>
+    <string name="command_feefilter_message_1">Ag man! transactions now cost atleast {:value} satoshis per kilobyte</string>
 
 </resources>
