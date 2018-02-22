@@ -12,7 +12,6 @@ import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.boetchain.bitcoinnode.App;
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.ChatLog;
 import com.boetchain.bitcoinnode.model.Peer;
@@ -20,7 +19,6 @@ import com.boetchain.bitcoinnode.ui.adapter.ChatLogAdapter;
 import com.boetchain.bitcoinnode.util.Notify;
 import com.boetchain.bitcoinnode.worker.broadcaster.PeerBroadcaster;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -122,9 +120,13 @@ public class PeerChatActivity extends BaseActivity {
         logs.addAll(updatedChat);
         adapter.notifyDataSetChanged();
 
-        if (atBottom) {
-            listView.setSelection(adapter.getCount() - 1);
-        }
+	    scrollToBottom();
+    }
+
+    private void scrollToBottom() {
+	    if (atBottom) {
+		    listView.setSelection(adapter.getCount() - 1);
+	    }
     }
 
     @Override
@@ -138,9 +140,7 @@ public class PeerChatActivity extends BaseActivity {
         super.onPostResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_UPDATED));
 
-        if (atBottom) {
-	        listView.setSelection(adapter.getCount() - 1);
-        }
+	    scrollToBottom();
     }
 
     @Override
