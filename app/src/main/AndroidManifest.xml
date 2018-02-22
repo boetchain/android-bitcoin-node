@@ -45,5 +45,8 @@
         <!-- SERVICE -->
         <service android:name="com.boetchain.bitcoinnode.worker.service.PeerManagementService"></service>
 
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="cd5f04d9b165212a66c1d8fc6b9e9316f4dd3934" />
     </application>
 </manifest>
