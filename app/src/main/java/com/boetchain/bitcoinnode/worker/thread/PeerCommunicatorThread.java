@@ -512,6 +512,8 @@ public class PeerCommunicatorThread extends BaseThread {
             commandText = BaseMessage.getDefaultHumanReadableCommand(context);
         }
 
+        peer.timestamp = System.currentTimeMillis();
+        broadcaster.broadcast(PeerBroadcaster.ACTION_PEER_UPDATED);
         broadcaster.broadcastLog(commandText, commandName, ChatLog.TYPE_IN);
 
         return message;
