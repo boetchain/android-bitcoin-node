@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="22:00"
-            android:textColor="@color/chat_command_text"
+            android:textColor="#3dc7f5"
             android:textSize="@dimen/chat_log_command_text_size"
             android:layout_centerHorizontal="true"
             android:layout_below="@id/listitem_chat_log_neutral_tv"

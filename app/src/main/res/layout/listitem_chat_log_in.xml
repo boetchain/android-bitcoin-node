@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="ping"
-            android:textColor="@color/chat_command_text"
+            android:textColor="#ff8080"
             android:textSize="@dimen/chat_log_command_text_size"
             android:layout_alignStart="@id/listitem_chat_log_in_tv"
             />
@@ -41,7 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="22:00"
-            android:textColor="@color/chat_command_text"
+            android:textColor="#ff8080"
             android:textSize="@dimen/chat_log_command_text_size"
             android:layout_alignEnd="@id/listitem_chat_log_in_tv"
             />
