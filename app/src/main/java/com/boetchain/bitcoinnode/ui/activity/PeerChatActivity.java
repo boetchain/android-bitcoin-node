@@ -12,7 +12,6 @@ import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.boetchain.bitcoinnode.App;
 import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.ChatLog;
 import com.boetchain.bitcoinnode.model.Peer;
@@ -20,7 +19,6 @@ import com.boetchain.bitcoinnode.ui.adapter.ChatLogAdapter;
 import com.boetchain.bitcoinnode.util.Notify;
 import com.boetchain.bitcoinnode.worker.broadcaster.PeerBroadcaster;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,7 +43,7 @@ public class PeerChatActivity extends BaseActivity {
     /**
      * True if the user has scrolled to the bottom of the listview
      */
-    private boolean atBottom;
+    private boolean atBottom = true;
 
     /**
      * Listens for broadcasts from other parts of the app.
@@ -94,7 +92,11 @@ public class PeerChatActivity extends BaseActivity {
 
                 @Override
                 public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    if (firstVisibleItem + visibleItemCount == totalItemCount) {
+
+                	//If the user has scrolled to the bottom of the screen OR
+	                //If the number of visible items is the same as the total number of items
+                    if (firstVisibleItem + visibleItemCount == totalItemCount ||
+                        visibleItemCount == totalItemCount) {
                         atBottom = true;
                     } else {
                         atBottom = false;
@@ -118,9 +120,13 @@ public class PeerChatActivity extends BaseActivity {
         logs.addAll(updatedChat);
         adapter.notifyDataSetChanged();
 
-        if (atBottom) {
-            listView.setSelection(adapter.getCount() - 1);
-        }
+	    scrollToBottom();
+    }
+
+    private void scrollToBottom() {
+	    if (atBottom) {
+		    listView.setSelection(adapter.getCount() - 1);
+	    }
     }
 
     @Override
@@ -133,6 +139,8 @@ public class PeerChatActivity extends BaseActivity {
     protected void onPostResume() {
         super.onPostResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_UPDATED));
+
+	    scrollToBottom();
     }
 
     @Override
