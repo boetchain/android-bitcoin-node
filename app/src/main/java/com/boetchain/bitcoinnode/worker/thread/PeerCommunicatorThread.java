@@ -6,10 +6,12 @@ import android.util.Log;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.boetchain.bitcoinnode.App;
+import com.boetchain.bitcoinnode.R;
 import com.boetchain.bitcoinnode.model.ChatLog;
 import com.boetchain.bitcoinnode.model.Message.AddrMessage;
 import com.boetchain.bitcoinnode.model.Message.AlertMessage;
 import com.boetchain.bitcoinnode.model.Message.BaseMessage;
+import com.boetchain.bitcoinnode.model.Message.FeeFilterMessage;
 import com.boetchain.bitcoinnode.model.Message.GetAddrMessage;
 import com.boetchain.bitcoinnode.model.Message.InvMessage;
 import com.boetchain.bitcoinnode.model.Message.PingMessage;
@@ -46,13 +48,23 @@ public class PeerCommunicatorThread extends BaseThread {
      * will be interrupted and the peer removed.
      */
     public static final int MAX_FAILURE_COUNT = 10;
-
+    /**
+     * The socket we are using to send/reviece bytes with the peer.
+     */
     private Socket socket;
+    /**
+     * Allows us to tell the rest of the app whats news with the peer.
+     */
     private PeerBroadcaster broadcaster;
-
+    /**
+     * If we want to remained connected  to a peer.
+     * If we want to shutdown coms with a peer, flick this to false.
+     */
     private boolean stayConnected = true;
+    /**
+     * How many times this peer has pissed us off.
+     */
     private int failureCount = 0;
-
     /**
      * The peer that this thread is making comms with.
      */
@@ -74,11 +86,6 @@ public class PeerCommunicatorThread extends BaseThread {
 
         try {
             if (success) {
-                peer.timestamp = System.currentTimeMillis();
-                peer.connected = true;
-                peer.save();
-
-
                 onPeerConnected();
                 handlePeerMessages(socket.getOutputStream(), socket.getInputStream());
             } else {
@@ -103,7 +110,8 @@ public class PeerCommunicatorThread extends BaseThread {
      * Lets everyone know we are trying to connect to a peer.
      */
     private void onPeerConnectionAttempt() {
-
+        peer.timestamp = System.currentTimeMillis();
+        peer.appendChatHistory(new ChatLog(context.getString(R.string.activity_chat_message_neutral_connecting), ChatLog.TYPE_NEUTRAL));
         broadcaster.broadcast(PeerBroadcaster.ACTION_PEER_CONNECTION_ATTEMPT);
     }
 
@@ -111,7 +119,12 @@ public class PeerCommunicatorThread extends BaseThread {
      * Lets every one know we have a connection with this peer.
      */
     private void onPeerConnected() {
+        Lawg.i("onPeerConnected");
 
+        peer.timestamp = System.currentTimeMillis();
+        peer.connected = true;
+        peer.appendChatHistory(new ChatLog(context.getString(R.string.activity_chat_message_neutral_connected), ChatLog.TYPE_NEUTRAL));
+        peer.save();
         broadcaster.broadcast(PeerBroadcaster.ACTION_PEER_CONNECTED);
         geolocatePeer();
     }
@@ -160,9 +173,11 @@ public class PeerCommunicatorThread extends BaseThread {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        peer.delete(); // Fuck this peer, lets try not talk to him
 
+        peer.timestamp = System.currentTimeMillis();
+        peer.appendChatHistory(new ChatLog(context.getString(R.string.activity_chat_message_neutral_connection_failed), ChatLog.TYPE_NEUTRAL));
         broadcaster.broadcast(PeerBroadcaster.ACTION_PEER_DISCONNECTED);
+        peer.delete(); // Fuck this peer, lets try not talk to him
     }
 
     /**
@@ -174,7 +189,7 @@ public class PeerCommunicatorThread extends BaseThread {
      * @return true if connection success, false if not.
      */
     private boolean connect(Socket socket) {
-        broadcaster.broadcastLog("connect: " + peer.address, ChatLog.TYPE_NEUTRAL);
+        //broadcaster.broadcastLog("connect: " + peer.address, ChatLog.TYPE_NEUTRAL);
         Lawg.i("connect: " + peer.address);
 
         InetSocketAddress address = new InetSocketAddress(peer.address, peer.port);
@@ -197,15 +212,8 @@ public class PeerCommunicatorThread extends BaseThread {
 
             boolean success;
             if (peerVerAckMessage != null) {
-
-                broadcaster.broadcastLog("Connection established", ChatLog.TYPE_NEUTRAL);
-                Lawg.i("Connection established");
-                peer.timestamp = System.currentTimeMillis();
-                peer.connected = true;
-                peer.save();
                 success =  true;
             } else {
-                broadcaster.broadcastLog("Failed to establish connection", ChatLog.TYPE_NEUTRAL);
                 Lawg.e("Failed to establish connection");
                 success = false;
                 onPeerDisconnected();
@@ -213,7 +221,6 @@ public class PeerCommunicatorThread extends BaseThread {
 
             return success;
         } catch (IOException e) {
-            broadcaster.broadcastLog("Failed to establish connection", ChatLog.TYPE_NEUTRAL);
             Lawg.e("Failed to establish connection");
             onPeerDisconnected();
             return false;
@@ -258,8 +265,9 @@ public class PeerCommunicatorThread extends BaseThread {
      * @param out - the stream we want to send the message on.
      */
     private void writeMessage(BaseMessage message, OutputStream out) {
-        broadcaster.broadcastLog(message.getHumanReadableCommand(context),
-                message.getCommandName(), ChatLog.TYPE_OUT);
+        peer.timestamp = System.currentTimeMillis();
+        peer.appendChatHistory(new ChatLog(message.getHumanReadableCommand(context), message.getCommandName(), System.currentTimeMillis(), ChatLog.TYPE_OUT));
+        broadcaster.broadcast(PeerBroadcaster.ACTION_PEER_UPDATED);
         Lawg.i("--> " + message.getCommandName());
 
         byte[] header   = message.getHeader();
@@ -273,7 +281,6 @@ public class PeerCommunicatorThread extends BaseThread {
             out.write(payload);
             out.flush();
         } catch (IOException e) {
-            broadcaster.broadcastLog("Failed to write message", ChatLog.TYPE_OUT);
             Lawg.e("Failed to write message");
         }
     }
@@ -299,20 +306,24 @@ public class PeerCommunicatorThread extends BaseThread {
                 return constructMessage(header, payload);
             } else {
 
-                failureCount++;
+                failureCount++; // Sending us dodgy checksums... you shall be punished!
                 checkFailure();
                 Lawg.i("CheckSum failed....");
                 return null;
             }
         } else {
 
-            failureCount++;
+            failureCount++; // No magic bytes found, we dont like that.
             checkFailure();
             Lawg.i("no magic bytes found....");
             return null;
         }
     }
 
+    /**
+     * If this peer pisses us off enough,
+     * We disconnect from him.
+     */
     private void checkFailure() {
 
         if (failureCount >= MAX_FAILURE_COUNT) {
@@ -502,6 +513,8 @@ public class PeerCommunicatorThread extends BaseThread {
             message = new PingMessage(header, payload);
         } else if (commandName.toLowerCase().contains(InvMessage.COMMAND_NAME)) {
             message = new InvMessage(header, payload);
+        } else if (commandName.toLowerCase().contains(FeeFilterMessage.COMMAND_NAME)) {
+            message = new FeeFilterMessage(header, payload);
         }
 
         if (message != null) {
@@ -512,7 +525,9 @@ public class PeerCommunicatorThread extends BaseThread {
             commandText = BaseMessage.getDefaultHumanReadableCommand(context);
         }
 
-        broadcaster.broadcastLog(commandText, commandName, ChatLog.TYPE_IN);
+        peer.timestamp = System.currentTimeMillis();
+        peer.appendChatHistory(new ChatLog(commandText, commandName, System.currentTimeMillis(), ChatLog.TYPE_IN));
+        broadcaster.broadcast(PeerBroadcaster.ACTION_PEER_UPDATED);
 
         return message;
     }

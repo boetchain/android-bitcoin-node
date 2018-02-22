@@ -32,12 +32,6 @@ public class App extends com.orm.SugarApp {
     public static boolean isOpen = false;
 
     /**
-     * If the PeerChatActivity is open this String get set to that peer's IP. That way
-     * broadcasts can be sent for that one peer.
-     */
-    public static String monitoringPeerIP = "";
-
-    /**
      * Used by volley, the networking dependency, to fire requests in a queue.
      */
     private static RequestQueue requestQueue;

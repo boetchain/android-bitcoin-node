@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.MenuItem;
 import android.widget.AbsListView;
 import android.widget.ListView;
@@ -17,6 +18,7 @@ import com.boetchain.bitcoinnode.model.ChatLog;
 import com.boetchain.bitcoinnode.model.Peer;
 import com.boetchain.bitcoinnode.ui.adapter.ChatLogAdapter;
 import com.boetchain.bitcoinnode.util.Notify;
+import com.boetchain.bitcoinnode.worker.broadcaster.PeerBroadcaster;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +29,15 @@ import java.util.List;
 
 public class PeerChatActivity extends BaseActivity {
 
-    public static final String EXTRA_TEXT = MainActivity.class.getSimpleName() + ".EXTRA_TEXT";
-    public static final String EXTRA_COMMAND = MainActivity.class.getSimpleName() + ".EXTRA_COMMAND";
-    public static final String EXTRA_TIME = MainActivity.class.getSimpleName() + ".EXTRA_TIME";
-    public static final String EXTRA_TYPE = MainActivity.class.getSimpleName() + ".EXTRA_TYPE";
-    public static final String EXTRA_PEER = PeerChatActivity.class.getSimpleName() + ".EXTRA_PEER";
-
+    /**
+     * The peer we are chatting to.
+     */
     private Peer peer;
 
+    /**
+     * List of chat messages between us and the peer.
+     * The most recent message should appear at the bottom.
+     */
     private ListView listView;
     private ChatLogAdapter adapter;
     private List<ChatLog> logs;
@@ -44,17 +47,25 @@ public class PeerChatActivity extends BaseActivity {
      */
     private boolean atBottom = true;
 
-    private BroadcastReceiver logReceiver = new BroadcastReceiver() {
+    /**
+     * Listens for broadcasts from other parts of the app.
+     */
+    private BroadcastReceiver localBroadcastReceiver = new BroadcastReceiver() {
+
         @Override
         public void onReceive(Context context, Intent intent) {
+            String intentAction = intent.getAction();
 
-            if (intent.hasExtra(EXTRA_TEXT)) {
+            if (intentAction.equalsIgnoreCase(PeerBroadcaster.ACTION_PEER_UPDATED)) {
 
-                String text = intent.getStringExtra(EXTRA_TEXT);
-                String command = intent.getStringExtra(EXTRA_COMMAND);
-                long time = intent.getLongExtra(EXTRA_TIME, System.currentTimeMillis());
-                int type = intent.getIntExtra(EXTRA_TYPE, ChatLog.TYPE_NEUTRAL);
-                PeerChatActivity.this.logToUI(new ChatLog(text, command, time, type));
+                /**
+                 * We get updates about other peers, but since we are in this peers
+                 * chat, we only want to update message for the peer we are looking at.
+                 */
+                Peer updatedPeer = intent.getParcelableExtra(PeerBroadcaster.KEY_PEER);
+                if (peer.equals(intent.getParcelableExtra(PeerBroadcaster.KEY_PEER))) {
+                    refershChat(updatedPeer.getChatHistory());
+                }
             }
         }
     };
@@ -64,19 +75,19 @@ public class PeerChatActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_peer_chat);
 
-        if (!getIntent().hasExtra(EXTRA_PEER)) {
+        if (!getIntent().hasExtra(PeerBroadcaster.KEY_PEER)) {
             Notify.toast(this, R.string.error_peer_not_found, Toast.LENGTH_SHORT);
             finish();
         } else {
 
-            peer = getIntent().getParcelableExtra(EXTRA_PEER);
+            peer = getIntent().getParcelableExtra(PeerBroadcaster.KEY_PEER);
 
             if (getSupportActionBar() != null) {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 getSupportActionBar().setTitle(peer.address);
             }
 
-            listView = (ListView) findViewById(R.id.activity_main_log_lv);
+            listView = findViewById(R.id.activity_main_log_lv);
             listView.setOnScrollListener(new AbsListView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(AbsListView absListView, int i) {}
@@ -94,14 +105,21 @@ public class PeerChatActivity extends BaseActivity {
                     }
                 }
             });
-            logs = new ArrayList();
+            logs = peer.getChatHistory();
             adapter = new ChatLogAdapter(this, logs);
             listView.setAdapter(adapter);
         }
     }
 
-    private void logToUI(ChatLog log) {
-        logs.add(log);
+    /**
+     * Updates the chat with a new list of messages.
+     * As the peers are blasting our faces with message, this list
+     * should be trimmed to MAX_CHAT_HISTORY_SIZE
+     * @param updatedChat - new messages from the peer.
+     */
+    private void refershChat(List<ChatLog> updatedChat) {
+        logs.clear();
+        logs.addAll(updatedChat);
         adapter.notifyDataSetChanged();
 
         if (atBottom) {
@@ -112,18 +130,13 @@ public class PeerChatActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        App.monitoringPeerIP = "";
-        unregisterReceiver(logReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-
-        App.monitoringPeerIP = peer.address;
-
-        IntentFilter intent = new IntentFilter(getBroadcastAction());
-        registerReceiver(logReceiver, intent);
+        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, new IntentFilter(PeerBroadcaster.ACTION_PEER_UPDATED));
 
         if (atBottom) {
 	        listView.setSelection(adapter.getCount() - 1);
@@ -140,14 +153,5 @@ public class PeerChatActivity extends BaseActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * The broadcast action for receiving logs changes based on the current App.monitoringPeerIp
-     *
-     * @return
-     */
-    public static String getBroadcastAction() {
-        return MainActivity.class.getSimpleName() + ".ACTION_LOG_TO_UI." + App.monitoringPeerIP;
     }
 }

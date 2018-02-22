@@ -31,7 +31,7 @@ public class InvMessage extends BaseMessage {
 
     @Override
     public String getHumanReadableCommand(Context context) {
-        switch (new Random().nextInt(3)) {
+        switch (new Random().nextInt(6)) {
             case 0:
                 return context.getString(R.string.command_inv_message_1);
             case 1:
@@ -40,6 +40,10 @@ public class InvMessage extends BaseMessage {
                 return context.getString(R.string.command_inv_message_3);
             case 3:
                 return context.getString(R.string.command_inv_message_4);
+            case 4:
+                return context.getString(R.string.command_inv_message_5);
+            case 5:
+                return context.getString(R.string.command_inv_message_6);
             default:
                 return context.getString(R.string.command_inv_message_1);
         }
