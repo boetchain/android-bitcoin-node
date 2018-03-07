@@ -19,7 +19,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -618,6 +617,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         int diff = drawerList.getCount() - DRAWER_MENU_SIZE;
 
         switch (position - diff) {
+
+	        case DRAWER_POS_MAP:
+		        startActivity(new Intent(this, MapActivity.class));
+		        break;
 
             case DRAWER_POS_ABOUT:
                 startActivity(new Intent(this, AboutActivity.class));

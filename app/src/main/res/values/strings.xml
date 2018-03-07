@@ -37,5 +37,6 @@
 
     <string name="notification_sticky_peer_service_title">BoetChain Node Running</string>
     <string name="notification_sticky_peer_service_tag">The Node is lank running boet.</string>
+    <string name="title_activity_map">Peers</string>
 
 </resources>
