@@ -19,7 +19,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -30,7 +29,9 @@ import com.boetchain.bitcoinnode.ui.adapter.NavigationDrawAdapter;
 import com.boetchain.bitcoinnode.ui.adapter.PeerAdapter;
 import com.boetchain.bitcoinnode.ui.adapter.StatusAdapter;
 import com.boetchain.bitcoinnode.ui.view.DrawerHeaderView;
+import com.boetchain.bitcoinnode.util.DeviceUtil;
 import com.boetchain.bitcoinnode.util.Lawg;
+import com.boetchain.bitcoinnode.util.Notify;
 import com.boetchain.bitcoinnode.util.UserPreferences;
 import com.boetchain.bitcoinnode.worker.broadcaster.PeerBroadcaster;
 import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
@@ -335,10 +336,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         adapter.notifyDataSetChanged();
 
         headerView.setConnectedPeers(updatePeers.size());
-
-        if (updatePeers.size() == 0) {
-            return;
-        }
     }
 
     /**
@@ -500,6 +497,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
         drawerToggle.syncState();
+
+	    if (!DeviceUtil.isInternetConnection(this)) {
+		    Notify.alertDialog(this, "", R.string.error_no_internet);
+	    }
     }
 
     @Override
@@ -618,6 +619,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         int diff = drawerList.getCount() - DRAWER_MENU_SIZE;
 
         switch (position - diff) {
+
+	        case DRAWER_POS_MAP:
+		        startActivity(new Intent(this, MapActivity.class));
+		        break;
 
             case DRAWER_POS_ABOUT:
                 startActivity(new Intent(this, AboutActivity.class));

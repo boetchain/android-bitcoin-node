@@ -11,7 +11,7 @@
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_marginRight="15dp"
-        android:src="@mipmap/profile"
+        android:src="@drawable/ic_peer_default"
         android:id="@+id/listitem_peer_profile_iv"/>
 
     <TextView

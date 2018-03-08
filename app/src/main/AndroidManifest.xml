@@ -3,24 +3,37 @@
     package="com.boetchain.bitcoinnode">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
+         Google Maps Android API v2, but are recommended. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:name="com.boetchain.bitcoinnode.App"
         android:theme="@style/AppTheme">
 
         <!-- SUGAR ORM CONFIG -->
-        <meta-data android:name="DATABASE" android:value="boetchain_bitcoinnode.db" />
-        <meta-data android:name="VERSION" android:value="21" />
-        <meta-data android:name="QUERY_LOG" android:value="false" />
-        <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="com.boetchain.bitcoinnode.model" />
+        <meta-data
+            android:name="DATABASE"
+            android:value="boetchain_bitcoinnode.db" />
+        <meta-data
+            android:name="VERSION"
+            android:value="21" />
+        <meta-data
+            android:name="QUERY_LOG"
+            android:value="false" />
+        <meta-data
+            android:name="DOMAIN_PACKAGE_NAME"
+            android:value="com.boetchain.bitcoinnode.model" />
 
         <!-- ACTIVITIES -->
-        <activity android:name="com.boetchain.bitcoinnode.ui.activity.MainActivity"
+        <activity
+            android:name=".ui.activity.MainActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,26 +41,41 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.boetchain.bitcoinnode.ui.activity.AboutActivity" />
-
-        <activity android:name="com.boetchain.bitcoinnode.ui.activity.PeerChatActivity">
+        <activity android:name=".ui.activity.AboutActivity" />
+        <activity android:name=".ui.activity.PeerChatActivity">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <!-- RECEIVER -->
-        <receiver android:name="com.boetchain.bitcoinnode.worker.receiver.BootReceiver">
+        <receiver android:name=".worker.receiver.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
         <!-- SERVICE -->
-        <service android:name="com.boetchain.bitcoinnode.worker.service.PeerManagementService"></service>
+        <service android:name=".worker.service.PeerManagementService" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="cd5f04d9b165212a66c1d8fc6b9e9316f4dd3934" />
+        <!--
+             The API key for Google Maps-based APIs is defined as a string resource.
+             (See the file "res/values/google_maps_api.xml").
+             Note that the API key is linked to the encryption key used to sign the APK.
+             You need a different API key for each encryption key, including the release key that is used to
+             sign the APK for publishing.
+             You can define the keys for the debug and release targets in src/debug/ and src/release/. 
+        -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+
+        <activity
+            android:name=".ui.activity.MapActivity"
+            android:label="@string/title_activity_map"></activity>
     </application>
+
 </manifest>
