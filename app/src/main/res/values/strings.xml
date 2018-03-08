@@ -19,6 +19,8 @@
 
     <string name="error_cant_find_peers">Can\'t find peers</string>
     <string name="error_peer_not_found">Peer not found</string>
+    <string name="error_no_location">Your location is turned off. Would you like to turn it on?</string>
+    <string name="error_no_internet">You\'re not connected to the internet.</string>
 
     <string name="activity_chat_message_neutral_connecting">Connecting</string>
     <string name="activity_chat_message_neutral_connected">Connected</string>

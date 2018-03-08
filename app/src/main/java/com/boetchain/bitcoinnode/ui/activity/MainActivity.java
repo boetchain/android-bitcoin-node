@@ -29,7 +29,9 @@ import com.boetchain.bitcoinnode.ui.adapter.NavigationDrawAdapter;
 import com.boetchain.bitcoinnode.ui.adapter.PeerAdapter;
 import com.boetchain.bitcoinnode.ui.adapter.StatusAdapter;
 import com.boetchain.bitcoinnode.ui.view.DrawerHeaderView;
+import com.boetchain.bitcoinnode.util.DeviceUtil;
 import com.boetchain.bitcoinnode.util.Lawg;
+import com.boetchain.bitcoinnode.util.Notify;
 import com.boetchain.bitcoinnode.util.UserPreferences;
 import com.boetchain.bitcoinnode.worker.broadcaster.PeerBroadcaster;
 import com.boetchain.bitcoinnode.worker.service.PeerManagementService;
@@ -499,6 +501,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
         drawerToggle.syncState();
+
+	    if (!DeviceUtil.isInternetConnection(this)) {
+		    Notify.alertDialog(this, "", R.string.error_no_internet);
+	    }
     }
 
     @Override
