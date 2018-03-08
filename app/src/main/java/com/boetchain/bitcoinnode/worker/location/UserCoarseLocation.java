@@ -10,8 +10,6 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 
-import com.boetchain.bitcoinnode.util.Lawg;
-
 /**
  * This class gets the users location once without updating until
  * asked to.
@@ -110,7 +108,6 @@ public class UserCoarseLocation {
                 int count = 5;
                 for (int i = 0; i < count; i++) {
 
-                	Lawg.i("asdf get location");
                     locMan.requestSingleUpdate(provider, locationListener, Looper.myLooper());
                     location = locMan.getLastKnownLocation(provider);
 

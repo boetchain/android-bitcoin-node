@@ -336,10 +336,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         adapter.notifyDataSetChanged();
 
         headerView.setConnectedPeers(updatePeers.size());
-
-        if (updatePeers.size() == 0) {
-            return;
-        }
     }
 
     /**

@@ -10,5 +10,6 @@
 
     <!-- MapActivity -->
     <dimen name="map_user_marker_size">32dp</dimen>
+    <dimen name="map_peer_marker_size">32dp</dimen>
 
 </resources>

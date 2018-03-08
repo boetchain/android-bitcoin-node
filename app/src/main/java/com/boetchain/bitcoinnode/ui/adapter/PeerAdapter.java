@@ -107,8 +107,8 @@ public class PeerAdapter extends BaseAdapter {
             Log.i(App.TAG, url);
 
 	        Picasso.with(context).load(url)
-	               .error(R.mipmap.profile)
-	               .placeholder(R.mipmap.profile)
+	               .error(R.drawable.ic_peer_default)
+	               .placeholder(R.drawable.ic_peer_default)
 	               .into(holder.listitem_peer_profile_iv);
         }
     }
