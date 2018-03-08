@@ -31,6 +31,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -365,6 +366,14 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Use
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
 		this.googleMap = googleMap;
+
+		UiSettings settings = this.googleMap.getUiSettings();
+		settings.setCompassEnabled(false);
+		settings.setMyLocationButtonEnabled(false);
+		settings.setZoomControlsEnabled(false);
+		settings.setMapToolbarEnabled(false);
+		settings.setTiltGesturesEnabled(false);
+		settings.setRotateGesturesEnabled(false);
 
 		this.googleMap.setMapStyle(
 				MapStyleOptions.loadRawResourceStyle(
